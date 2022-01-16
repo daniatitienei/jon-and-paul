@@ -12,7 +12,9 @@ import androidx.compose.ui.graphics.Color
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 @ExperimentalFoundationApi
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
