@@ -1,4 +1,4 @@
-package com.example.jonandpaul.ui.theme
+package com.jonandpaul.jonandpaul.ui.theme
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.lightColors
@@ -16,12 +16,13 @@ fun JonAndPaulTheme(content: @Composable () -> Unit) {
 }
 
 private val lightColors = lightColors(
-    primary = Black900,
-    primaryVariant = Black900,
-    onPrimary = Color.White,
-    secondary = Black900,
-    secondaryVariant = Black900,
-    onSecondary = Color.White,
+    primary = Color.White,
+    primaryVariant = Color.White,
+    onPrimary = Black900,
+    secondary = Color.White,
+    secondaryVariant = Color.White,
+    onSecondary = Black900,
     error = Red900,
-    background = Color.White
+    background = Color.White,
+    onBackground = Black900
 )

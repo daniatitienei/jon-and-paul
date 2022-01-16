@@ -1,4 +1,4 @@
-package com.example.jonandpaul
+package com.jonandpaul.jonandpaul
 
 import org.junit.Test
 
