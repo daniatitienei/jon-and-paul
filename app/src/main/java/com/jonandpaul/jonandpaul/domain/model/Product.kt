@@ -1,4 +1,4 @@
-package com.jonandpaul.jonandpaul.ui.domain
+package com.jonandpaul.jonandpaul.domain.model
 
 data class Product(
     val amount: Int = 1,

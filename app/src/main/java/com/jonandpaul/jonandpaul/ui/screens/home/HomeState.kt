@@ -1,6 +1,6 @@
 package com.jonandpaul.jonandpaul.ui.screens.home
 
-import com.jonandpaul.jonandpaul.ui.domain.Product
+import com.jonandpaul.jonandpaul.domain.model.Product
 
 data class HomeState(
     val products: List<Product> = emptyList(),

@@ -11,28 +11,40 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material.icons.rounded.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
-import com.jonandpaul.jonandpaul.R
-import com.jonandpaul.jonandpaul.ui.domain.Product
+import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.theme.Red900
+import com.jonandpaul.jonandpaul.ui.utils.UiEvent
+import kotlinx.coroutines.flow.collect
 
 @ExperimentalFoundationApi
 @Composable
 fun HomeScreen(
+    onNavigate: (UiEvent.Navigate) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+
+    LaunchedEffect(key1 = true) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.Navigate -> {
+                    onNavigate(event)
+                }
+            }
+        }
+    }
+
     Scaffold(
         backgroundColor = MaterialTheme.colors.background,
         topBar = {
@@ -77,7 +89,10 @@ fun HomeScreen(
                 modifier = Modifier.padding(innerPadding)
             ) {
                 items(viewModel.products.value.products) { product ->
-                    ProductCard(product = product)
+                    ProductCard(
+                        product = product,
+                        onEvent = viewModel::onEvent
+                    )
                 }
             }
         }
@@ -86,10 +101,17 @@ fun HomeScreen(
 
 @Composable
 private fun ProductCard(
-    product: Product
+    product: Product,
+    onEvent: (HomeEvents) -> Unit
 ) {
+    var isFavorite by remember {
+        mutableStateOf(false)
+    }
+
     Column(
-        modifier = Modifier.clickable { /*TODO*/ }
+        modifier = Modifier.clickable {
+            onEvent(HomeEvents.OnProductClick)
+        }
     ) {
         Box(
             modifier = Modifier
@@ -115,12 +137,16 @@ private fun ProductCard(
                     .padding(end = 10.dp, top = 10.dp)
             ) {
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { isFavorite = !isFavorite },
                     modifier = Modifier
                         .clip(CircleShape)
                         .background(Color.White)
                 ) {
-                    Icon(Icons.Rounded.Favorite, contentDescription = null, tint = Red900)
+                    Icon(
+                        if (!isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                        contentDescription = null,
+                        tint = Red900,
+                    )
                 }
             }
         }
@@ -139,17 +165,11 @@ private fun ProductCard(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun ProductCardPreview() {
-    ProductCard(product = Product())
-}
-
 @ExperimentalFoundationApi
 @Preview
 @Composable
 private fun HomePreview() {
     JonAndPaulTheme {
-        HomeScreen()
+        HomeScreen({})
     }
 }

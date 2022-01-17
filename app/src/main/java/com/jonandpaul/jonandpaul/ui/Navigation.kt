@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
+import com.jonandpaul.jonandpaul.ui.screens.inspect_product.InspectProductScreen
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 
 @ExperimentalFoundationApi
@@ -16,7 +17,17 @@ fun Navigation() {
 
     NavHost(navController = navController, startDestination = Screens.Home.route) {
         composable(route = Screens.Home.route) {
-            HomeScreen()
+            HomeScreen(
+                onNavigate = { destination ->
+                    navController.navigate(destination.route) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable(route = Screens.InspectProduct.route) {
+            InspectProductScreen()
         }
     }
 }

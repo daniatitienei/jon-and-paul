@@ -2,13 +2,12 @@ package com.jonandpaul.jonandpaul.ui.screens.home
 
 import android.util.Log
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObjects
+import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,8 +21,8 @@ class HomeViewModel @Inject constructor(
     private val firestore: FirebaseFirestore
 ) : ViewModel() {
 
-    private var _uiState = MutableSharedFlow<UiEvent>()
-    val uiState: SharedFlow<UiEvent> = _uiState.asSharedFlow()
+    private var _uiEvent = MutableSharedFlow<UiEvent>()
+    val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
     private var _products = mutableStateOf(HomeState())
     val products: State<HomeState> = _products
@@ -44,7 +43,7 @@ class HomeViewModel @Inject constructor(
                 emitEvent(UiEvent.Navigate(route = ""))
             }
             is HomeEvents.OnProductClick -> {
-                emitEvent(UiEvent.Navigate(route = ""))
+                emitEvent(UiEvent.Navigate(route = Screens.InspectProduct.route))
             }
             is HomeEvents.OnSearchClick -> {
                 emitEvent(UiEvent.BackDropScaffold(isOpen = true))
@@ -54,7 +53,7 @@ class HomeViewModel @Inject constructor(
 
     private fun emitEvent(uiEvent: UiEvent) {
         viewModelScope.launch {
-            _uiState.emit(uiEvent)
+            _uiEvent.emit(uiEvent)
         }
     }
 

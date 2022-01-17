@@ -1,4 +1,4 @@
-package com.jonandpaul.jonandpaul.ui.data.di
+package com.jonandpaul.jonandpaul.data.di
 
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
