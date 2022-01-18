@@ -48,7 +48,6 @@ val JonAndPaulTypography = Typography(
     ),
     body1 = TextStyle(
         fontFamily = Lato,
-        fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         color = Black900
     ),

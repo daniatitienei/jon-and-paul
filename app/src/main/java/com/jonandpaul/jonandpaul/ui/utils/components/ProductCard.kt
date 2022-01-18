@@ -54,7 +54,7 @@ fun ProductCard(
                     }
                 ),
                 contentDescription = null,
-                contentScale = ContentScale.FillHeight,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier.size(imageSize)
             )
             Box(

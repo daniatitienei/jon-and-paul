@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -80,7 +82,7 @@ fun InspectProductScreen(
                 isFavorite = isFavorite,
                 onFavoriteClick = {
                     isFavorite = !isFavorite
-                }
+                },
             )
 
             Spacer(modifier = Modifier.height(15.dp))
@@ -88,13 +90,17 @@ fun InspectProductScreen(
             Column(
                 modifier = Modifier.padding(horizontal = 15.dp)
             ) {
-                Text(text = product.title, style = MaterialTheme.typography.h6)
+                Text(
+                    text = product.title,
+                    style = MaterialTheme.typography.h6,
+                    fontWeight = FontWeight.Normal
+                )
 
                 Spacer(modifier = Modifier.height(5.dp))
 
                 Text(
                     text = "${"${product.price}".padEnd(5, '0')} RON",
-                    style = MaterialTheme.typography.h6
+                    style = MaterialTheme.typography.h6,
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -110,7 +116,7 @@ fun InspectProductScreen(
 
             Text(
                 text = "Alți utilizatori au achiziționat și",
-                style = MaterialTheme.typography.h6,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 15.dp)
             )
 
@@ -193,13 +199,13 @@ private fun HeaderImageWithTopAppBar(
     product: Product,
     onEvent: (InspectProductEvents) -> Unit,
     isFavorite: Boolean,
-    onFavoriteClick: () -> Unit
+    onFavoriteClick: () -> Unit,
 ) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(bottomEnd = 20.dp, bottomStart = 20.dp))
             .fillMaxWidth()
-            .fillMaxHeight(0.55f)
+            .height((LocalConfiguration.current.screenHeightDp / 1.5).dp)
     ) {
         Image(
             painter = rememberImagePainter(
@@ -209,7 +215,7 @@ private fun HeaderImageWithTopAppBar(
                 }
             ),
             contentDescription = null,
-            contentScale = ContentScale.FillBounds,
+            contentScale = ContentScale.Crop,
             modifier = Modifier.size(500.dp)
         )
         TopAppBar(
