@@ -12,11 +12,16 @@ import androidx.compose.ui.graphics.Color
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
+import com.squareup.moshi.Moshi
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 @ExperimentalFoundationApi
 class MainActivity : ComponentActivity() {
+
+    @Inject lateinit var moshi: Moshi
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -31,7 +36,7 @@ class MainActivity : ComponentActivity() {
             }
 
             JonAndPaulTheme {
-                Navigation()
+                Navigation(moshi = moshi)
             }
         }
     }

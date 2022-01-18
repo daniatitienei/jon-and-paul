@@ -7,18 +7,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObjects
+import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
+import com.squareup.moshi.Moshi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val moshi: Moshi
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
@@ -43,7 +48,21 @@ class HomeViewModel @Inject constructor(
                 emitEvent(UiEvent.Navigate(route = ""))
             }
             is HomeEvents.OnProductClick -> {
-                emitEvent(UiEvent.Navigate(route = Screens.InspectProduct.route))
+                val jsonAdapter = moshi.adapter(Product::class.java)
+
+                event.product = event.product.copy(
+                    imageUrl = URLEncoder.encode(
+                        event.product.imageUrl,
+                        StandardCharsets.UTF_8.toString()
+                    )
+                )
+                val productJson = jsonAdapter.toJson(event.product)
+
+                emitEvent(
+                    UiEvent.Navigate(
+                        route = Screens.InspectProduct.route.replace("{product}", productJson)
+                    )
+                )
             }
             is HomeEvents.OnSearchClick -> {
                 emitEvent(UiEvent.BackDropScaffold(isOpen = true))
@@ -63,7 +82,8 @@ class HomeViewModel @Inject constructor(
                 if (error != null)
                     return@addSnapshotListener
 
-                _products.value = _products.value.copy(products = snapshots?.toObjects()!!, isLoading = false)
+                _products.value =
+                    _products.value.copy(products = snapshots?.toObjects()!!, isLoading = false)
 
                 Log.d("product_state", _products.toString())
             }

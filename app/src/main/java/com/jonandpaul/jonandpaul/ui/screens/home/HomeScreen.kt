@@ -41,6 +41,7 @@ fun HomeScreen(
                 is UiEvent.Navigate -> {
                     onNavigate(event)
                 }
+                else -> Unit
             }
         }
     }
@@ -110,7 +111,7 @@ private fun ProductCard(
 
     Column(
         modifier = Modifier.clickable {
-            onEvent(HomeEvents.OnProductClick)
+            onEvent(HomeEvents.OnProductClick(product = product))
         }
     ) {
         Box(
@@ -160,7 +161,7 @@ private fun ProductCard(
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            Text(text = "${product.price} RON")
+            Text(text = "${"${product.price}".padEnd(5, '0')} RON")
         }
     }
 }

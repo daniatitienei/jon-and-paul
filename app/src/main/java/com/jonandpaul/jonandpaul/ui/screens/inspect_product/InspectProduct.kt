@@ -27,45 +27,36 @@ import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.ui.theme.Red900
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.jonandpaul.jonandpaul.ui.utils.UiEvent
+import kotlinx.coroutines.flow.collect
 
 @Composable
-fun InspectProductScreen() {
+fun InspectProductScreen(
+    onNavigate: (UiEvent.Navigate) -> Unit,
+    onPopBackStack: (UiEvent.PopBackStack) -> Unit,
+    product: Product,
+    viewModel: InspectProductViewModel = viewModel()
+) {
     val columnScroll = rememberScrollState()
+
+    LaunchedEffect(key1 = true) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.PopBackStack -> {
+                    onPopBackStack(event)
+                }
+                else -> Unit
+            }
+        }
+    }
+
     Scaffold(
         backgroundColor = MaterialTheme.colors.background,
         bottomBar = {
-            BottomAppBar(
-                contentPadding = PaddingValues(
-                    horizontal = 15.dp
-                )
-            ) {
-                OutlinedButton(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier.weight(0.9f)
-                ) {
-                    Text(text = "Marime: universala")
-                }
-
-                Spacer(modifier = Modifier.weight(0.1f))
-
-                Button(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier.weight(0.9f),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MaterialTheme.colors.onPrimary
-                    )
-                ) {
-                    Icon(
-                        Icons.Outlined.ShoppingBag,
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.primary
-                    )
-
-                    Spacer(modifier = Modifier.width(5.dp))
-
-                    Text(text = "Adauga in cos", color = MaterialTheme.colors.primary)
-                }
-            }
+            BottomBar(
+                onAddToCartClick = { /*TODO*/ }
+            )
         }
     ) { innerPadding ->
         Column(
@@ -73,52 +64,10 @@ fun InspectProductScreen() {
                 .padding(innerPadding)
                 .verticalScroll(columnScroll)
         ) {
-            /* Creates the product image with top app bar nested on it */
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(bottomEnd = 20.dp, bottomStart = 20.dp))
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.55f)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.cherry),
-                    contentDescription = null,
-                    contentScale = ContentScale.FillBounds
-                )
-                TopAppBar(
-                    title = {},
-                    navigationIcon = {
-                        IconButton(
-                            onClick = { /*TODO*/ },
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .background(Color.White),
-                        ) {
-                            Icon(
-                                Icons.Rounded.ArrowBackIosNew,
-                                contentDescription = null,
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = { /*TODO*/ },
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .background(Color.White),
-                        ) {
-                            Icon(
-                                Icons.Rounded.Favorite,
-                                contentDescription = null,
-                                tint = Red900
-                            )
-                        }
-                    },
-                    backgroundColor = Color.Transparent,
-                    elevation = 0.dp,
-                    modifier = Modifier.padding(10.dp)
-                )
-            }
+            HeaderImageWithTopAppBar(
+                product = product,
+                onEvent = viewModel::onEvent
+            )
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -127,15 +76,19 @@ fun InspectProductScreen() {
             ) {
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Text(text = "Soseste \"The Kiss\"", style = MaterialTheme.typography.h6)
+                Text(text = product.title, style = MaterialTheme.typography.h6)
 
                 Spacer(modifier = Modifier.height(5.dp))
 
-                Text(text = "20 RON", style = MaterialTheme.typography.h6)
+                Text(text = "${"${product.price}".padEnd(5, '0')} RON", style = MaterialTheme.typography.h6)
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                ProductInfoCard()
+                ProductInfoCard(
+                    amount = product.amount,
+                    size = product.modelSizeInfo,
+                    composition = product.composition
+                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -156,12 +109,110 @@ fun InspectProductScreen() {
                     ProductCard(
                         product = Product(
                             title = "Sosete \"Cherry\"",
-                            price = 20
+                            price = 20.0
                         )
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun BottomBar(
+    onAddToCartClick: () -> Unit,
+    onSizeClick: () -> Unit = {}
+) {
+    BottomAppBar(
+        contentPadding = PaddingValues(
+            horizontal = 15.dp
+        )
+    ) {
+        OutlinedButton(
+            onClick = onSizeClick,
+            modifier = Modifier.weight(0.9f)
+        ) {
+            Text(text = "Marime: universala")
+        }
+
+        Spacer(modifier = Modifier.weight(0.1f))
+
+        Button(
+            onClick = onAddToCartClick,
+            modifier = Modifier.weight(0.9f),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = MaterialTheme.colors.onPrimary
+            )
+        ) {
+            Icon(
+                Icons.Outlined.ShoppingBag,
+                contentDescription = null,
+                tint = MaterialTheme.colors.primary
+            )
+
+            Spacer(modifier = Modifier.width(5.dp))
+
+            Text(text = "Adauga in cos", color = MaterialTheme.colors.primary)
+        }
+    }
+}
+
+/* Creates the product image with top app bar nested on it */
+@Composable
+private fun HeaderImageWithTopAppBar(
+    product: Product,
+    onEvent: (InspectProductEvents) -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(bottomEnd = 20.dp, bottomStart = 20.dp))
+            .fillMaxWidth()
+            .fillMaxHeight(0.55f)
+    ) {
+        Image(
+            painter = rememberImagePainter(
+                data = product.imageUrl,
+                builder = {
+                    crossfade(true)
+                }
+            ),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier.size(500.dp)
+        )
+        TopAppBar(
+            title = {},
+            navigationIcon = {
+                IconButton(
+                    onClick = { onEvent(InspectProductEvents.OnPopBackStack) },
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(Color.White),
+                ) {
+                    Icon(
+                        Icons.Rounded.ArrowBackIosNew,
+                        contentDescription = null,
+                    )
+                }
+            },
+            actions = {
+                IconButton(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(Color.White),
+                ) {
+                    Icon(
+                        Icons.Rounded.Favorite,
+                        contentDescription = null,
+                        tint = Red900
+                    )
+                }
+            },
+            backgroundColor = Color.Transparent,
+            elevation = 0.dp,
+            modifier = Modifier.padding(10.dp)
+        )
     }
 }
 
@@ -195,13 +246,17 @@ private fun ProductCard(
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            Text(text = "${product.price} RON")
+            Text(text = "${"${product.price}".padEnd(5, '0')} RON")
         }
     }
 }
 
 @Composable
-private fun ProductInfoCard() {
+private fun ProductInfoCard(
+    amount: Int,
+    size: String,
+    composition: String
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = 5.dp,
@@ -214,7 +269,7 @@ private fun ProductInfoCard() {
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append("Bucăți - ")
                     }
-                    append("1")
+                    append(amount.toString())
                 }
             )
 
@@ -225,7 +280,7 @@ private fun ProductInfoCard() {
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append("Mărime - ")
                     }
-                    append("universala")
+                    append(size)
                 }
             )
 
@@ -236,7 +291,7 @@ private fun ProductInfoCard() {
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append("Compoziție - ")
                     }
-                    append("poliester, bumbac")
+                    append(composition)
                 }
             )
         }
@@ -247,6 +302,6 @@ private fun ProductInfoCard() {
 @Composable
 private fun InspectProductPreview() {
     JonAndPaulTheme {
-        InspectProductScreen()
+        InspectProductScreen({}, {}, Product())
     }
 }
