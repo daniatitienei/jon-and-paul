@@ -29,8 +29,8 @@ class HomeViewModel @Inject constructor(
     private var _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
-    private var _products = mutableStateOf(HomeState())
-    val products: State<HomeState> = _products
+    private var _productsState = mutableStateOf(HomeState())
+    val productsState: State<HomeState> = _productsState
 
     init {
         getProducts()
@@ -82,10 +82,10 @@ class HomeViewModel @Inject constructor(
                 if (error != null)
                     return@addSnapshotListener
 
-                _products.value =
-                    _products.value.copy(products = snapshots?.toObjects()!!, isLoading = false)
+                _productsState.value =
+                    _productsState.value.copy(products = snapshots?.toObjects()!!, isLoading = false)
 
-                Log.d("product_state", _products.toString())
+                Log.d("product_state", _productsState.toString())
             }
     }
 }

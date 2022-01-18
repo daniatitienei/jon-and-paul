@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ShoppingBag
@@ -15,26 +13,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.rememberImagePainter
-import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.domain.model.Product
+import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.ui.theme.Black900
-import com.jonandpaul.jonandpaul.ui.theme.Red900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.components.ProductCard
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.util.*
 
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
@@ -66,6 +60,14 @@ fun HomeScreen(
     var searchValue by remember {
         mutableStateOf("")
     }
+
+    val products = viewModel.productsState.value.products
+
+    val filteredProducts =
+        products.filter { product ->
+            product.title.lowercase()
+                .contains(searchValue.lowercase())
+        }
 
     BackdropScaffold(
         scaffoldState = backdropScaffoldState,
@@ -100,10 +102,18 @@ fun HomeScreen(
                 },
                 actions = {
                     IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.Outlined.ShoppingBag, contentDescription = "Cosul meu", tint = Black900)
+                        Icon(
+                            Icons.Outlined.ShoppingBag,
+                            contentDescription = "Cosul meu",
+                            tint = Black900
+                        )
                     }
                     IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.Rounded.Favorite, contentDescription = "Favorite", tint = Black900)
+                        Icon(
+                            Icons.Rounded.Favorite,
+                            contentDescription = "Favorite",
+                            tint = Black900
+                        )
                     }
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(Icons.Rounded.Person, contentDescription = "Cont", tint = Black900)
@@ -136,7 +146,7 @@ fun HomeScreen(
         },
         frontLayerContent = {
             Box(modifier = Modifier.fillMaxSize()) {
-                if (viewModel.products.value.isLoading) {
+                if (viewModel.productsState.value.isLoading) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -145,13 +155,16 @@ fun HomeScreen(
                         CircularProgressIndicator(color = Black900)
                     }
                 } else {
+                    val items: List<Product> =
+                        if (filteredProducts.isNotEmpty()) filteredProducts else products
+
                     LazyVerticalGrid(
                         cells = GridCells.Fixed(2),
                         verticalArrangement = Arrangement.spacedBy(20.dp),
                         horizontalArrangement = Arrangement.spacedBy(15.dp),
                         contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
                     ) {
-                        items(viewModel.products.value.products) { product ->
+                        items(items) { product ->
                             ProductCard(
                                 product = product,
                                 onClick = {
