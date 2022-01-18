@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ShoppingBag
@@ -13,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -134,14 +137,32 @@ fun HomeScreen(
                     focusedIndicatorColor = Black900,
                     cursorColor = Black900,
                     leadingIconColor = Black900,
+                    trailingIconColor = Black900
                 ),
                 singleLine = true,
                 leadingIcon = {
                     Icon(Icons.Rounded.Search, contentDescription = null)
                 },
+                trailingIcon = {
+                    Icon(
+                        Icons.Rounded.Clear,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable { searchValue = "" }
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .focusRequester(focusRequester = focusRequester)
+                    .focusRequester(focusRequester = focusRequester),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        scope.launch {
+                            backdropScaffoldState.conceal()
+                            keyboardController?.hide()
+                        }
+                    }
+                )
             )
         },
         frontLayerContent = {
