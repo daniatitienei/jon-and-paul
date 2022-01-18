@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
@@ -26,6 +27,7 @@ import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.theme.Red900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
+import com.jonandpaul.jonandpaul.ui.utils.components.ProductCard
 import kotlinx.coroutines.flow.collect
 
 @ExperimentalFoundationApi
@@ -92,76 +94,13 @@ fun HomeScreen(
                 items(viewModel.products.value.products) { product ->
                     ProductCard(
                         product = product,
-                        onEvent = viewModel::onEvent
+                        onClick = {
+                            viewModel.onEvent(HomeEvents.OnProductClick(product = product))
+                        },
+                        imageSize = 240.dp
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun ProductCard(
-    product: Product,
-    onEvent: (HomeEvents) -> Unit
-) {
-    var isFavorite by remember {
-        mutableStateOf(false)
-    }
-
-    Column(
-        modifier = Modifier.clickable {
-            onEvent(HomeEvents.OnProductClick(product = product))
-        }
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentWidth(align = Alignment.End)
-                .clip(RoundedCornerShape(5.dp))
-        ) {
-            Image(
-                painter = rememberImagePainter(
-                    data = product.imageUrl,
-                    builder = {
-                        crossfade(true)
-                    }
-                ),
-                contentDescription = null,
-                contentScale = ContentScale.FillHeight,
-                modifier = Modifier.size(240.dp)
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentWidth(align = Alignment.End)
-                    .padding(end = 10.dp, top = 10.dp)
-            ) {
-                IconButton(
-                    onClick = { isFavorite = !isFavorite },
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(Color.White)
-                ) {
-                    Icon(
-                        if (!isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                        contentDescription = null,
-                        tint = Red900,
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Column(
-            modifier = Modifier.padding(start = 5.dp)
-        ) {
-            Text(text = product.title)
-
-            Spacer(modifier = Modifier.height(5.dp))
-
-            Text(text = "${"${product.price}".padEnd(5, '0')} RON")
         }
     }
 }

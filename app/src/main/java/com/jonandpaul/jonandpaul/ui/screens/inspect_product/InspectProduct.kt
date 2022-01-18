@@ -22,13 +22,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.ui.theme.Red900
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
+import com.jonandpaul.jonandpaul.ui.utils.components.ProductCard
 import kotlinx.coroutines.flow.collect
 
 @Composable
@@ -36,15 +37,24 @@ fun InspectProductScreen(
     onNavigate: (UiEvent.Navigate) -> Unit,
     onPopBackStack: (UiEvent.PopBackStack) -> Unit,
     product: Product,
-    viewModel: InspectProductViewModel = viewModel()
+    viewModel: InspectProductViewModel = hiltViewModel()
 ) {
     val columnScroll = rememberScrollState()
+
+    var isFavorite by remember {
+        mutableStateOf(false)
+    }
+
+    val suggestions = viewModel.suggestionsState.value.suggestions
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
             when (event) {
                 is UiEvent.PopBackStack -> {
                     onPopBackStack(event)
+                }
+                is UiEvent.Navigate -> {
+                    onNavigate(event)
                 }
                 else -> Unit
             }
@@ -66,21 +76,26 @@ fun InspectProductScreen(
         ) {
             HeaderImageWithTopAppBar(
                 product = product,
-                onEvent = viewModel::onEvent
+                onEvent = viewModel::onEvent,
+                isFavorite = isFavorite,
+                onFavoriteClick = {
+                    isFavorite = !isFavorite
+                }
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(15.dp))
 
             Column(
                 modifier = Modifier.padding(horizontal = 15.dp)
             ) {
-                Spacer(modifier = Modifier.height(10.dp))
-
                 Text(text = product.title, style = MaterialTheme.typography.h6)
 
                 Spacer(modifier = Modifier.height(5.dp))
 
-                Text(text = "${"${product.price}".padEnd(5, '0')} RON", style = MaterialTheme.typography.h6)
+                Text(
+                    text = "${"${product.price}".padEnd(5, '0')} RON",
+                    style = MaterialTheme.typography.h6
+                )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -101,17 +116,32 @@ fun InspectProductScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(20.dp),
-                contentPadding = PaddingValues(horizontal = 15.dp)
-            ) {
-                items(5) {
-                    ProductCard(
-                        product = Product(
-                            title = "Sosete \"Cherry\"",
-                            price = 20.0
-                        )
+            if (suggestions.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentWidth(align = Alignment.CenterHorizontally)
+                ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colors.primary
                     )
+                }
+            } else {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    contentPadding = PaddingValues(horizontal = 15.dp)
+                ) {
+                    items(suggestions.size / 2) { index ->
+                        ProductCard(
+                            product = suggestions[index],
+                            onClick = {
+                                viewModel.onEvent(
+                                    InspectProductEvents.OnProductClick(product = suggestions[index])
+                                )
+                            },
+                            imageSize = 220.dp
+                        )
+                    }
                 }
             }
         }
@@ -161,7 +191,9 @@ private fun BottomBar(
 @Composable
 private fun HeaderImageWithTopAppBar(
     product: Product,
-    onEvent: (InspectProductEvents) -> Unit
+    onEvent: (InspectProductEvents) -> Unit,
+    isFavorite: Boolean,
+    onFavoriteClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -197,13 +229,13 @@ private fun HeaderImageWithTopAppBar(
             },
             actions = {
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = onFavoriteClick,
                     modifier = Modifier
                         .clip(CircleShape)
                         .background(Color.White),
                 ) {
                     Icon(
-                        Icons.Rounded.Favorite,
+                        if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
                         contentDescription = null,
                         tint = Red900
                     )
@@ -213,41 +245,6 @@ private fun HeaderImageWithTopAppBar(
             elevation = 0.dp,
             modifier = Modifier.padding(10.dp)
         )
-    }
-}
-
-@Composable
-private fun ProductCard(
-    product: Product
-) {
-    Column(
-        modifier = Modifier.clickable { /*TODO*/ }
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentWidth(align = Alignment.End)
-                .clip(RoundedCornerShape(5.dp))
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.cherry),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.size(200.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Column(
-            modifier = Modifier.padding(start = 5.dp)
-        ) {
-            Text(text = product.title)
-
-            Spacer(modifier = Modifier.height(5.dp))
-
-            Text(text = "${"${product.price}".padEnd(5, '0')} RON")
-        }
     }
 }
 
