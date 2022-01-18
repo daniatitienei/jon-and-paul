@@ -1,7 +1,9 @@
 package com.jonandpaul.jonandpaul.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -12,6 +14,8 @@ import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 
+@ExperimentalComposeUiApi
+@ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @Composable
 fun Navigation(moshi: Moshi) {

@@ -13,10 +13,15 @@ import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -29,14 +34,16 @@ import com.jonandpaul.jonandpaul.ui.theme.Red900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.components.ProductCard
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
+@ExperimentalComposeUiApi
+@ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @Composable
 fun HomeScreen(
     onNavigate: (UiEvent.Navigate) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
             when (event) {
@@ -48,13 +55,44 @@ fun HomeScreen(
         }
     }
 
-    Scaffold(
-        backgroundColor = MaterialTheme.colors.background,
-        topBar = {
+    val backdropScaffoldState =
+        rememberBackdropScaffoldState(initialValue = BackdropValue.Concealed)
+
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    val scope = rememberCoroutineScope()
+
+    var searchValue by remember {
+        mutableStateOf("")
+    }
+
+    BackdropScaffold(
+        scaffoldState = backdropScaffoldState,
+        appBar = {
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.Rounded.Search, contentDescription = "Cautare")
+                    IconButton(onClick = {
+                        scope.launch {
+                            if (backdropScaffoldState.isConcealed) {
+                                backdropScaffoldState.reveal()
+                                focusRequester.requestFocus()
+                                keyboardController?.show()
+                            } else {
+                                backdropScaffoldState.conceal()
+                                focusRequester.freeFocus()
+                                keyboardController?.hide()
+                            }
+                        }
+                    }) {
+                        Icon(
+                            if (backdropScaffoldState.isConcealed)
+                                Icons.Rounded.Search
+                            else
+                                Icons.Rounded.Close,
+                            contentDescription = "Cautare",
+                            tint = Black900
+                        )
                     }
                 },
                 title = {
@@ -62,49 +100,75 @@ fun HomeScreen(
                 },
                 actions = {
                     IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.Outlined.ShoppingBag, contentDescription = "Cosul meu")
+                        Icon(Icons.Outlined.ShoppingBag, contentDescription = "Cosul meu", tint = Black900)
                     }
                     IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.Rounded.Favorite, contentDescription = "Favorite")
+                        Icon(Icons.Rounded.Favorite, contentDescription = "Favorite", tint = Black900)
                     }
                     IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.Rounded.Person, contentDescription = "Cont")
+                        Icon(Icons.Rounded.Person, contentDescription = "Cont", tint = Black900)
                     }
                 },
-                elevation = 5.dp
+                elevation = 0.dp,
             )
-        }
-    ) { innerPadding ->
-        if (viewModel.products.value.isLoading) {
-            Box(
+        },
+        backLayerContent = {
+            TextField(
+                value = searchValue,
+                onValueChange = { searchValue = it },
+                placeholder = {
+                    Text(text = "Cautati un articol")
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.White,
+                    focusedIndicatorColor = Black900,
+                    cursorColor = Black900,
+                    leadingIconColor = Black900,
+                ),
+                singleLine = true,
+                leadingIcon = {
+                    Icon(Icons.Rounded.Search, contentDescription = null)
+                },
                 modifier = Modifier
-                    .fillMaxSize()
-                    .wrapContentSize(align = Alignment.Center)
-            ) {
-                CircularProgressIndicator(color = Black900)
-            }
-        } else {
-            LazyVerticalGrid(
-                cells = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                horizontalArrangement = Arrangement.spacedBy(15.dp),
-                contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                items(viewModel.products.value.products) { product ->
-                    ProductCard(
-                        product = product,
-                        onClick = {
-                            viewModel.onEvent(HomeEvents.OnProductClick(product = product))
-                        },
-                        imageSize = 240.dp
-                    )
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester = focusRequester)
+            )
+        },
+        frontLayerContent = {
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (viewModel.products.value.isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .wrapContentSize(align = Alignment.Center)
+                    ) {
+                        CircularProgressIndicator(color = Black900)
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        cells = GridCells.Fixed(2),
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(15.dp),
+                        contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
+                    ) {
+                        items(viewModel.products.value.products) { product ->
+                            ProductCard(
+                                product = product,
+                                onClick = {
+                                    viewModel.onEvent(HomeEvents.OnProductClick(product = product))
+                                },
+                                imageSize = 240.dp
+                            )
+                        }
+                    }
                 }
             }
         }
-    }
+    )
 }
 
+@ExperimentalComposeUiApi
+@ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @Preview
 @Composable
