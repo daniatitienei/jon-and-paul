@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "661573514398",
+    "project_id": "jon-and-paul",
+    "storage_bucket": "jon-and-paul.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:661573514398:android:f9ef0051013209aecf778f",
+        "android_client_info": {
+          "package_name": "com.jonandpaul.jonandpaul"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "661573514398-rus070hv8lt9o0ihl47dri1g5goarpbl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDu7aQm6bxugJPEGdtqSjsiOfGgBN4F94A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "661573514398-rus070hv8lt9o0ihl47dri1g5goarpbl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
