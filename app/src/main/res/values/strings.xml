@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Jon &amp; Paul</string>
+    <string name="add_a_card">Adauga un card</string>
+    <string name="info_about_order">Informații despre comandă</string>
+    <string name="buy">CUMPARA</string>
 </resources>

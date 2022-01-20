@@ -29,8 +29,8 @@ class HomeViewModel @Inject constructor(
     private var _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
-    private var _productsState = mutableStateOf(HomeState())
-    val productsState: State<HomeState> = _productsState
+    private var _homeState = mutableStateOf(HomeState())
+    val homeState: State<HomeState> = _homeState
 
     init {
         getProducts()
@@ -39,9 +39,6 @@ class HomeViewModel @Inject constructor(
     fun onEvent(event: HomeEvents) {
         when (event) {
             is HomeEvents.OnAccountClick -> {
-                emitEvent(UiEvent.Navigate(route = ""))
-            }
-            is HomeEvents.OnBagClick -> {
                 emitEvent(UiEvent.Navigate(route = ""))
             }
             is HomeEvents.OnFavoritesClick -> {
@@ -64,15 +61,30 @@ class HomeViewModel @Inject constructor(
                     )
                 )
             }
-            is HomeEvents.OnSearchClick -> {
-                emitEvent(UiEvent.BackDropScaffold(isOpen = true))
+            is HomeEvents.ExpandBottomSheet -> {
+                emitEvent(UiEvent.BottomSheet)
+            }
+            is HomeEvents.CollapseBottomSheet -> {
+                emitEvent(UiEvent.BottomSheet)
+            }
+            is HomeEvents.ShowModalBottomSheet -> {
+                emitEvent(UiEvent.ModalBottomSheet)
+            }
+            is HomeEvents.HideModalBottomSheet -> {
+                emitEvent(UiEvent.ModalBottomSheet)
+            }
+            is HomeEvents.RevealBackdrop -> {
+                emitEvent(UiEvent.BackdropScaffold)
+            }
+            is HomeEvents.ConcealBackdrop -> {
+                emitEvent(UiEvent.BackdropScaffold)
             }
         }
     }
 
-    private fun emitEvent(uiEvent: UiEvent) {
+    private fun emitEvent(event: UiEvent) {
         viewModelScope.launch {
-            _uiEvent.emit(uiEvent)
+            _uiEvent.emit(event)
         }
     }
 
@@ -82,10 +94,10 @@ class HomeViewModel @Inject constructor(
                 if (error != null)
                     return@addSnapshotListener
 
-                _productsState.value =
-                    _productsState.value.copy(products = snapshots?.toObjects()!!, isLoading = false)
+                _homeState.value =
+                    _homeState.value.copy(products = snapshots?.toObjects()!!, isLoading = false)
 
-                Log.d("product_state", _productsState.toString())
+                Log.d("product_state", _homeState.toString())
             }
     }
 }

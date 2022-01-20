@@ -32,6 +32,7 @@ import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.ui.theme.Red900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.components.ProductCard
+import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
 import kotlinx.coroutines.flow.collect
 
 @Composable
@@ -99,7 +100,7 @@ fun InspectProductScreen(
                 Spacer(modifier = Modifier.height(5.dp))
 
                 Text(
-                    text = "${"${product.price}".padEnd(5, '0')} RON",
+                    text = "${product.price.twoDecimals()} RON",
                     style = MaterialTheme.typography.h6,
                 )
 
