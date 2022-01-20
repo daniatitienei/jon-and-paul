@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Jon &amp; Paul</string>
     <string name="add_a_card">Adauga un card</string>
@@ -5,6 +6,6 @@
     <string name="buy">CUMPARA</string>
     <string name="register">Inregistrare</string>
     <string name="continue_with_google">Continua cu Google</string>
-    <string name="already_have_an_account">Deja ai cont?</string>
+    <string name="already_have_an_account">Deja ai cont? Te poti contecta aici</string>
     <string name="you_can_login_here">Te poti contecta aici</string>
 </resources>

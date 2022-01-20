@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
+import com.jonandpaul.jonandpaul.ui.screens.register.RegisterScreen
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -40,7 +41,8 @@ class MainActivity : ComponentActivity() {
             }
 
             JonAndPaulTheme {
-                Navigation(moshi = moshi)
+//                Navigation(moshi = moshi)
+                RegisterScreen()
             }
         }
     }
