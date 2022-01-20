@@ -56,7 +56,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = BottomSheetState(BottomSheetValue.Expanded)
+        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
     )
 
     val modalBottomSheetState =
@@ -134,6 +134,7 @@ fun HomeScreen(
     ) {
         BackdropScaffold(
             scaffoldState = backdropScaffoldState,
+            backLayerBackgroundColor = MaterialTheme.colors.background,
             appBar = {
                 TopBar(
                     backdropScaffoldState = backdropScaffoldState,
@@ -156,7 +157,6 @@ fun HomeScreen(
                                 bottomSheetScaffoldState.bottomSheetState.collapse()
                         }
                     },
-                    onEvent = viewModel::onEvent,
                 )
             },
             backLayerContent = {
@@ -262,9 +262,9 @@ private fun TopBar(
     backdropScaffoldState: BackdropScaffoldState,
     onSearchClick: () -> Unit,
     onCartClick: () -> Unit,
-    onEvent: (HomeEvents) -> Unit
 ) {
     TopAppBar(
+        backgroundColor = MaterialTheme.colors.background,
         navigationIcon = {
             IconButton(onClick = onSearchClick) {
                 Icon(
@@ -350,6 +350,7 @@ private fun CartBottomSheet(
         Scaffold(
             topBar = {
                 TopAppBar(
+                    backgroundColor = MaterialTheme.colors.background,
                     title = {
                         Text("Cosul meu")
                     },
@@ -372,6 +373,9 @@ private fun CartBottomSheet(
         ) {
 
             if (true)
+            /* TODO: Cart view model*/
+                CartWithItems(onSelectSizeClick)
+            else
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
@@ -381,9 +385,6 @@ private fun CartBottomSheet(
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(text = "Cosul este gol", style = MaterialTheme.typography.h6)
                 }
-            else
-            /* TODO: Cart view model*/
-                CartWithItems(onSelectSizeClick)
         }
     }
 }
@@ -481,10 +482,10 @@ private fun CartWithItems(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Subtotal")
+                Text(text = stringResource(id = R.string.subtotal))
                 Text(
                     text = "40.00 RON",
-                    color = MaterialTheme.colors.onPrimary.copy(alpha = 0.7f)
+                    color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
                 )
             }
 
@@ -494,10 +495,10 @@ private fun CartWithItems(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Livrare")
+                Text(text = stringResource(id = R.string.shipping))
                 Text(
                     text = "15.00 RON",
-                    color = MaterialTheme.colors.onPrimary.copy(alpha = 0.7f)
+                    color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
                 )
             }
 
@@ -507,7 +508,7 @@ private fun CartWithItems(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Total")
+                Text(text = stringResource(id = R.string.total))
                 Text(
                     text = "65.00 RON",
                     style = MaterialTheme.typography.h6
@@ -516,25 +517,19 @@ private fun CartWithItems(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 5.dp)
+
+            Button(
+                onClick = { /*TODO*/ },
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(vertical = 5.dp)
             ) {
-                Button(
-                    onClick = { /*TODO*/ },
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MaterialTheme.colors.secondary
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.buy),
-                        color = MaterialTheme.colors.onSecondary,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                Text(
+                    text = stringResource(id = R.string.buy),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                )
             }
+
         }
     }
 }

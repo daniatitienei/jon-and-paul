@@ -25,12 +25,15 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(
+    viewModel: RegisterViewModel = hiltViewModel()
+) {
     var email by remember {
         mutableStateOf("")
     }
@@ -54,6 +57,7 @@ fun RegisterScreen() {
     Scaffold(
         topBar = {
             TopAppBar(
+                backgroundColor = MaterialTheme.colors.background,
                 title = {
                     Text(
                         text = stringResource(id = R.string.app_name),
@@ -101,11 +105,14 @@ fun RegisterScreen() {
                 textFieldValues = TextFieldValues.PASSWORD,
                 isObscured = isPasswordObscured,
                 trailingIcon = {
-                    Icon(if (isPasswordObscured) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable { isPasswordObscured = !isPasswordObscured })
+                    IconButton(
+                        onClick = { isPasswordObscured = !isPasswordObscured }
+                    ) {
+                        Icon(
+                            if (isPasswordObscured) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                            contentDescription = null,
+                        )
+                    }
                 }
             )
 
@@ -121,24 +128,25 @@ fun RegisterScreen() {
                 textFieldValues = TextFieldValues.PASSWORD,
                 isObscured = isConfirmPasswordObscured,
                 trailingIcon = {
-                    Icon(if (isConfirmPasswordObscured) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .clip(
-                                CircleShape
-                            )
-                            .clickable { isConfirmPasswordObscured = !isConfirmPasswordObscured }
-                    )
+                    IconButton(
+                        onClick = {
+                            isConfirmPasswordObscured = !isConfirmPasswordObscured
+                        }
+                    ) {
+                        Icon(
+                            if (isConfirmPasswordObscured) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                            contentDescription = null,
+                        )
+                    }
                 }
             )
 
             Spacer(modifier = Modifier.height(15.dp))
 
             Button(
-                onClick = { /*TODO*/ },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = MaterialTheme.colors.secondary
-                ),
+                onClick = {
+                    viewModel.onEvent(RegisterEvents.OnRegisterClick(email, password))
+                },
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(vertical = 10.dp)
             ) {
@@ -149,10 +157,15 @@ fun RegisterScreen() {
                 )
             }
 
+            Spacer(modifier = Modifier.height(10.dp))
+
             Button(
                 onClick = { /*TODO*/ },
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 10.dp)
+                contentPadding = PaddingValues(vertical = 10.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = MaterialTheme.colors.background
+                ),
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_google),
@@ -176,7 +189,6 @@ fun RegisterScreen() {
                 ) {
                     Text(
                         text = stringResource(id = R.string.already_have_an_account),
-                        fontWeight = FontWeight.Bold
                     )
 
                     Spacer(modifier = Modifier.height(5.dp))

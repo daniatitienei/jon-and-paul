@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.jonandpaul.jonandpaul.R
@@ -163,13 +164,14 @@ private fun BottomBar(
     BottomAppBar(
         contentPadding = PaddingValues(
             horizontal = 15.dp
-        )
+        ),
+        backgroundColor = MaterialTheme.colors.background
     ) {
         OutlinedButton(
             onClick = onSizeClick,
             modifier = Modifier.weight(0.9f)
         ) {
-            Text(text = "Marime: universala")
+            Text(text = "Marime: universala", style = MaterialTheme.typography.body2)
         }
 
         Spacer(modifier = Modifier.weight(0.1f))
@@ -177,19 +179,20 @@ private fun BottomBar(
         Button(
             onClick = onAddToCartClick,
             modifier = Modifier.weight(0.9f),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = MaterialTheme.colors.onPrimary
-            )
         ) {
             Icon(
                 Icons.Outlined.ShoppingBag,
                 contentDescription = null,
-                tint = MaterialTheme.colors.primary
+                tint = MaterialTheme.colors.onPrimary
             )
 
             Spacer(modifier = Modifier.width(5.dp))
 
-            Text(text = "Adauga in cos", color = MaterialTheme.colors.primary)
+            Text(
+                text = "Adauga in cos",
+                color = MaterialTheme.colors.onPrimary,
+                fontSize = MaterialTheme.typography.body2.fontSize
+            )
         }
     }
 }

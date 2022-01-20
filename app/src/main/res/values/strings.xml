@@ -7,4 +7,7 @@
     <string name="continue_with_google">Continua cu Google</string>
     <string name="already_have_an_account">Deja ai cont?</string>
     <string name="you_can_login_here">Te poti contecta aici</string>
+    <string name="total">Total</string>
+    <string name="shipping">Livrare</string>
+    <string name="subtotal">Subtotal</string>
 </resources>

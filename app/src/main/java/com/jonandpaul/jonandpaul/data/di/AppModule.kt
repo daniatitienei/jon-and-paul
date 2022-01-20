@@ -1,5 +1,6 @@
 package com.jonandpaul.jonandpaul.data.di
 
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -16,6 +17,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideAuth(): FirebaseAuth = FirebaseAuth.getInstance()
 
     @Provides
     @Singleton

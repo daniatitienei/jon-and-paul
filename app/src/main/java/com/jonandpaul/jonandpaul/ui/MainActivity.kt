@@ -41,8 +41,7 @@ class MainActivity : ComponentActivity() {
             }
 
             JonAndPaulTheme {
-//                Navigation(moshi = moshi)
-                RegisterScreen()
+                Navigation(moshi = moshi)
             }
         }
     }
