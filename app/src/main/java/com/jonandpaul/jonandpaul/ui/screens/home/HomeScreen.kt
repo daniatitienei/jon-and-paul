@@ -34,6 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.airbnb.lottie.LottieComposition
+import com.airbnb.lottie.compose.*
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.CardProduct
 import com.jonandpaul.jonandpaul.domain.model.Product
@@ -77,13 +79,6 @@ fun HomeScreen(
                     else
                         modalBottomSheetState.hide()
                 }
-                is UiEvent.BottomSheet -> {
-                    /* FIXME It doesn't expand */
-                    if (bottomSheetScaffoldState.bottomSheetState.isCollapsed)
-                        bottomSheetScaffoldState.bottomSheetState.expand()
-                    else
-                        bottomSheetScaffoldState.bottomSheetState.collapse()
-                }
                 is UiEvent.BackdropScaffold -> {
                     if (backdropScaffoldState.isConcealed)
                         backdropScaffoldState.reveal()
@@ -119,11 +114,18 @@ fun HomeScreen(
         sheetContent = {
             CartBottomSheet(
                 modalBottomSheetState = modalBottomSheetState,
-                onEvent = viewModel::onEvent,
                 onSelectSizeClick = { index ->
                     scope.launch {
                         viewModel.onEvent(HomeEvents.ShowModalBottomSheet)
                         selectedCartItemIndex = index
+                    }
+                },
+                onNavigationClick = {
+                    scope.launch {
+                        if (bottomSheetScaffoldState.bottomSheetState.isCollapsed)
+                            bottomSheetScaffoldState.bottomSheetState.expand()
+                        else
+                            bottomSheetScaffoldState.bottomSheetState.collapse()
                     }
                 }
             )
@@ -146,7 +148,15 @@ fun HomeScreen(
                             keyboardController?.hide()
                         }
                     },
-                    onEvent = viewModel::onEvent
+                    onCartClick = {
+                        scope.launch {
+                            if (bottomSheetScaffoldState.bottomSheetState.isCollapsed)
+                                bottomSheetScaffoldState.bottomSheetState.expand()
+                            else
+                                bottomSheetScaffoldState.bottomSheetState.collapse()
+                        }
+                    },
+                    onEvent = viewModel::onEvent,
                 )
             },
             backLayerContent = {
@@ -251,6 +261,7 @@ private fun SearchBar(
 private fun TopBar(
     backdropScaffoldState: BackdropScaffoldState,
     onSearchClick: () -> Unit,
+    onCartClick: () -> Unit,
     onEvent: (HomeEvents) -> Unit
 ) {
     TopAppBar(
@@ -271,9 +282,7 @@ private fun TopBar(
         },
         actions = {
             IconButton(
-                onClick = {
-                    onEvent(HomeEvents.ExpandBottomSheet)
-                }
+                onClick = onCartClick
             ) {
                 Icon(
                     Icons.Outlined.ShoppingBag,
@@ -306,9 +315,19 @@ private fun TopBar(
 @Composable
 private fun CartBottomSheet(
     modalBottomSheetState: ModalBottomSheetState,
-    onEvent: (HomeEvents) -> Unit,
-    onSelectSizeClick: (Int) -> Unit
+    onSelectSizeClick: (Int) -> Unit,
+    onNavigationClick: () -> Unit,
 ) {
+
+    val composition by rememberLottieComposition(
+        spec = LottieCompositionSpec.Url("https://assets3.lottiefiles.com/packages/lf20_cy82iv.json"),
+    )
+
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = LottieConstants.IterateForever
+    )
+
     ModalBottomSheetLayout(
         sheetState = modalBottomSheetState,
         sheetContent = {
@@ -318,7 +337,7 @@ private fun CartBottomSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                onEvent(HomeEvents.HideModalBottomSheet)
+                                onNavigationClick()
                             }
                             .padding(10.dp)
                     ) {
@@ -337,7 +356,7 @@ private fun CartBottomSheet(
                     navigationIcon = {
                         IconButton(
                             onClick = {
-                                onEvent(HomeEvents.CollapseBottomSheet)
+                                onNavigationClick()
                             }
                         ) {
                             Icon(
@@ -351,151 +370,169 @@ private fun CartBottomSheet(
                 )
             }
         ) {
-            /* TODO: Cart */
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(15.dp),
-                contentPadding = PaddingValues(horizontal = 10.dp)
+
+            if (true)
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    LottieAnimation(composition = composition, progress = progress)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(text = "Cosul este gol", style = MaterialTheme.typography.h6)
+                }
+            else
+            /* TODO: Cart view model*/
+                CartWithItems(onSelectSizeClick)
+        }
+    }
+}
+
+@ExperimentalMaterialApi
+@Composable
+private fun CartWithItems(
+    onSelectSizeClick: (Int) -> Unit
+) {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(15.dp),
+        contentPadding = PaddingValues(horizontal = 10.dp)
+    ) {
+        items(1) { index ->
+            CartProductCard(
+                product = CardProduct(
+                    title = "Sosete \"Cherry\"",
+                    price = 20.00,
+                    amount = 1
+                ),
+                onSelectSizeClick = {
+                    onSelectSizeClick(index)
+                }
+            )
+        }
+
+        item {
+            Text(text = "Adresa de livrare", style = MaterialTheme.typography.h6)
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { }
+                    .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                items(1) { index ->
-                    CartProductCard(
-                        product = CardProduct(
-                            title = "Sosete \"Cherry\"",
-                            price = 20.00,
-                            amount = 1
-                        ),
-                        onSelectSizeClick = {
-                            onSelectSizeClick(index)
-                        }
-                    )
+                Row(
+                    modifier = Modifier.weight(9f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Outlined.Place, contentDescription = null)
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = "Aleea Constructorilor 5, Resita")
                 }
+                Icon(
+                    Icons.Rounded.ArrowBackIosNew,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .rotate(180f)
+                        .weight(1f),
+                    tint = Black900
+                )
+            }
+        }
 
-                item {
-                    Text(text = "Adresa de livrare", style = MaterialTheme.typography.h6)
+        item {
+            Text(text = "Metoda de plata", style = MaterialTheme.typography.h6)
 
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { },
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            modifier = Modifier.weight(9f),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(Icons.Outlined.Place, contentDescription = null)
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text(text = "Aleea Constructorilor 5, Resita")
-                        }
-                        Icon(
-                            Icons.Rounded.ArrowBackIosNew,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .rotate(180f)
-                                .weight(1f),
-                            tint = Black900
-                        )
-                    }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { }
+                    .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(
+                    modifier = Modifier.weight(9f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Outlined.CreditCard, contentDescription = null)
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = stringResource(id = R.string.add_a_card))
                 }
+                Icon(
+                    Icons.Rounded.ArrowBackIosNew,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .rotate(180f)
+                        .weight(1f),
+                    tint = Black900
+                )
+                /* TODO Select card and cash on delivery */
+            }
+        }
 
-                item {
-                    Text(text = "Metoda de plata", style = MaterialTheme.typography.h6)
+        item {
+            Text(
+                text = stringResource(id = R.string.info_about_order),
+                style = MaterialTheme.typography.h6
+            )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { },
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Row(
-                            modifier = Modifier.weight(9f),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(Icons.Outlined.CreditCard, contentDescription = null)
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text(text = stringResource(id = R.string.add_a_card))
-                        }
-                        Icon(
-                            Icons.Rounded.ArrowBackIosNew,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .rotate(180f)
-                                .weight(1f),
-                            tint = Black900
-                        )
-                        /* TODO Select card and cash on delivery */
-                    }
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = "Subtotal")
+                Text(
+                    text = "40.00 RON",
+                    color = MaterialTheme.colors.onPrimary.copy(alpha = 0.7f)
+                )
+            }
 
-                item {
+            Spacer(modifier = Modifier.height(5.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = "Livrare")
+                Text(
+                    text = "15.00 RON",
+                    color = MaterialTheme.colors.onPrimary.copy(alpha = 0.7f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(5.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = "Total")
+                Text(
+                    text = "65.00 RON",
+                    style = MaterialTheme.typography.h6
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 5.dp)
+            ) {
+                Button(
+                    onClick = { /*TODO*/ },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = MaterialTheme.colors.secondary
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Text(
-                        text = stringResource(id = R.string.info_about_order),
-                        style = MaterialTheme.typography.h6
+                        text = stringResource(id = R.string.buy),
+                        color = MaterialTheme.colors.onSecondary,
+                        fontWeight = FontWeight.Bold
                     )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = "Subtotal")
-                        Text(
-                            text = "40.00 RON",
-                            color = MaterialTheme.colors.onPrimary.copy(alpha = 0.7f)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(5.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = "Livrare")
-                        Text(
-                            text = "15.00 RON",
-                            color = MaterialTheme.colors.onPrimary.copy(alpha = 0.7f)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(5.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = "Total")
-                        Text(
-                            text = "65.00 RON",
-                            style = MaterialTheme.typography.h6
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 5.dp)
-                    ) {
-                        Button(
-                            onClick = { /*TODO*/ },
-                            colors = ButtonDefaults.buttonColors(
-                                backgroundColor = MaterialTheme.colors.secondary
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = stringResource(id = R.string.buy),
-                                color = MaterialTheme.colors.onSecondary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
                 }
             }
         }
@@ -593,8 +630,8 @@ private fun CartPreview() {
     JonAndPaulTheme {
         CartBottomSheet(
             modalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
-            onEvent = {},
-            onSelectSizeClick = {}
+            onSelectSizeClick = {},
+            {}
         )
     }
 }

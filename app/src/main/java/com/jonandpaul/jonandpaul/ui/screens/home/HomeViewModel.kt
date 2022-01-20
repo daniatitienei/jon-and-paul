@@ -61,12 +61,6 @@ class HomeViewModel @Inject constructor(
                     )
                 )
             }
-            is HomeEvents.ExpandBottomSheet -> {
-                emitEvent(UiEvent.BottomSheet)
-            }
-            is HomeEvents.CollapseBottomSheet -> {
-                emitEvent(UiEvent.BottomSheet)
-            }
             is HomeEvents.ShowModalBottomSheet -> {
                 emitEvent(UiEvent.ModalBottomSheet)
             }
