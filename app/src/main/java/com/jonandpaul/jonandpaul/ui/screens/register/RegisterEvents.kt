@@ -7,5 +7,6 @@ sealed class RegisterEvents {
     ) : RegisterEvents()
 
     object OnGoogleClick: RegisterEvents()
+    object OnNavigationIconClick: RegisterEvents()
     object OnAlreadyHaveAnAccount: RegisterEvents()
 }

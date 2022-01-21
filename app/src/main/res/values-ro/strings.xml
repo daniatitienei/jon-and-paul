@@ -11,4 +11,7 @@
     <string name="total">Total</string>
     <string name="shipping">Livrare</string>
     <string name="subtotal">Subtotal</string>
+    <string name="confirm_password_error">Parolele nu se potrivesc</string>
+    <string name="auth_error_invalid_email">Adresa de email nu este valida.</string>
+    <string name="auth_error_weak_password">Parola trebuie sa fie de minim 6 caractere.</string>
 </resources>

@@ -149,14 +149,7 @@ fun HomeScreen(
                             keyboardController?.hide()
                         }
                     },
-                    onCartClick = {
-                        scope.launch {
-                            if (bottomSheetScaffoldState.bottomSheetState.isCollapsed)
-                                bottomSheetScaffoldState.bottomSheetState.expand()
-                            else
-                                bottomSheetScaffoldState.bottomSheetState.collapse()
-                        }
-                    },
+                    onEvent = viewModel::onEvent
                 )
             },
             backLayerContent = {
@@ -239,13 +232,13 @@ private fun SearchBar(
             Icon(Icons.Rounded.Search, contentDescription = null)
         },
         trailingIcon = {
-            Icon(
-                Icons.Rounded.Clear,
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .clickable { onClear() }
-            )
+            IconButton(onClick = onClear) {
+                Icon(
+                    Icons.Rounded.Clear,
+                    contentDescription = null,
+                )
+
+            }
         },
         modifier = Modifier
             .fillMaxWidth()
@@ -261,7 +254,7 @@ private fun SearchBar(
 private fun TopBar(
     backdropScaffoldState: BackdropScaffoldState,
     onSearchClick: () -> Unit,
-    onCartClick: () -> Unit,
+    onEvent: (HomeEvents) -> Unit,
 ) {
     TopAppBar(
         backgroundColor = MaterialTheme.colors.background,
@@ -282,7 +275,9 @@ private fun TopBar(
         },
         actions = {
             IconButton(
-                onClick = onCartClick
+                onClick = {
+                    onEvent(HomeEvents.ExpandBottomSheet)
+                }
             ) {
                 Icon(
                     Icons.Outlined.ShoppingBag,
@@ -291,17 +286,23 @@ private fun TopBar(
                 )
             }
             IconButton(
-                onClick = { /*TODO*/ }
+                onClick = {
+                    onEvent(HomeEvents.OnFavoritesClick)
+                }
             ) {
                 Icon(
-                    Icons.Rounded.Favorite,
+                    Icons.Rounded.FavoriteBorder,
                     contentDescription = "Favorite",
                     tint = Black900
                 )
             }
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(
+                onClick = {
+                    onEvent(HomeEvents.OnAccountClick)
+                }
+            ) {
                 Icon(
-                    Icons.Rounded.Person,
+                    Icons.Rounded.PersonOutline,
                     contentDescription = "Cont",
                     tint = Black900
                 )

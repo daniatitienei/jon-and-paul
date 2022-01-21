@@ -39,7 +39,7 @@ class HomeViewModel @Inject constructor(
     fun onEvent(event: HomeEvents) {
         when (event) {
             is HomeEvents.OnAccountClick -> {
-                emitEvent(UiEvent.Navigate(route = ""))
+                emitEvent(UiEvent.Navigate(route = Screens.Register.route))
             }
             is HomeEvents.OnFavoritesClick -> {
                 emitEvent(UiEvent.Navigate(route = ""))
