@@ -15,6 +15,7 @@ import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.screens.account.AccountScreen
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
 import com.jonandpaul.jonandpaul.ui.screens.inspect_product.InspectProductScreen
+import com.jonandpaul.jonandpaul.ui.screens.login.LoginScreen
 import com.jonandpaul.jonandpaul.ui.screens.register.RegisterScreen
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.squareup.moshi.JsonAdapter
@@ -65,6 +66,25 @@ fun Navigation(moshi: Moshi) {
         }
 
         composable(
+            route = Screens.Login.route
+        ) {
+            LoginScreen(
+                onNavigate = { destination ->
+                    navController.navigate(destination.route) {
+                        launchSingleTop = true
+
+                        popUpTo(Screens.Login.route) {
+                            inclusive = true
+                        }
+                    }
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
             route = Screens.Register.route,
             enterTransition = {
                 slideInVertically(initialOffsetY = { 1000 })
@@ -83,6 +103,10 @@ fun Navigation(moshi: Moshi) {
                 onNavigate = { destination ->
                     navController.navigate(destination.route) {
                         launchSingleTop = true
+
+                        popUpTo(Screens.Register.route) {
+                            inclusive = true
+                        }
                     }
                 },
                 onPopBackStack = {

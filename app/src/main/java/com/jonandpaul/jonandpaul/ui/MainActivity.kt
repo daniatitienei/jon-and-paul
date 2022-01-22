@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
+import com.jonandpaul.jonandpaul.ui.screens.login.LoginScreen
 import com.jonandpaul.jonandpaul.ui.screens.register.RegisterScreen
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,7 +28,8 @@ import javax.inject.Inject
 @ExperimentalFoundationApi
 class MainActivity : ComponentActivity() {
 
-    @Inject lateinit var moshi: Moshi
+    @Inject
+    lateinit var moshi: Moshi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -2,45 +2,41 @@ package com.jonandpaul.jonandpaul.ui.screens.register
 
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
-import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.MailOutline
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.GoogleAuthProvider
 import com.jonandpaul.jonandpaul.R
-import com.jonandpaul.jonandpaul.ui.screens.home.HomeEvents
-import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
+import com.jonandpaul.jonandpaul.ui.utils.TextFieldValues
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
+import com.jonandpaul.jonandpaul.ui.utils.components.AuthenticationTextField
+import com.jonandpaul.jonandpaul.ui.utils.components.GoogleButton
 import com.jonandpaul.jonandpaul.ui.utils.google_auth.AuthResultContract
 import kotlinx.coroutines.flow.collect
 
+@ExperimentalComposeUiApi
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel = hiltViewModel(),
@@ -61,7 +57,15 @@ fun RegisterScreen(
         }
     }
 
+    val focusRequester = remember {
+        FocusRequester()
+    }
+
+    val focusManager = LocalFocusManager.current
+
     val context = LocalContext.current
+
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     var email by remember {
         mutableStateOf("")
@@ -118,7 +122,7 @@ fun RegisterScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            viewModel.onEvent(RegisterEvents.OnNavigationIconClick)
+                            viewModel.onEvent(RegisterEvents.OnPopBackStack)
                         }
                     ) {
                         Icon(
@@ -133,12 +137,10 @@ fun RegisterScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 15.dp),
+                .padding(horizontal = 15.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(20.dp))
-
-            RegisterTextField(
+            AuthenticationTextField(
                 value = email,
                 onValueChange = { email = it },
                 trailingIcon = {
@@ -146,17 +148,22 @@ fun RegisterScreen(
                 },
                 placeholderText = "Email",
                 textFieldValues = TextFieldValues.EMAIL,
-                error = viewModel.emailError.value
+                error = viewModel.emailError.value,
+                imeAction = ImeAction.Next,
+                onImeActionClick = {
+                    focusManager.moveFocus(FocusDirection.Down)
+                },
+                keyboardType = KeyboardType.Email
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            RegisterTextField(
+            AuthenticationTextField(
                 value = password,
                 onValueChange = {
-                    if (confirmPassword != it)
-                        confirmPasswordError = context.getString(R.string.confirm_password_error)
-                    else confirmPasswordError = null
+                    confirmPasswordError = if (confirmPassword != it)
+                        context.getString(R.string.confirm_password_error)
+                    else null
                     password = it
                 },
                 placeholderText = "Parola",
@@ -172,17 +179,22 @@ fun RegisterScreen(
                         )
                     }
                 },
-                error = viewModel.passwordError.value
+                error = viewModel.passwordError.value,
+                imeAction = ImeAction.Next,
+                onImeActionClick = {
+                    focusManager.moveFocus(FocusDirection.Down)
+                },
+                keyboardType = KeyboardType.Text
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            RegisterTextField(
+            AuthenticationTextField(
                 value = confirmPassword,
                 onValueChange = {
-                    if (it != password)
-                        confirmPasswordError = context.getString(R.string.confirm_password_error)
-                    else confirmPasswordError = null
+                    confirmPasswordError = if (it != password)
+                        context.getString(R.string.confirm_password_error)
+                    else null
                     confirmPassword = it
                 },
                 placeholderText = "Confirmare parola",
@@ -200,7 +212,13 @@ fun RegisterScreen(
                         )
                     }
                 },
-                error = confirmPasswordError
+                error = confirmPasswordError,
+                modifier = Modifier.focusRequester(focusRequester = focusRequester),
+                imeAction = ImeAction.Done,
+                onImeActionClick = {
+                    keyboardController?.hide()
+                },
+                keyboardType = KeyboardType.Text,
             )
 
             Spacer(modifier = Modifier.height(15.dp))
@@ -230,7 +248,11 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            TextButton(onClick = { /*TODO*/ }) {
+            TextButton(
+                onClick = {
+                    viewModel.onEvent(RegisterEvents.OnLoginHereClick)
+                }
+            ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -250,83 +272,7 @@ fun RegisterScreen(
     }
 }
 
-@Composable
-private fun GoogleButton(onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(vertical = 10.dp),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = MaterialTheme.colors.background
-        ),
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_google),
-            contentDescription = null,
-            modifier = Modifier.size(28.dp)
-        )
-
-        Spacer(modifier = Modifier.width(10.dp))
-
-        Text(
-            text = stringResource(id = R.string.continue_with_google),
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Composable
-private fun RegisterTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    trailingIcon: @Composable () -> Unit,
-    placeholderText: String,
-    isObscured: Boolean = false,
-    textFieldValues: TextFieldValues,
-    modifier: Modifier = Modifier.fillMaxWidth(),
-    error: String? = null
-) {
-    Column {
-        TextField(
-            value = value,
-            onValueChange = onValueChange,
-            placeholder = {
-                Text(
-                    text = placeholderText,
-                    color = Black900.copy(alpha = 0.7f)
-                )
-            },
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = MaterialTheme.colors.background,
-                focusedIndicatorColor = Black900
-            ),
-            singleLine = true,
-            visualTransformation = if (textFieldValues == TextFieldValues.PASSWORD && isObscured)
-                PasswordVisualTransformation()
-            else VisualTransformation.None,
-            trailingIcon = trailingIcon,
-            shape = RoundedCornerShape(10.dp),
-            modifier = modifier,
-            isError = !error.isNullOrEmpty()
-        )
-
-        error?.let { err ->
-            Spacer(modifier = Modifier.height(5.dp))
-
-            Text(
-                text = err,
-                style = MaterialTheme.typography.caption,
-                color = MaterialTheme.colors.error
-            )
-        }
-    }
-}
-
-private enum class TextFieldValues {
-    EMAIL,
-    PASSWORD,
-}
-
+@ExperimentalComposeUiApi
 @Preview(showBackground = true)
 @Composable
 private fun RegisterPreview() {

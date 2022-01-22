@@ -21,4 +21,8 @@
     <string name="my_cards">Cardurile mele</string>
     <string name="my_info">Informațiile mele</string>
     <string name="logout">Deconectare</string>
+    <string name="login">Conectare</string>
+    <string name="do_not_have_an_account">Nu ai cont?</string>
+    <string name="you_can_register_here">Te poti inregistra aici</string>
+    <string name="auth_error_wrong_password">Parola este gresita.</string>
 </resources>
