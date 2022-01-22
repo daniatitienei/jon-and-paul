@@ -623,16 +623,3 @@ private fun CartProductCardPreview() {
         )
     }
 }
-
-@ExperimentalMaterialApi
-@Preview
-@Composable
-private fun CartPreview() {
-    JonAndPaulTheme {
-        CartBottomSheet(
-            modalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
-            onSelectSizeClick = {},
-            {}
-        )
-    }
-}

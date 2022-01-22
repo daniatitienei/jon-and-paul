@@ -6,7 +6,7 @@ sealed class RegisterEvents {
         val password: String
     ) : RegisterEvents()
 
-    object OnGoogleClick: RegisterEvents()
+    data class OnGoogleClick(val idToken: String): RegisterEvents()
     object OnNavigationIconClick: RegisterEvents()
     object OnAlreadyHaveAnAccount: RegisterEvents()
 }

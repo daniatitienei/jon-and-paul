@@ -13,4 +13,7 @@
     <string name="confirm_password_error">Parolele nu se potrivesc</string>
     <string name="auth_error_invalid_email">The email address is badly formatted.</string>
     <string name="auth_error_weak_password">Password should be at least 6 characters.</string>
+    <string name="empty_email_address_error">Adresa de email trebuie completata.</string>
+    <string name="empty_password_error">Parola trebuie sa contina minim 6 caractere.</string>
+    <string name="auth_error_used_email">Adresa de email deja este folosita.</string>
 </resources>

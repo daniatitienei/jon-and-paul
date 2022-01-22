@@ -1,6 +1,7 @@
 package com.jonandpaul.jonandpaul.data.di
 
 import android.app.Application
+import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jonandpaul.jonandpaul.JonAndPaulApplication
@@ -18,7 +19,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideContext(): JonAndPaulApplication = JonAndPaulApplication()
+    fun provideApplication(): JonAndPaulApplication = JonAndPaulApplication()
 
     @Provides
     @Singleton

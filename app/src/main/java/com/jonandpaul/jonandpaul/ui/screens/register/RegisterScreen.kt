@@ -1,5 +1,8 @@
 package com.jonandpaul.jonandpaul.ui.screens.register
 
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,11 +30,15 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.GoogleAuthProvider
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeEvents
 import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
+import com.jonandpaul.jonandpaul.ui.utils.google_auth.AuthResultContract
 import kotlinx.coroutines.flow.collect
 
 @Composable
@@ -80,6 +87,24 @@ fun RegisterScreen(
         mutableStateOf<String?>(null)
     }
 
+    val signInRequestCode = 1
+
+    val googleResultLauncher = rememberLauncherForActivityResult(
+        contract = AuthResultContract(),
+    ) { task ->
+        try {
+            val account = task?.getResult(ApiException::class.java)
+            Log.d("firebaseAuthWithGoogle", account?.idToken.toString())
+
+            if (account != null) {
+                Log.d("auth_email", account.email!!)
+                viewModel.onEvent(RegisterEvents.OnGoogleClick(idToken = account.idToken!!))
+            }
+        } catch (e: ApiException) {
+            Log.w("firebaseAuthWithGoogle", "Google sign in failed.", e)
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -116,7 +141,7 @@ fun RegisterScreen(
             RegisterTextField(
                 value = email,
                 onValueChange = { email = it },
-                leadingIcon = {
+                trailingIcon = {
                     Icon(Icons.Rounded.MailOutline, contentDescription = null)
                 },
                 placeholderText = "Email",
@@ -134,9 +159,6 @@ fun RegisterScreen(
                     else confirmPasswordError = null
                     password = it
                 },
-                leadingIcon = {
-                    Icon(Icons.Outlined.Lock, contentDescription = null)
-                },
                 placeholderText = "Parola",
                 textFieldValues = TextFieldValues.PASSWORD,
                 isObscured = isPasswordObscured,
@@ -145,7 +167,7 @@ fun RegisterScreen(
                         onClick = { isPasswordObscured = !isPasswordObscured }
                     ) {
                         Icon(
-                            if (isPasswordObscured) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                            if (!isPasswordObscured) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
                             contentDescription = null,
                         )
                     }
@@ -163,9 +185,6 @@ fun RegisterScreen(
                     else confirmPasswordError = null
                     confirmPassword = it
                 },
-                leadingIcon = {
-                    Icon(Icons.Outlined.Lock, contentDescription = null)
-                },
                 placeholderText = "Confirmare parola",
                 textFieldValues = TextFieldValues.PASSWORD,
                 isObscured = isConfirmPasswordObscured,
@@ -176,7 +195,7 @@ fun RegisterScreen(
                         }
                     ) {
                         Icon(
-                            if (isConfirmPasswordObscured) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                            if (!isConfirmPasswordObscured) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
                             contentDescription = null,
                         )
                     }
@@ -203,27 +222,11 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Button(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 10.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = MaterialTheme.colors.background
-                ),
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_google),
-                    contentDescription = null,
-                    modifier = Modifier.size(28.dp)
-                )
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                Text(
-                    text = stringResource(id = R.string.continue_with_google),
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            GoogleButton(
+                onClick = {
+                    googleResultLauncher.launch(signInRequestCode)
+                }
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -248,11 +251,35 @@ fun RegisterScreen(
 }
 
 @Composable
+private fun GoogleButton(onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(vertical = 10.dp),
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = MaterialTheme.colors.background
+        ),
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_google),
+            contentDescription = null,
+            modifier = Modifier.size(28.dp)
+        )
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Text(
+            text = stringResource(id = R.string.continue_with_google),
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
 private fun RegisterTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    leadingIcon: @Composable () -> Unit,
-    trailingIcon: (@Composable () -> Unit)? = null,
+    trailingIcon: @Composable () -> Unit,
     placeholderText: String,
     isObscured: Boolean = false,
     textFieldValues: TextFieldValues,
@@ -263,7 +290,6 @@ private fun RegisterTextField(
         TextField(
             value = value,
             onValueChange = onValueChange,
-            leadingIcon = leadingIcon,
             placeholder = {
                 Text(
                     text = placeholderText,
