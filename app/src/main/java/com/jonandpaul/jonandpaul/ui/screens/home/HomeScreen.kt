@@ -367,7 +367,7 @@ private fun CartBottomSheet(
                             onClick = onNavigationClick
                         ) {
                             Icon(
-                                Icons.Rounded.ArrowBackIosNew,
+                                Icons.Rounded.Close,
                                 contentDescription = null,
                                 tint = Black900,
                                 modifier = Modifier.rotate(-90f)

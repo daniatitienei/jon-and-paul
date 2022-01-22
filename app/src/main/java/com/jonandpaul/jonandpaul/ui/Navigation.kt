@@ -1,8 +1,6 @@
 package com.jonandpaul.jonandpaul.ui
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
@@ -45,7 +43,21 @@ fun Navigation(moshi: Moshi) {
             AccountScreen()
         }
 
-        composable(route = Screens.InspectProduct.route) { backStackEntry ->
+        composable(
+            route = Screens.InspectProduct.route,
+            enterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+            },
+            exitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+            },
+            popEnterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+            },
+            popExitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+            }
+        ) { backStackEntry ->
             val productJson = backStackEntry.arguments?.getString("product")
             val jsonAdapter = moshi.adapter(Product::class.java)
             val productObject = jsonAdapter.fromJson(productJson!!)
@@ -66,7 +78,39 @@ fun Navigation(moshi: Moshi) {
         }
 
         composable(
-            route = Screens.Login.route
+            route = Screens.Login.route,
+            enterTransition = {
+                when (this.initialState.destination.route) {
+                    Screens.Register.route -> {
+                        slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+                    }
+                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Down)
+                }
+            },
+            exitTransition = {
+                when (this.targetState.destination.route) {
+                    Screens.Register.route -> {
+                        slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+                    }
+                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Up)
+                }
+            },
+            popEnterTransition = {
+                when (this.initialState.destination.route) {
+                    Screens.Register.route -> {
+                        slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+                    }
+                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Down)
+                }
+            },
+            popExitTransition = {
+                when (this.targetState.destination.route) {
+                    Screens.Register.route -> {
+                        slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+                    }
+                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Up)
+                }
+            }
         ) {
             LoginScreen(
                 onNavigate = { destination ->
@@ -87,16 +131,36 @@ fun Navigation(moshi: Moshi) {
         composable(
             route = Screens.Register.route,
             enterTransition = {
-                slideInVertically(initialOffsetY = { 1000 })
-            },
-            popEnterTransition = {
-                slideInVertically(initialOffsetY = { 1000 })
+                when (this.initialState.destination.route) {
+                    Screens.Login.route -> {
+                        slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+                    }
+                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Down)
+                }
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { 1000 })
+                when (this.targetState.destination.route) {
+                    Screens.Login.route -> {
+                        slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+                    }
+                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Up)
+                }
+            },
+            popEnterTransition = {
+                when (this.initialState.destination.route) {
+                    Screens.Login.route -> {
+                        slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+                    }
+                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Down)
+                }
             },
             popExitTransition = {
-                slideOutVertically(targetOffsetY = { 1000 })
+                when (this.targetState.destination.route) {
+                    Screens.Login.route -> {
+                        slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+                    }
+                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Up)
+                }
             }
         ) {
             RegisterScreen(
