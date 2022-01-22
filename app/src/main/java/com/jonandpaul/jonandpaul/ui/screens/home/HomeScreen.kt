@@ -149,7 +149,15 @@ fun HomeScreen(
                             keyboardController?.hide()
                         }
                     },
-                    onEvent = viewModel::onEvent
+                    onEvent = viewModel::onEvent,
+                    onCartClick = {
+                        scope.launch {
+                            if (bottomSheetScaffoldState.bottomSheetState.isCollapsed)
+                                bottomSheetScaffoldState.bottomSheetState.expand()
+                            else
+                                bottomSheetScaffoldState.bottomSheetState.collapse()
+                        }
+                    }
                 )
             },
             backLayerContent = {
@@ -237,7 +245,6 @@ private fun SearchBar(
                     Icons.Rounded.Clear,
                     contentDescription = null,
                 )
-
             }
         },
         modifier = Modifier
@@ -254,6 +261,7 @@ private fun SearchBar(
 private fun TopBar(
     backdropScaffoldState: BackdropScaffoldState,
     onSearchClick: () -> Unit,
+    onCartClick: () -> Unit,
     onEvent: (HomeEvents) -> Unit,
 ) {
     TopAppBar(
@@ -275,9 +283,7 @@ private fun TopBar(
         },
         actions = {
             IconButton(
-                onClick = {
-                    onEvent(HomeEvents.ExpandBottomSheet)
-                }
+                onClick = onCartClick
             ) {
                 Icon(
                     Icons.Outlined.ShoppingBag,
@@ -332,15 +338,16 @@ private fun CartBottomSheet(
     ModalBottomSheetLayout(
         sheetState = modalBottomSheetState,
         sheetContent = {
-            LazyColumn {
+            LazyColumn(
+                contentPadding = PaddingValues(all = 10.dp)
+            ) {
                 items(20) { index ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                onNavigationClick()
+                                onSelectSizeClick(index + 1)
                             }
-                            .padding(10.dp)
                     ) {
                         Text(text = (index + 1).toString())
                     }
@@ -357,9 +364,7 @@ private fun CartBottomSheet(
                     },
                     navigationIcon = {
                         IconButton(
-                            onClick = {
-                                onNavigationClick()
-                            }
+                            onClick = onNavigationClick
                         ) {
                             Icon(
                                 Icons.Rounded.ArrowBackIosNew,

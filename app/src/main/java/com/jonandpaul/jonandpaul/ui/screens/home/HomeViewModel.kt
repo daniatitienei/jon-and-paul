@@ -42,7 +42,7 @@ class HomeViewModel @Inject constructor(
                 emitEvent(UiEvent.Navigate(route = Screens.Register.route))
             }
             is HomeEvents.OnFavoritesClick -> {
-                emitEvent(UiEvent.Navigate(route = ""))
+
             }
             is HomeEvents.OnProductClick -> {
                 val jsonAdapter = moshi.adapter(Product::class.java)
