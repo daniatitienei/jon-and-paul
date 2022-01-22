@@ -5,6 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.jonandpaul.jonandpaul.domain.model.Product
@@ -23,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val moshi: Moshi
+    private val moshi: Moshi,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
@@ -39,7 +41,11 @@ class HomeViewModel @Inject constructor(
     fun onEvent(event: HomeEvents) {
         when (event) {
             is HomeEvents.OnAccountClick -> {
-                emitEvent(UiEvent.Navigate(route = Screens.Register.route))
+                emitEvent(
+                    UiEvent.Navigate(
+                        route = Screens.Register.route
+                    )
+                )
             }
             is HomeEvents.OnFavoritesClick -> {
 

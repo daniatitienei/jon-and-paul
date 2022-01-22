@@ -17,4 +17,9 @@
     <string name="empty_email_address_error">Adresa de email trebuie completata</string>
     <string name="empty_password_error">Parola trebuie sa contina minim 6 caractere.</string>
     <string name="auth_error_used_email">Adresa de email deja este folosita.</string>
+    <string name="my_account">Contul meu</string>
+    <string name="my_orders">Comenzile mele</string>
+    <string name="my_cards">Cardurile mele</string>
+    <string name="my_info">Informațiile mele</string>
+    <string name="logout">Deconectare</string>
 </resources>

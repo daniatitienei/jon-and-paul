@@ -12,9 +12,6 @@ sealed class HomeEvents {
     data class OnProductClick(var product: Product) : HomeEvents()
 
     /* Cart */
-    object ExpandBottomSheet : HomeEvents()
-    object CollapseBottomSheet : HomeEvents()
-
     object ShowModalBottomSheet : HomeEvents()
     object HideModalBottomSheet : HomeEvents()
 }

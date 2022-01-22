@@ -12,6 +12,7 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.jonandpaul.jonandpaul.domain.model.Product
+import com.jonandpaul.jonandpaul.ui.screens.account.AccountScreen
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
 import com.jonandpaul.jonandpaul.ui.screens.inspect_product.InspectProductScreen
 import com.jonandpaul.jonandpaul.ui.screens.register.RegisterScreen
@@ -39,10 +40,14 @@ fun Navigation(moshi: Moshi) {
             )
         }
 
+        composable(route = Screens.Account.route) {
+            AccountScreen()
+        }
+
         composable(route = Screens.InspectProduct.route) { backStackEntry ->
             val productJson = backStackEntry.arguments?.getString("product")
             val jsonAdapter = moshi.adapter(Product::class.java)
-            val productObject = jsonAdapter.fromJson(productJson)
+            val productObject = jsonAdapter.fromJson(productJson!!)
 
             productObject?.let { product ->
                 InspectProductScreen(
