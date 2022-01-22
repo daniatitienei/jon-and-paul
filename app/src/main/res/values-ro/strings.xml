@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Jon &amp; Paul</string>
     <string name="add_a_card">Adauga un card</string>
@@ -11,9 +12,9 @@
     <string name="shipping">Livrare</string>
     <string name="subtotal">Subtotal</string>
     <string name="confirm_password_error">Parolele nu se potrivesc</string>
-    <string name="auth_error_invalid_email">The email address is badly formatted.</string>
-    <string name="auth_error_weak_password">Password should be at least 6 characters.</string>
-    <string name="empty_email_address_error">Adresa de email trebuie completata.</string>
+    <string name="auth_error_invalid_email">Adresa de email nu este valida.</string>
+    <string name="auth_error_weak_password">Parola trebuie sa fie de minim 6 caractere.</string>
+    <string name="empty_email_address_error">Adresa de email trebuie completata</string>
     <string name="empty_password_error">Parola trebuie sa contina minim 6 caractere.</string>
     <string name="auth_error_used_email">Adresa de email deja este folosita.</string>
     <string name="my_account">Contul meu</string>

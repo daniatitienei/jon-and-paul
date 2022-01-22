@@ -16,13 +16,13 @@ fun JonAndPaulTheme(content: @Composable () -> Unit) {
 }
 
 private val lightColors = lightColors(
-    primary = Color.White,
-    primaryVariant = Color.White,
-    onPrimary = Black900,
-    secondary = Color.White,
-    secondaryVariant = Color.White,
-    onSecondary = Black900,
+    primary = Black900,
+    primaryVariant = Black900,
+    onPrimary = Color.White,
+    secondary = Black900,
+    secondaryVariant = Black900,
+    onSecondary = Color.White,
     error = Red900,
     background = Color.White,
-    onBackground = Black900
+    onBackground = Black900,
 )

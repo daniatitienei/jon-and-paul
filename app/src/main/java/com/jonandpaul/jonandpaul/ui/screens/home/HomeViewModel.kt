@@ -5,6 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.jonandpaul.jonandpaul.domain.model.Product
@@ -23,14 +24,15 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val moshi: Moshi
+    private val moshi: Moshi,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
-    private var _productsState = mutableStateOf(HomeState())
-    val productsState: State<HomeState> = _productsState
+    private var _homeState = mutableStateOf(HomeState())
+    val homeState: State<HomeState> = _homeState
 
     init {
         getProducts()
@@ -39,13 +41,14 @@ class HomeViewModel @Inject constructor(
     fun onEvent(event: HomeEvents) {
         when (event) {
             is HomeEvents.OnAccountClick -> {
-                emitEvent(UiEvent.Navigate(route = ""))
-            }
-            is HomeEvents.OnBagClick -> {
-                emitEvent(UiEvent.Navigate(route = ""))
+                emitEvent(
+                    UiEvent.Navigate(
+                        route = Screens.Register.route
+                    )
+                )
             }
             is HomeEvents.OnFavoritesClick -> {
-                emitEvent(UiEvent.Navigate(route = ""))
+
             }
             is HomeEvents.OnProductClick -> {
                 val jsonAdapter = moshi.adapter(Product::class.java)
@@ -64,15 +67,24 @@ class HomeViewModel @Inject constructor(
                     )
                 )
             }
-            is HomeEvents.OnSearchClick -> {
-                emitEvent(UiEvent.BackDropScaffold(isOpen = true))
+            is HomeEvents.ShowModalBottomSheet -> {
+                emitEvent(UiEvent.ModalBottomSheet)
+            }
+            is HomeEvents.HideModalBottomSheet -> {
+                emitEvent(UiEvent.ModalBottomSheet)
+            }
+            is HomeEvents.RevealBackdrop -> {
+                emitEvent(UiEvent.BackdropScaffold)
+            }
+            is HomeEvents.ConcealBackdrop -> {
+                emitEvent(UiEvent.BackdropScaffold)
             }
         }
     }
 
-    private fun emitEvent(uiEvent: UiEvent) {
+    private fun emitEvent(event: UiEvent) {
         viewModelScope.launch {
-            _uiEvent.emit(uiEvent)
+            _uiEvent.emit(event)
         }
     }
 
@@ -82,10 +94,10 @@ class HomeViewModel @Inject constructor(
                 if (error != null)
                     return@addSnapshotListener
 
-                _productsState.value =
-                    _productsState.value.copy(products = snapshots?.toObjects()!!, isLoading = false)
+                _homeState.value =
+                    _homeState.value.copy(products = snapshots?.toObjects()!!, isLoading = false)
 
-                Log.d("product_state", _productsState.toString())
+                Log.d("product_state", _homeState.toString())
             }
     }
 }

@@ -59,7 +59,7 @@ val JonAndPaulTypography = Typography(
     button = TextStyle(
         fontFamily = Lato,
         fontWeight = FontWeight.W500,
-        fontSize = 14.sp,
+        fontSize = 16.sp,
         color = Black900
     ),
     caption = TextStyle(

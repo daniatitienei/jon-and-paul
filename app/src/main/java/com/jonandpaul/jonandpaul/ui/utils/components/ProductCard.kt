@@ -24,12 +24,13 @@ import coil.compose.rememberImagePainter
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeEvents
 import com.jonandpaul.jonandpaul.ui.theme.Red900
+import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
 
 @Composable
 fun ProductCard(
     product: Product,
     onClick: () -> Unit,
-    imageSize: Dp
+    imageSize: Dp,
 ) {
     var isFavorite by remember {
         mutableStateOf(false)
@@ -44,7 +45,7 @@ fun ProductCard(
             modifier = Modifier
                 .width(imageSize)
                 .wrapContentWidth(align = Alignment.End)
-                .clip(RoundedCornerShape(5.dp))
+                .clip(RoundedCornerShape(10.dp))
         ) {
             Image(
                 painter = rememberImagePainter(
@@ -87,7 +88,7 @@ fun ProductCard(
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            Text(text = "${"${product.price}".padEnd(5, '0')} RON")
+            Text(text = "${product.price.twoDecimals()} RON")
         }
     }
 }
