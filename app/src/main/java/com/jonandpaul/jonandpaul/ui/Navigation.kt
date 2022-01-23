@@ -40,7 +40,16 @@ fun Navigation(moshi: Moshi) {
         }
 
         composable(route = Screens.Account.route) {
-            AccountScreen()
+            AccountScreen(
+                onNavigate = { destination ->
+                    navController.navigate(destination.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable(
