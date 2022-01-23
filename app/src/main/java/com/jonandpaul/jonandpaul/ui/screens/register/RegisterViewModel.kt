@@ -32,19 +32,42 @@ class RegisterViewModel @Inject constructor(
     private var _passwordError = mutableStateOf<String?>(null)
     val passwordError: State<String?> = _passwordError
 
-    private var _currentUser = mutableStateOf(auth.currentUser)
-    val currentUser: State<FirebaseUser?> = _currentUser
-
     fun onEvent(event: RegisterEvents) {
         when (event) {
             is RegisterEvents.OnRegisterClick -> {
-                registerWithEmailAndPassword(email = event.email, password = event.password)
+                registerWithEmailAndPassword(
+                    email = event.email,
+                    password = event.password,
+                    onSuccess = {
+                        emitEvent(
+                            UiEvent.Navigate(
+                                route = Screens.Account.route,
+                                popUpTo = Screens.Register.route
+                            )
+                        )
+                    }
+                )
             }
             is RegisterEvents.OnLoginHereClick -> {
-                emitEvent(UiEvent.Navigate(route = Screens.Login.route))
+                emitEvent(
+                    UiEvent.Navigate(
+                        route = Screens.Login.route,
+                        popUpTo = Screens.Register.route
+                    )
+                )
             }
             is RegisterEvents.OnGoogleClick -> {
-                continueWithGoogle(idToken = event.idToken)
+                continueWithGoogle(
+                    idToken = event.idToken,
+                    onSuccess = {
+                        emitEvent(
+                            UiEvent.Navigate(
+                                route = Screens.Account.route,
+                                popUpTo = Screens.Register.route
+                            )
+                        )
+                    }
+                )
             }
             is RegisterEvents.OnPopBackStack -> {
                 emitEvent(UiEvent.PopBackStack)
@@ -58,7 +81,9 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    private fun registerWithEmailAndPassword(email: String, password: String) {
+    private fun registerWithEmailAndPassword(
+        email: String, password: String, onSuccess: () -> Unit,
+    ) {
         _emailError.value = null
         _passwordError.value = null
 
@@ -75,7 +100,9 @@ class RegisterViewModel @Inject constructor(
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 try {
-                    if (!task.isSuccessful)
+                    if (task.isSuccessful)
+                        onSuccess()
+                    else
                         throw task.exception!!
                 } catch (e: FirebaseAuthWeakPasswordException) {
                     Log.d("auth_error_weak", e.message!!)
@@ -90,13 +117,14 @@ class RegisterViewModel @Inject constructor(
             }
     }
 
-    private fun continueWithGoogle(idToken: String) {
+    private fun continueWithGoogle(idToken: String, onSuccess: () -> Unit) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
 
         auth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d("firebaseAuthWithGoogle", "SUCCESS")
+                    onSuccess()
                 } else {
                     Log.d("firebaseAuthWithGoogle", "FAILURE", task.exception)
                 }

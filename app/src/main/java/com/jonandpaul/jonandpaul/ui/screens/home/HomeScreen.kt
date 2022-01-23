@@ -369,8 +369,7 @@ private fun CartBottomSheet(
                             Icon(
                                 Icons.Rounded.Close,
                                 contentDescription = null,
-                                tint = Black900,
-                                modifier = Modifier.rotate(-90f)
+                                tint = Black900
                             )
                         }
                     }

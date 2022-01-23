@@ -7,6 +7,6 @@ sealed class UiEvent {
     object BottomSheet : UiEvent()
     object ModalBottomSheet : UiEvent()
 
-    data class Navigate(val route: String) : UiEvent()
+    data class Navigate(val route: String, val popUpTo: String? = null) : UiEvent()
     object PopBackStack : UiEvent()
 }

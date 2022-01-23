@@ -117,8 +117,10 @@ fun Navigation(moshi: Moshi) {
                     navController.navigate(destination.route) {
                         launchSingleTop = true
 
-                        popUpTo(Screens.Login.route) {
-                            inclusive = true
+                        destination.popUpTo?.let { popUpToRoute ->
+                            popUpTo(popUpToRoute) {
+                                inclusive = true
+                            }
                         }
                     }
                 },
@@ -168,8 +170,10 @@ fun Navigation(moshi: Moshi) {
                     navController.navigate(destination.route) {
                         launchSingleTop = true
 
-                        popUpTo(Screens.Register.route) {
-                            inclusive = true
+                        destination.popUpTo?.let { popUpToRoute ->
+                            popUpTo(popUpToRoute) {
+                                inclusive = true
+                            }
                         }
                     }
                 },

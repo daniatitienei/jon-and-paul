@@ -37,16 +37,39 @@ class LoginViewModel @Inject constructor(
     fun onEvent(event: LoginEvents) {
         when (event) {
             is LoginEvents.OnContinueWithGoogle -> {
-                continueWithGoogle(idToken = event.idToken)
+                continueWithGoogle(idToken = event.idToken, onSuccess = {
+                    emitEvent(
+                        UiEvent.Navigate(
+                            route = Screens.Account.route,
+                            popUpTo = Screens.Login.route
+                        )
+                    )
+                })
             }
             is LoginEvents.OnLoginClick -> {
-                loginWithEmailAndPassword(email = event.email, password = event.password)
+                loginWithEmailAndPassword(
+                    email = event.email,
+                    password = event.password,
+                    onSuccess = {
+                        emitEvent(
+                            UiEvent.Navigate(
+                                route = Screens.Account.route,
+                                popUpTo = Screens.Login.route
+                            )
+                        )
+                    }
+                )
             }
             is LoginEvents.OnPopBackStack -> {
                 emitEvent(UiEvent.PopBackStack)
             }
             is LoginEvents.OnRegisterHereClick -> {
-                emitEvent(UiEvent.Navigate(route = Screens.Register.route))
+                emitEvent(
+                    UiEvent.Navigate(
+                        route = Screens.Register.route,
+                        popUpTo = Screens.Login.route
+                    )
+                )
             }
         }
     }
@@ -57,7 +80,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun loginWithEmailAndPassword(email: String, password: String) {
+    private fun loginWithEmailAndPassword(email: String, password: String, onSuccess: () -> Unit) {
         _emailError.value = null
         _passwordError.value = null
 
@@ -74,7 +97,9 @@ class LoginViewModel @Inject constructor(
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 try {
-                    if (!task.isSuccessful)
+                    if (task.isSuccessful)
+                        onSuccess()
+                    else
                         throw task.exception!!
                 } catch (e: FirebaseAuthInvalidCredentialsException) {
                     Log.d("firebase_auth", e.localizedMessage!!)
@@ -83,13 +108,14 @@ class LoginViewModel @Inject constructor(
             }
     }
 
-    private fun continueWithGoogle(idToken: String) {
+    private fun continueWithGoogle(idToken: String, onSuccess: () -> Unit) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
 
         auth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d("firebaseAuthWithGoogle", "SUCCESS")
+                    onSuccess()
                 } else {
                     Log.d("firebaseAuthWithGoogle", "FAILURE", task.exception)
                 }

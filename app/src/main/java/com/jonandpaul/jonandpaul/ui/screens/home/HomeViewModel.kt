@@ -43,7 +43,7 @@ class HomeViewModel @Inject constructor(
             is HomeEvents.OnAccountClick -> {
                 emitEvent(
                     UiEvent.Navigate(
-                        route = Screens.Register.route
+                        route = if (auth.currentUser == null) Screens.Register.route else Screens.Account.route
                     )
                 )
             }
