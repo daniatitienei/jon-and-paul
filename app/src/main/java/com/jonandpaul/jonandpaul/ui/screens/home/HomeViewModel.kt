@@ -1,5 +1,6 @@
 package com.jonandpaul.jonandpaul.ui.screens.home
 
+import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -7,7 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
+import com.jonandpaul.jonandpaul.domain.model.CartProduct
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
@@ -46,6 +49,12 @@ class HomeViewModel @Inject constructor(
                         route = if (auth.currentUser == null) Screens.Register.route else Screens.Account.route
                     )
                 )
+            }
+            is HomeEvents.OnCartClick -> {
+                if (auth.currentUser != null)
+                    getCardProducts()
+                else
+                    emitEvent(UiEvent.Navigate(route = Screens.Register.route))
             }
             is HomeEvents.OnFavoritesClick -> {
 
@@ -100,4 +109,30 @@ class HomeViewModel @Inject constructor(
                 Log.d("product_state", _homeState.toString())
             }
     }
+
+    private fun getCardProducts() {
+        auth.currentUser?.let { currentUser ->
+            firestore.collection("users").document(currentUser.uid)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        Log.w(TAG, "Listen failed", error)
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null && snapshot.exists()) {
+                        val cart = snapshot.toObject<Cart>()
+                        _homeState.value =
+                            _homeState.value.copy(cartProducts = cart!!.cart)
+
+                        Log.d("cart", _homeState.value.cartProducts.toString())
+                    } else {
+                        Log.d(TAG, "Cart: null")
+                    }
+                }
+        }
+    }
 }
+
+private data class Cart(
+    val cart: List<CartProduct> = emptyList()
+)

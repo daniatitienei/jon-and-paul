@@ -1,6 +1,6 @@
 package com.jonandpaul.jonandpaul.domain.model
 
-data class CardProduct(
+data class CartProduct(
     val amount: Int = 1,
     val composition: String = "",
     val imageUrl: String = "",

@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.*
+import com.google.firebase.firestore.FirebaseFirestore
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
@@ -20,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
     private val auth: FirebaseAuth,
-    private val context: Application
+    private val context: Application,
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
@@ -100,9 +101,9 @@ class RegisterViewModel @Inject constructor(
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 try {
-                    if (task.isSuccessful)
+                    if (task.isSuccessful) {
                         onSuccess()
-                    else
+                    } else
                         throw task.exception!!
                 } catch (e: FirebaseAuthWeakPasswordException) {
                     Log.d("auth_error_weak", e.message!!)

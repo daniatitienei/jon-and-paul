@@ -69,7 +69,9 @@ fun InspectProductScreen(
         backgroundColor = MaterialTheme.colors.background,
         bottomBar = {
             BottomBar(
-                onAddToCartClick = { /*TODO*/ }
+                onAddToCartClick = {
+                    viewModel.onEvent(InspectProductEvents.OnAddToCartClick(product = product))
+                }
             )
         }
     ) { innerPadding ->

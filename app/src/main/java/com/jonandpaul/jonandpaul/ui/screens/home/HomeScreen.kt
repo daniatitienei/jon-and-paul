@@ -1,13 +1,11 @@
 package com.jonandpaul.jonandpaul.ui.screens.home
 
-import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
@@ -27,6 +25,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -34,10 +33,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.airbnb.lottie.LottieComposition
+import coil.compose.rememberImagePainter
 import com.airbnb.lottie.compose.*
 import com.jonandpaul.jonandpaul.R
-import com.jonandpaul.jonandpaul.domain.model.CardProduct
+import com.jonandpaul.jonandpaul.domain.model.CartProduct
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.ui.theme.Black900
@@ -98,10 +97,7 @@ fun HomeScreen(
     }
 
     val products = viewModel.homeState.value.products
-
-    var selectedCartItemIndex by remember {
-        mutableStateOf<Int?>(null)
-    }
+    val cartProducts = viewModel.homeState.value.cartProducts
 
     val filteredProducts =
         products.filter { product ->
@@ -114,11 +110,8 @@ fun HomeScreen(
         sheetContent = {
             CartBottomSheet(
                 modalBottomSheetState = modalBottomSheetState,
-                onSelectSizeClick = { index ->
-                    scope.launch {
-                        viewModel.onEvent(HomeEvents.ShowModalBottomSheet)
-                        selectedCartItemIndex = index
-                    }
+                onSelectSizeClick = {
+                    viewModel.onEvent(HomeEvents.ShowModalBottomSheet)
                 },
                 onNavigationClick = {
                     scope.launch {
@@ -127,7 +120,8 @@ fun HomeScreen(
                         else
                             bottomSheetScaffoldState.bottomSheetState.collapse()
                     }
-                }
+                },
+                cartProducts = cartProducts
             )
         },
         sheetPeekHeight = 0.dp,
@@ -151,6 +145,7 @@ fun HomeScreen(
                     },
                     onEvent = viewModel::onEvent,
                     onCartClick = {
+                        viewModel.onEvent(HomeEvents.OnCartClick)
                         scope.launch {
                             if (bottomSheetScaffoldState.bottomSheetState.isCollapsed)
                                 bottomSheetScaffoldState.bottomSheetState.expand()
@@ -208,9 +203,7 @@ fun HomeScreen(
                 }
             }
         )
-
     }
-
 }
 
 @Composable
@@ -322,8 +315,9 @@ private fun TopBar(
 @Composable
 private fun CartBottomSheet(
     modalBottomSheetState: ModalBottomSheetState,
-    onSelectSizeClick: (Int) -> Unit,
+    onSelectSizeClick: () -> Unit,
     onNavigationClick: () -> Unit,
+    cartProducts: List<CartProduct>
 ) {
 
     val composition by rememberLottieComposition(
@@ -346,7 +340,7 @@ private fun CartBottomSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                onSelectSizeClick(index + 1)
+                                onSelectSizeClick()
                             }
                     ) {
                         Text(text = (index + 1).toString())
@@ -377,9 +371,139 @@ private fun CartBottomSheet(
             }
         ) {
 
-            if (true)
-            /* TODO: Cart view model*/
-                CartWithItems(onSelectSizeClick)
+            if (cartProducts.isNotEmpty())
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(15.dp),
+                    contentPadding = PaddingValues(horizontal = 10.dp)
+                ) {
+                    items(cartProducts) {
+                        CartProductCard(
+                            product = it,
+                            onSelectSizeClick = onSelectSizeClick
+                        )
+                    }
+
+                    item {
+                        Text(text = "Adresa de livrare", style = MaterialTheme.typography.h6)
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { }
+                                .padding(vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                modifier = Modifier.weight(9f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Outlined.Place, contentDescription = null)
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(text = "Aleea Constructorilor 5, Resita")
+                            }
+                            Icon(
+                                Icons.Rounded.ArrowBackIosNew,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .rotate(180f)
+                                    .weight(1f),
+                                tint = Black900
+                            )
+                        }
+                    }
+
+                    item {
+                        Text(text = "Metoda de plata", style = MaterialTheme.typography.h6)
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { }
+                                .padding(vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Row(
+                                modifier = Modifier.weight(9f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Outlined.CreditCard, contentDescription = null)
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(text = stringResource(id = R.string.add_a_card))
+                            }
+                            Icon(
+                                Icons.Rounded.ArrowBackIosNew,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .rotate(180f)
+                                    .weight(1f),
+                                tint = Black900
+                            )
+                            /* TODO Select card and cash on delivery */
+                        }
+                    }
+
+                    item {
+                        Text(
+                            text = stringResource(id = R.string.info_about_order),
+                            style = MaterialTheme.typography.h6
+                        )
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = stringResource(id = R.string.subtotal))
+                            Text(
+                                text = "40.00 RON",
+                                color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(5.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = stringResource(id = R.string.shipping))
+                            Text(
+                                text = "15.00 RON",
+                                color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(5.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = stringResource(id = R.string.total))
+                            Text(
+                                text = "65.00 RON",
+                                style = MaterialTheme.typography.h6
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+
+                        Button(
+                            onClick = { /*TODO*/ },
+                            modifier = Modifier.fillMaxWidth(),
+                            contentPadding = PaddingValues(vertical = 5.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.buy),
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                            )
+                        }
+
+                    }
+                }
             else
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -394,164 +518,27 @@ private fun CartBottomSheet(
     }
 }
 
-@ExperimentalMaterialApi
-@Composable
-private fun CartWithItems(
-    onSelectSizeClick: (Int) -> Unit
-) {
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(15.dp),
-        contentPadding = PaddingValues(horizontal = 10.dp)
-    ) {
-        items(1) { index ->
-            CartProductCard(
-                product = CardProduct(
-                    title = "Sosete \"Cherry\"",
-                    price = 20.00,
-                    amount = 1
-                ),
-                onSelectSizeClick = {
-                    onSelectSizeClick(index)
-                }
-            )
-        }
-
-        item {
-            Text(text = "Adresa de livrare", style = MaterialTheme.typography.h6)
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { }
-                    .padding(vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    modifier = Modifier.weight(9f),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Outlined.Place, contentDescription = null)
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(text = "Aleea Constructorilor 5, Resita")
-                }
-                Icon(
-                    Icons.Rounded.ArrowBackIosNew,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .rotate(180f)
-                        .weight(1f),
-                    tint = Black900
-                )
-            }
-        }
-
-        item {
-            Text(text = "Metoda de plata", style = MaterialTheme.typography.h6)
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { }
-                    .padding(vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Row(
-                    modifier = Modifier.weight(9f),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Outlined.CreditCard, contentDescription = null)
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(text = stringResource(id = R.string.add_a_card))
-                }
-                Icon(
-                    Icons.Rounded.ArrowBackIosNew,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .rotate(180f)
-                        .weight(1f),
-                    tint = Black900
-                )
-                /* TODO Select card and cash on delivery */
-            }
-        }
-
-        item {
-            Text(
-                text = stringResource(id = R.string.info_about_order),
-                style = MaterialTheme.typography.h6
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = stringResource(id = R.string.subtotal))
-                Text(
-                    text = "40.00 RON",
-                    color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(5.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = stringResource(id = R.string.shipping))
-                Text(
-                    text = "15.00 RON",
-                    color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(5.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = stringResource(id = R.string.total))
-                Text(
-                    text = "65.00 RON",
-                    style = MaterialTheme.typography.h6
-                )
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-
-            Button(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 5.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.buy),
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                )
-            }
-
-        }
-    }
-}
 
 @ExperimentalMaterialApi
 @Composable
 private fun CartProductCard(
-    product: CardProduct,
+    product: CartProduct,
     onSelectSizeClick: () -> Unit,
 ) {
     Row {
         Image(
-            painter = painterResource(id = R.drawable.cherry),
+            painter = rememberImagePainter(
+                data = product.imageUrl,
+                builder = {
+                    crossfade(true)
+                }
+            ),
             contentDescription = null,
             modifier = Modifier
                 .weight(1f)
-                .clip(RoundedCornerShape(10.dp))
+                .size(150.dp)
+                .clip(RoundedCornerShape(10.dp)),
+            contentScale = ContentScale.Crop
         )
 
         Column(
@@ -613,7 +600,7 @@ private fun CartProductCard(
 private fun CartProductCardPreview() {
     JonAndPaulTheme {
         CartProductCard(
-            product = CardProduct(
+            product = CartProduct(
                 title = "Sosete \"The Kiss\"",
                 amount = 1,
                 price = 20.00,

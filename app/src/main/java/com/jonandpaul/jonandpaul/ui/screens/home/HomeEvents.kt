@@ -5,6 +5,7 @@ import com.jonandpaul.jonandpaul.domain.model.Product
 sealed class HomeEvents {
     object OnFavoritesClick : HomeEvents()
     object OnAccountClick : HomeEvents()
+    object OnCartClick : HomeEvents()
 
     object RevealBackdrop : HomeEvents()
     object ConcealBackdrop : HomeEvents()
