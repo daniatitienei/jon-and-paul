@@ -11,6 +11,7 @@ import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.screens.account.AccountScreen
+import com.jonandpaul.jonandpaul.ui.screens.cart.CartScreen
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
 import com.jonandpaul.jonandpaul.ui.screens.inspect_product.InspectProductScreen
 import com.jonandpaul.jonandpaul.ui.screens.login.LoginScreen
@@ -35,6 +36,19 @@ fun Navigation(moshi: Moshi) {
                     navController.navigate(destination.route) {
                         launchSingleTop = true
                     }
+                }
+            )
+        }
+
+        composable(route = Screens.Cart.route) {
+            CartScreen(
+                onNavigate = { destination ->
+                    navController.navigate(destination.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
                 }
             )
         }

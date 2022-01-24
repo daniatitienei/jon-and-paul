@@ -1,5 +1,6 @@
 package com.jonandpaul.jonandpaul.ui.screens.home
 
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
@@ -27,7 +28,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,13 +54,6 @@ fun HomeScreen(
     onNavigate: (UiEvent.Navigate) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
-    )
-
-    val modalBottomSheetState =
-        rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
-
     val backdropScaffoldState =
         rememberBackdropScaffoldState(initialValue = BackdropValue.Concealed)
 
@@ -71,12 +64,6 @@ fun HomeScreen(
             when (event) {
                 is UiEvent.Navigate -> {
                     onNavigate(event)
-                }
-                is UiEvent.ModalBottomSheet -> {
-                    if (!modalBottomSheetState.isVisible)
-                        modalBottomSheetState.show()
-                    else
-                        modalBottomSheetState.hide()
                 }
                 is UiEvent.BackdropScaffold -> {
                     if (backdropScaffoldState.isConcealed)
@@ -96,8 +83,7 @@ fun HomeScreen(
         mutableStateOf("")
     }
 
-    val products = viewModel.homeState.value.products
-    val cartProducts = viewModel.homeState.value.cartProducts
+    val products = viewModel.state.value.products
 
     val filteredProducts =
         products.filter { product ->
@@ -105,105 +91,76 @@ fun HomeScreen(
                 .contains(searchValue.lowercase())
         }
 
-    BottomSheetScaffold(
-        scaffoldState = bottomSheetScaffoldState,
-        sheetContent = {
-            CartBottomSheet(
-                modalBottomSheetState = modalBottomSheetState,
-                onSelectSizeClick = {
-                    viewModel.onEvent(HomeEvents.ShowModalBottomSheet)
-                },
-                onNavigationClick = {
-                    scope.launch {
-                        if (bottomSheetScaffoldState.bottomSheetState.isCollapsed)
-                            bottomSheetScaffoldState.bottomSheetState.expand()
-                        else
-                            bottomSheetScaffoldState.bottomSheetState.collapse()
+
+    BackdropScaffold(
+        scaffoldState = backdropScaffoldState,
+        backLayerBackgroundColor = MaterialTheme.colors.background,
+        appBar = {
+            TopBar(
+                backdropScaffoldState = backdropScaffoldState,
+                onSearchClick = {
+                    if (backdropScaffoldState.isConcealed) {
+                        viewModel.onEvent(HomeEvents.RevealBackdrop)
+                        focusRequester.requestFocus()
+                        keyboardController?.show()
+                    } else {
+                        viewModel.onEvent(HomeEvents.ConcealBackdrop)
+                        focusRequester.freeFocus()
+                        keyboardController?.hide()
                     }
                 },
-                cartProducts = cartProducts
+                onEvent = viewModel::onEvent,
             )
         },
-        sheetPeekHeight = 0.dp,
-    ) {
-        BackdropScaffold(
-            scaffoldState = backdropScaffoldState,
-            backLayerBackgroundColor = MaterialTheme.colors.background,
-            appBar = {
-                TopBar(
-                    backdropScaffoldState = backdropScaffoldState,
-                    onSearchClick = {
-                        if (backdropScaffoldState.isConcealed) {
-                            viewModel.onEvent(HomeEvents.RevealBackdrop)
-                            focusRequester.requestFocus()
-                            keyboardController?.show()
-                        } else {
-                            viewModel.onEvent(HomeEvents.ConcealBackdrop)
-                            focusRequester.freeFocus()
-                            keyboardController?.hide()
-                        }
-                    },
-                    onEvent = viewModel::onEvent,
-                    onCartClick = {
-                        viewModel.onEvent(HomeEvents.OnCartClick)
-                        scope.launch {
-                            if (bottomSheetScaffoldState.bottomSheetState.isCollapsed)
-                                bottomSheetScaffoldState.bottomSheetState.expand()
-                            else
-                                bottomSheetScaffoldState.bottomSheetState.collapse()
-                        }
+        backLayerContent = {
+            SearchBar(
+                value = searchValue,
+                onValueChange = { searchValue = it },
+                focusRequester = focusRequester,
+                onDone = {
+                    scope.launch {
+                        viewModel.onEvent(HomeEvents.ConcealBackdrop)
+                        keyboardController?.hide()
                     }
-                )
-            },
-            backLayerContent = {
-                SearchBar(
-                    value = searchValue,
-                    onValueChange = { searchValue = it },
-                    focusRequester = focusRequester,
-                    onDone = {
-                        scope.launch {
-                            viewModel.onEvent(HomeEvents.ConcealBackdrop)
-                            keyboardController?.hide()
-                        }
-                    },
-                    onClear = { searchValue = "" }
-                )
-            },
-            frontLayerContent = {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    if (viewModel.homeState.value.isLoading) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .wrapContentSize(align = Alignment.Center)
-                        ) {
-                            CircularProgressIndicator(color = Black900)
-                        }
-                    } else {
-                        val items: List<Product> =
-                            if (filteredProducts.isNotEmpty()) filteredProducts else products
+                },
+                onClear = { searchValue = "" }
+            )
+        },
+        frontLayerContent = {
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (viewModel.state.value.isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .wrapContentSize(align = Alignment.Center)
+                    ) {
+                        CircularProgressIndicator(color = Black900)
+                    }
+                } else {
+                    val items: List<Product> =
+                        if (filteredProducts.isNotEmpty()) filteredProducts else products
 
-                        LazyVerticalGrid(
-                            cells = GridCells.Fixed(2),
-                            verticalArrangement = Arrangement.spacedBy(20.dp),
-                            horizontalArrangement = Arrangement.spacedBy(15.dp),
-                            contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
-                        ) {
-                            items(items) { product ->
-                                ProductCard(
-                                    product = product,
-                                    onClick = {
-                                        viewModel.onEvent(HomeEvents.OnProductClick(product = product))
-                                    },
-                                    imageSize = 240.dp
-                                )
-                            }
+                    LazyVerticalGrid(
+                        cells = GridCells.Fixed(2),
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(15.dp),
+                        contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
+                    ) {
+                        items(items) { product ->
+                            ProductCard(
+                                product = product,
+                                onClick = {
+                                    viewModel.onEvent(HomeEvents.OnProductClick(product = product))
+                                },
+                                imageSize = 240.dp
+                            )
                         }
                     }
                 }
             }
-        )
-    }
+        }
+    )
+
 }
 
 @Composable
@@ -254,7 +211,6 @@ private fun SearchBar(
 private fun TopBar(
     backdropScaffoldState: BackdropScaffoldState,
     onSearchClick: () -> Unit,
-    onCartClick: () -> Unit,
     onEvent: (HomeEvents) -> Unit,
 ) {
     TopAppBar(
@@ -276,7 +232,9 @@ private fun TopBar(
         },
         actions = {
             IconButton(
-                onClick = onCartClick
+                onClick = {
+                    onEvent(HomeEvents.OnCartClick)
+                }
             ) {
                 Icon(
                     Icons.Outlined.ShoppingBag,
@@ -309,303 +267,4 @@ private fun TopBar(
         },
         elevation = 0.dp,
     )
-}
-
-@ExperimentalMaterialApi
-@Composable
-private fun CartBottomSheet(
-    modalBottomSheetState: ModalBottomSheetState,
-    onSelectSizeClick: () -> Unit,
-    onNavigationClick: () -> Unit,
-    cartProducts: List<CartProduct>
-) {
-
-    val composition by rememberLottieComposition(
-        spec = LottieCompositionSpec.Url("https://assets3.lottiefiles.com/packages/lf20_cy82iv.json"),
-    )
-
-    val progress by animateLottieCompositionAsState(
-        composition = composition,
-        iterations = LottieConstants.IterateForever
-    )
-
-    ModalBottomSheetLayout(
-        sheetState = modalBottomSheetState,
-        sheetContent = {
-            LazyColumn(
-                contentPadding = PaddingValues(all = 10.dp)
-            ) {
-                items(20) { index ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                onSelectSizeClick()
-                            }
-                    ) {
-                        Text(text = (index + 1).toString())
-                    }
-                }
-            }
-        }
-    ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    backgroundColor = MaterialTheme.colors.background,
-                    title = {
-                        Text("Cosul meu")
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = onNavigationClick
-                        ) {
-                            Icon(
-                                Icons.Rounded.Close,
-                                contentDescription = null,
-                                tint = Black900
-                            )
-                        }
-                    }
-                )
-            }
-        ) {
-
-            if (cartProducts.isNotEmpty())
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(15.dp),
-                    contentPadding = PaddingValues(horizontal = 10.dp)
-                ) {
-                    items(cartProducts) {
-                        CartProductCard(
-                            product = it,
-                            onSelectSizeClick = onSelectSizeClick
-                        )
-                    }
-
-                    item {
-                        Text(text = "Adresa de livrare", style = MaterialTheme.typography.h6)
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { }
-                                .padding(vertical = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(
-                                modifier = Modifier.weight(9f),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(Icons.Outlined.Place, contentDescription = null)
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Text(text = "Aleea Constructorilor 5, Resita")
-                            }
-                            Icon(
-                                Icons.Rounded.ArrowBackIosNew,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .rotate(180f)
-                                    .weight(1f),
-                                tint = Black900
-                            )
-                        }
-                    }
-
-                    item {
-                        Text(text = "Metoda de plata", style = MaterialTheme.typography.h6)
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { }
-                                .padding(vertical = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Row(
-                                modifier = Modifier.weight(9f),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(Icons.Outlined.CreditCard, contentDescription = null)
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Text(text = stringResource(id = R.string.add_a_card))
-                            }
-                            Icon(
-                                Icons.Rounded.ArrowBackIosNew,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .rotate(180f)
-                                    .weight(1f),
-                                tint = Black900
-                            )
-                            /* TODO Select card and cash on delivery */
-                        }
-                    }
-
-                    item {
-                        Text(
-                            text = stringResource(id = R.string.info_about_order),
-                            style = MaterialTheme.typography.h6
-                        )
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(text = stringResource(id = R.string.subtotal))
-                            Text(
-                                text = "40.00 RON",
-                                color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(5.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(text = stringResource(id = R.string.shipping))
-                            Text(
-                                text = "15.00 RON",
-                                color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(5.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(text = stringResource(id = R.string.total))
-                            Text(
-                                text = "65.00 RON",
-                                style = MaterialTheme.typography.h6
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-
-                        Button(
-                            onClick = { /*TODO*/ },
-                            modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(vertical = 5.dp)
-                        ) {
-                            Text(
-                                text = stringResource(id = R.string.buy),
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                            )
-                        }
-
-                    }
-                }
-            else
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    LottieAnimation(composition = composition, progress = progress)
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(text = "Cosul este gol", style = MaterialTheme.typography.h6)
-                }
-        }
-    }
-}
-
-
-@ExperimentalMaterialApi
-@Composable
-private fun CartProductCard(
-    product: CartProduct,
-    onSelectSizeClick: () -> Unit,
-) {
-    Row {
-        Image(
-            painter = rememberImagePainter(
-                data = product.imageUrl,
-                builder = {
-                    crossfade(true)
-                }
-            ),
-            contentDescription = null,
-            modifier = Modifier
-                .weight(1f)
-                .size(150.dp)
-                .clip(RoundedCornerShape(10.dp)),
-            contentScale = ContentScale.Crop
-        )
-
-        Column(
-            modifier = Modifier
-                .weight(2f)
-                .padding(vertical = 10.dp, horizontal = 15.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Column {
-                    Text(text = product.title)
-                    Spacer(modifier = Modifier.height(5.dp))
-                    Text(text = "Marime: ${product.size}")
-                    Spacer(modifier = Modifier.height(5.dp))
-                    Text(text = "${product.price.twoDecimals()} RON")
-                }
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(Icons.Outlined.Delete, contentDescription = null)
-                }
-            }
-            Spacer(modifier = Modifier.height(15.dp))
-
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            width = 1.dp,
-                            color = Black900.copy(alpha = 0.3f),
-                            shape = RoundedCornerShape(5.dp)
-                        )
-                        .clickable {
-                            onSelectSizeClick()
-                        }
-                        .padding(horizontal = 15.dp, vertical = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = product.amount.toString())
-                    Icon(
-                        Icons.Rounded.ArrowBackIosNew,
-                        contentDescription = null,
-                        tint = Black900.copy(alpha = 0.3f),
-                        modifier = Modifier.rotate(-90f)
-                    )
-                }
-            }
-        }
-
-    }
-}
-
-@ExperimentalMaterialApi
-@Preview(showBackground = true)
-@Composable
-private fun CartProductCardPreview() {
-    JonAndPaulTheme {
-        CartProductCard(
-            product = CartProduct(
-                title = "Sosete \"The Kiss\"",
-                amount = 1,
-                price = 20.00,
-            ),
-            {}
-        )
-    }
 }

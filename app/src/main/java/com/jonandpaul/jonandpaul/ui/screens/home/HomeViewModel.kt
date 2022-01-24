@@ -7,11 +7,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
 import com.jonandpaul.jonandpaul.domain.model.CartProduct
 import com.jonandpaul.jonandpaul.domain.model.Product
+import com.jonandpaul.jonandpaul.domain.model.User
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.squareup.moshi.Moshi
@@ -34,8 +36,8 @@ class HomeViewModel @Inject constructor(
     private var _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
-    private var _homeState = mutableStateOf(HomeState())
-    val homeState: State<HomeState> = _homeState
+    private var _state = mutableStateOf(HomeState())
+    val state: State<HomeState> = _state
 
     init {
         getProducts()
@@ -51,10 +53,7 @@ class HomeViewModel @Inject constructor(
                 )
             }
             is HomeEvents.OnCartClick -> {
-                if (auth.currentUser != null)
-                    getCardProducts()
-                else
-                    emitEvent(UiEvent.Navigate(route = Screens.Register.route))
+                emitEvent(UiEvent.Navigate(route = if (auth.currentUser != null) Screens.Cart.route else Screens.Register.route))
             }
             is HomeEvents.OnFavoritesClick -> {
 
@@ -103,36 +102,10 @@ class HomeViewModel @Inject constructor(
                 if (error != null)
                     return@addSnapshotListener
 
-                _homeState.value =
-                    _homeState.value.copy(products = snapshots?.toObjects()!!, isLoading = false)
+                _state.value =
+                    _state.value.copy(products = snapshots?.toObjects()!!, isLoading = false)
 
-                Log.d("product_state", _homeState.toString())
+                Log.d("product_state", _state.toString())
             }
     }
-
-    private fun getCardProducts() {
-        auth.currentUser?.let { currentUser ->
-            firestore.collection("users").document(currentUser.uid)
-                .addSnapshotListener { snapshot, error ->
-                    if (error != null) {
-                        Log.w(TAG, "Listen failed", error)
-                        return@addSnapshotListener
-                    }
-
-                    if (snapshot != null && snapshot.exists()) {
-                        val cart = snapshot.toObject<Cart>()
-                        _homeState.value =
-                            _homeState.value.copy(cartProducts = cart!!.cart)
-
-                        Log.d("cart", _homeState.value.cartProducts.toString())
-                    } else {
-                        Log.d(TAG, "Cart: null")
-                    }
-                }
-        }
-    }
 }
-
-private data class Cart(
-    val cart: List<CartProduct> = emptyList()
-)

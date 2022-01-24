@@ -91,7 +91,6 @@ class InspectProductViewModel @Inject constructor(
                             docRef.update("cart", FieldValue.arrayUnion(cartProduct))
                         } else {
                             Log.d(ContentValues.TAG, "Cart: null")
-                            docRef.set(mapOf("cart" to listOf(event.product)))
                         }
                     }
                 }

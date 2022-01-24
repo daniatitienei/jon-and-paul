@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jonandpaul.jonandpaul.R
+import com.jonandpaul.jonandpaul.domain.model.CartProduct
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
     private val auth: FirebaseAuth,
+    private val firestore: FirebaseFirestore,
     private val context: Application,
 ) : ViewModel() {
 
@@ -102,6 +104,8 @@ class RegisterViewModel @Inject constructor(
             .addOnCompleteListener { task ->
                 try {
                     if (task.isSuccessful) {
+                        firestore.collection("users").document(auth.currentUser!!.uid)
+                            .set(mapOf("cart" to emptyList<CartProduct>()))
                         onSuccess()
                     } else
                         throw task.exception!!
@@ -124,6 +128,8 @@ class RegisterViewModel @Inject constructor(
         auth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    firestore.collection("users").document(auth.currentUser!!.uid)
+                        .set(mapOf("cart" to emptyList<CartProduct>()))
                     Log.d("firebaseAuthWithGoogle", "SUCCESS")
                     onSuccess()
                 } else {
