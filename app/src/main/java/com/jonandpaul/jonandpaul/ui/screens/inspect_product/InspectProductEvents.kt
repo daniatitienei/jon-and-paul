@@ -6,4 +6,5 @@ sealed class InspectProductEvents {
     object OnPopBackStack: InspectProductEvents()
     data class OnProductClick(var product: Product): InspectProductEvents()
     data class OnAddToCartClick(val product: Product) : InspectProductEvents()
+    object ShowToast : InspectProductEvents()
 }

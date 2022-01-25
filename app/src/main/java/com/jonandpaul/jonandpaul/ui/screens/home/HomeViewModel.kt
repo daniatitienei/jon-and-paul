@@ -48,7 +48,7 @@ class HomeViewModel @Inject constructor(
                 )
             }
             is HomeEvents.OnCartClick -> {
-                emitEvent(UiEvent.Navigate(route = if (auth.currentUser != null) Screens.Cart.route else Screens.Register.route))
+                emitEvent(UiEvent.Navigate(route = Screens.Cart.route))
             }
             is HomeEvents.OnFavoritesClick -> {
 

@@ -25,4 +25,5 @@
     <string name="do_not_have_an_account">Nu ai cont?</string>
     <string name="you_can_register_here">Te poti inregistra aici</string>
     <string name="auth_error_wrong_password">Parola este gresita.</string>
+    <string name="item_added_to_cart">Articolul a fost adaugat</string>
 </resources>
