@@ -1,6 +1,7 @@
 package com.jonandpaul.jonandpaul.domain.model
 
 data class Product(
+    val id: Long? = null,
     val amount: Int = 1,
     val composition: String = "",
     val imageUrl: String = "",

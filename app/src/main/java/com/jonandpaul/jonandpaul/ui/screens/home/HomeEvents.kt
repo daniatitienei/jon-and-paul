@@ -1,6 +1,5 @@
 package com.jonandpaul.jonandpaul.ui.screens.home
 
-import com.jonandpaul.jonandpaul.domain.model.CartProduct
 import com.jonandpaul.jonandpaul.domain.model.Product
 
 sealed class HomeEvents {

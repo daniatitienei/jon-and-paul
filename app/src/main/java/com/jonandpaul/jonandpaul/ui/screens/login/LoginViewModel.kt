@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
@@ -22,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val auth: FirebaseAuth,
-    private val context: Application
+    private val context: Application,
+    private val firestore: FirebaseFirestore
 ) : ViewModel() {
 
     private var _passwordError = mutableStateOf<String?>(null)
@@ -97,9 +99,9 @@ class LoginViewModel @Inject constructor(
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 try {
-                    if (task.isSuccessful)
+                    if (task.isSuccessful) {
                         onSuccess()
-                    else
+                    } else
                         throw task.exception!!
                 } catch (e: FirebaseAuthInvalidCredentialsException) {
                     Log.d("firebase_auth", e.localizedMessage!!)

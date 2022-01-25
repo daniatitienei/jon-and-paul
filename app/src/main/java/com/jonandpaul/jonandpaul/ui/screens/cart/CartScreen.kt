@@ -1,12 +1,10 @@
 package com.jonandpaul.jonandpaul.ui.screens.cart
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -24,15 +22,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import cartdb.CartItemEntity
 import coil.compose.rememberImagePainter
 import com.airbnb.lottie.compose.*
 import com.jonandpaul.jonandpaul.R
-import com.jonandpaul.jonandpaul.domain.model.CartProduct
 import com.jonandpaul.jonandpaul.ui.theme.Black900
-import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
 import kotlinx.coroutines.flow.collect
@@ -44,8 +40,6 @@ fun CartScreen(
     onNavigate: (UiEvent.Navigate) -> Unit,
     onPopBackStack: (UiEvent.PopBackStack) -> Unit,
 ) {
-    val cartItems = viewModel.state.value.cartItems
-
     val composition by rememberLottieComposition(
         spec = LottieCompositionSpec.Url("https://assets3.lottiefiles.com/packages/lf20_cy82iv.json"),
     )
@@ -55,12 +49,14 @@ fun CartScreen(
         iterations = LottieConstants.IterateForever
     )
 
-    var currentCartProduct by remember {
-        mutableStateOf<CartProduct?>(null)
+    var currentCartProductId by remember {
+        mutableStateOf<Long?>(null)
     }
 
     val modalBottomSheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+
+    val cartItems = viewModel.cartItems.collectAsState(initial = emptyList()).value
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -88,22 +84,25 @@ fun CartScreen(
                 contentPadding = PaddingValues(all = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(20) { index ->
+                items(20) { quantity ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(40.dp)
                             .clickable {
-                                currentCartProduct?.let { item ->
-                                    currentCartProduct = viewModel.updateQuantity(
-                                        quantity = index + 1,
-                                        cartItem = item
+                                currentCartProductId?.let { id ->
+                                    viewModel.onEvent(
+                                        CartEvents.OnUpdateQuantity(
+                                            id = id,
+                                            quantity = (quantity + 1).toLong()
+                                        )
                                     )
                                 }
+                                viewModel.onEvent(CartEvents.HideModalBottomSheet)
                             }
                             .wrapContentHeight(align = Alignment.CenterVertically)
                     ) {
-                        Text(text = (index + 1).toString())
+                        Text(text = (quantity + 1).toString())
                     }
                 }
             }
@@ -135,17 +134,18 @@ fun CartScreen(
             if (cartItems.isNotEmpty()) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(15.dp),
-                    contentPadding = PaddingValues(horizontal = 10.dp)
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp)
                 ) {
-                    items(cartItems) { item ->
+                    items(cartItems.size) { index ->
                         CartItemCard(
-                            item = item,
+                            item = cartItems[index],
                             showQuantityPicker = {
-                                currentCartProduct = item
+                                currentCartProductId = cartItems[index].id
                                 viewModel.onEvent(CartEvents.ShowModalBottomSheet)
                             },
                             onEvent = viewModel::onEvent
                         )
+
                     }
 
                     item {
@@ -286,7 +286,7 @@ fun CartScreen(
 @ExperimentalMaterialApi
 @Composable
 private fun CartItemCard(
-    item: CartProduct,
+    item: CartItemEntity,
     showQuantityPicker: () -> Unit,
     onEvent: (CartEvents) -> Unit,
 ) {
@@ -326,7 +326,7 @@ private fun CartItemCard(
 
                 IconButton(
                     onClick = {
-                        onEvent(CartEvents.OnDeleteProduct(item = item))
+                        onEvent(CartEvents.OnDeleteProduct(id = item.id))
                     }
                 ) {
                     Icon(Icons.Outlined.Delete, contentDescription = null)

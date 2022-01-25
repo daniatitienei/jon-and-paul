@@ -1,12 +1,11 @@
 package com.jonandpaul.jonandpaul.ui.screens.cart
 
-import com.jonandpaul.jonandpaul.domain.model.CartProduct
-
 sealed class CartEvents {
     object ShowModalBottomSheet : CartEvents()
     object HideModalBottomSheet : CartEvents()
 
-    data class OnDeleteProduct(val item: CartProduct) : CartEvents()
+    data class OnDeleteProduct(val id: Long) : CartEvents()
+    data class OnUpdateQuantity(val id: Long, val quantity: Long) : CartEvents()
     object OnAddressClick : CartEvents()
     object OnCreditCardClick : CartEvents()
     object OnOrderClick : CartEvents()

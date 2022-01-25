@@ -1,18 +1,14 @@
 package com.jonandpaul.jonandpaul.ui.screens.inspect_product
 
-import android.content.ContentValues
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
-import com.jonandpaul.jonandpaul.domain.model.CartProduct
 import com.jonandpaul.jonandpaul.domain.model.Product
+import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.squareup.moshi.Moshi
@@ -28,15 +24,15 @@ import javax.inject.Inject
 @HiltViewModel
 class InspectProductViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val auth: FirebaseAuth,
-    private val moshi: Moshi
+    private val moshi: Moshi,
+    private val repository: CartDataSource
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
-    private var _suggestionsState = mutableStateOf(InspectProductState())
-    val suggestionsState: State<InspectProductState> = _suggestionsState
+    private var _state = mutableStateOf(InspectProductState())
+    val state: State<InspectProductState> = _state
 
     init {
         getSuggestions()
@@ -68,10 +64,11 @@ class InspectProductViewModel @Inject constructor(
                 )
             }
             is InspectProductEvents.OnAddToCartClick -> {
-                auth.currentUser?.let { currentUser ->
-                    val cartProduct = CartProduct(
+                viewModelScope.launch {
+                    repository.addToCart(
+                        id = event.product.id,
                         title = event.product.title,
-                        amount = event.product.amount,
+                        amount = event.product.amount.toLong(),
                         modelSizeInfo = event.product.modelSizeInfo,
                         composition = event.product.composition,
                         imageUrl = event.product.imageUrl,
@@ -79,20 +76,6 @@ class InspectProductViewModel @Inject constructor(
                         size = event.product.size,
                         quantity = 1
                     )
-                    val docRef = firestore.collection("users").document(currentUser.uid)
-
-                    docRef.addSnapshotListener { snapshot, error ->
-                        if (error != null) {
-                            Log.w(ContentValues.TAG, "Listen failed", error)
-                            return@addSnapshotListener
-                        }
-
-                        if (snapshot != null && snapshot.exists()) {
-                            docRef.update("cart", FieldValue.arrayUnion(cartProduct))
-                        } else {
-                            Log.d(ContentValues.TAG, "Cart: null")
-                        }
-                    }
                 }
             }
         }
@@ -109,8 +92,8 @@ class InspectProductViewModel @Inject constructor(
             .get()
             .addOnSuccessListener { result ->
                 val suggestions: List<Product> = result.toObjects()
-                _suggestionsState.value =
-                    _suggestionsState.value.copy(
+                _state.value =
+                    _state.value.copy(
                         suggestions = suggestions.shuffled(),
                         isLoading = false
                     )
