@@ -239,7 +239,7 @@ fun CartScreen(
                         ) {
                             Text(text = stringResource(id = R.string.subtotal))
                             Text(
-                                text = "${String.format("%.2f", viewModel.subtotal.value)} RON",
+                                text = "${viewModel.subtotal.value.twoDecimals()} RON",
                                 color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
                             )
                         }
@@ -265,7 +265,7 @@ fun CartScreen(
                         ) {
                             Text(text = stringResource(id = R.string.total))
                             Text(
-                                text = "${String.format("%.2f", viewModel.total.value)} RON",
+                                text = "${viewModel.total.value.twoDecimals()} RON",
                                 style = MaterialTheme.typography.h6
                             )
                         }
@@ -339,10 +339,17 @@ private fun CartItemCard(
             ) {
                 Column {
                     Text(text = item.title)
+
                     Spacer(modifier = Modifier.height(5.dp))
-                    Text(text = "Marime: ${item.size}")
+
+                    Text(
+                        text = "${stringResource(id = R.string.size)}: ${item.size}",
+                        color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
+                    )
+
                     Spacer(modifier = Modifier.height(5.dp))
-                    Text(text = "${item.price.twoDecimals()} RON")
+
+                    Text(text = "${item.price.twoDecimals()} RON", fontWeight = FontWeight.Bold)
                 }
 
                 IconButton(

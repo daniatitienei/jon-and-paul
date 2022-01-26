@@ -1,5 +1,9 @@
 package com.jonandpaul.jonandpaul.ui.screens.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
@@ -172,11 +176,17 @@ private fun SearchBar(
             Icon(Icons.Rounded.Search, contentDescription = null)
         },
         trailingIcon = {
-            IconButton(onClick = onClear) {
-                Icon(
-                    Icons.Rounded.Clear,
-                    contentDescription = null,
-                )
+            AnimatedVisibility(
+                visible = value.isNotEmpty(),
+                enter = fadeIn(tween(500)),
+                exit = fadeOut(tween(500))
+            ) {
+                IconButton(onClick = onClear) {
+                    Icon(
+                        Icons.Rounded.Clear,
+                        contentDescription = null,
+                    )
+                }
             }
         },
         modifier = Modifier

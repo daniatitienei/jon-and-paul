@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
@@ -88,7 +89,7 @@ fun ProductCard(
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            Text(text = "${product.price.twoDecimals()} RON")
+            Text(text = "${product.price.twoDecimals()} RON", fontWeight = FontWeight.Bold)
         }
     }
 }

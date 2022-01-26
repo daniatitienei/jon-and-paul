@@ -36,4 +36,5 @@
     <string name="shipping_address_label">Adresa</string>
     <string name="change_address">TOATE ADRESELE</string>
     <string name="save">SALVEAZA</string>
+    <string name="size">Marime</string>
 </resources>
