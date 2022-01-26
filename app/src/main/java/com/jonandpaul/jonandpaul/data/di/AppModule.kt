@@ -7,7 +7,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.jonandpaul.jonandpaul.CartDatabase
 import com.jonandpaul.jonandpaul.JonAndPaulApplication
 import com.jonandpaul.jonandpaul.data.repository.CartDataSourceImpl
+import com.jonandpaul.jonandpaul.data.repository.StoreAddressImpl
 import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
+import com.jonandpaul.jonandpaul.domain.repository.StoreAddress
+import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.AddressUseCases
+import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.GetAddress
+import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.SaveAddress
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.squareup.sqldelight.android.AndroidSqliteDriver
@@ -50,4 +55,17 @@ object AppModule {
     @Singleton
     fun provideCartDatabase(app: Application): SqlDriver =
         AndroidSqliteDriver(CartDatabase.Schema, app, "cart.db")
+
+    @Provides
+    @Singleton
+    fun provideStoreAddressRepository(app: Application): StoreAddress =
+        StoreAddressImpl(context = app)
+
+    @Provides
+    @Singleton
+    fun provideAddressUseCases(repository: StoreAddress): AddressUseCases =
+        AddressUseCases(
+            getAddress = GetAddress(repository = repository),
+            saveAddress = SaveAddress(repository = repository)
+        )
 }

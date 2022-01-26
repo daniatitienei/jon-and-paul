@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -127,7 +128,7 @@ fun InspectProductScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "Alți utilizatori au achiziționat și",
+                text = stringResource(id = R.string.other_users_have_bought),
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 15.dp)
             )

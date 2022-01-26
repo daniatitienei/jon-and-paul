@@ -52,6 +52,10 @@ android {
 }
 
 dependencies {
+    /* DataStore */
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.datastore:datastore-preferences-core:1.0.0")
+
     /* SQLDelight */
     implementation "com.squareup.sqldelight:android-driver:1.5.3"
     implementation "com.squareup.sqldelight:coroutines-extensions-jvm:1.5.3"
@@ -88,7 +92,7 @@ dependencies {
     implementation "com.google.accompanist:accompanist-flowlayout:$accompanistVersion"
 
     /* Splash screen */
-    implementation("androidx.core:core-splashscreen:1.0.0-alpha02")
+    implementation("androidx.core:core-splashscreen:1.0.0-beta01")
 
     /* Material icons */
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
@@ -97,8 +101,8 @@ dependencies {
     implementation "androidx.navigation:navigation-compose:2.4.0-rc01"
 
     implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.0'
-    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'com.google.android.material:material:1.5.0'
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"

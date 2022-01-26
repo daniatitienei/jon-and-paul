@@ -32,9 +32,11 @@
     <string name="shipping_address">Adresa de livrare</string>
     <string name="add_address">Adaugati o adresa</string>
     <string name="current_address">ADRESA CURENTA</string>
-    <string name="shipping_address_placeholder">Aleea, numarul</string>
+    <string name="shipping_address_placeholder">Scrieti aleea, numarul, orasul</string>
     <string name="shipping_address_label">Adresa</string>
     <string name="change_address">TOATE ADRESELE</string>
     <string name="save">SALVEAZA</string>
     <string name="size">Marime</string>
+    <string name="other_users_have_bought">Alți utilizatori au achiziționat și</string>
+    <string name="empty_address_error">Adresa nu trebuie sa fie goala</string>
 </resources>
