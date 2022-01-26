@@ -25,4 +25,5 @@ private val lightColors = lightColors(
     error = Red900,
     background = Color.White,
     onBackground = Black900,
+    onSurface = Black900
 )

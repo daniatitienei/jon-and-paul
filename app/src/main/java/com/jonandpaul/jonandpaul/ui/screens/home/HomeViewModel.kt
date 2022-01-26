@@ -31,8 +31,8 @@ class HomeViewModel @Inject constructor(
     private var _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
-    private var _homeState = mutableStateOf(HomeState())
-    val homeState: State<HomeState> = _homeState
+    private var _state = mutableStateOf(HomeState())
+    val state: State<HomeState> = _state
 
     init {
         getProducts()
@@ -43,9 +43,12 @@ class HomeViewModel @Inject constructor(
             is HomeEvents.OnAccountClick -> {
                 emitEvent(
                     UiEvent.Navigate(
-                        route = Screens.Register.route
+                        route = if (auth.currentUser == null) Screens.Register.route else Screens.Account.route
                     )
                 )
+            }
+            is HomeEvents.OnCartClick -> {
+                emitEvent(UiEvent.Navigate(route = Screens.Cart.route))
             }
             is HomeEvents.OnFavoritesClick -> {
 
@@ -94,10 +97,10 @@ class HomeViewModel @Inject constructor(
                 if (error != null)
                     return@addSnapshotListener
 
-                _homeState.value =
-                    _homeState.value.copy(products = snapshots?.toObjects()!!, isLoading = false)
+                _state.value =
+                    _state.value.copy(products = snapshots?.toObjects()!!, isLoading = false)
 
-                Log.d("product_state", _homeState.toString())
+                Log.d("product_state", _state.toString())
             }
     }
 }

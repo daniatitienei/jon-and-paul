@@ -88,6 +88,7 @@ fun LoginScreen(
 
             if (account != null) {
                 Log.d("auth_email", account.email!!)
+                viewModel.onEvent(LoginEvents.OnContinueWithGoogle(idToken = account.idToken!!))
             }
         } catch (e: ApiException) {
             Log.w("firebaseAuthWithGoogle", "Google sign in failed.", e)

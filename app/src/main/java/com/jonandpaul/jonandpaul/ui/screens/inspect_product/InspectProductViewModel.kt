@@ -1,6 +1,5 @@
 package com.jonandpaul.jonandpaul.ui.screens.inspect_product
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -8,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.jonandpaul.jonandpaul.domain.model.Product
+import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.squareup.moshi.Moshi
@@ -23,30 +23,18 @@ import javax.inject.Inject
 @HiltViewModel
 class InspectProductViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val moshi: Moshi
+    private val moshi: Moshi,
+    private val repository: CartDataSource
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
-    private var _suggestionsState = mutableStateOf(InspectProductState())
-    val suggestionsState: State<InspectProductState> = _suggestionsState
+    private var _state = mutableStateOf(InspectProductState())
+    val state: State<InspectProductState> = _state
 
     init {
         getSuggestions()
-    }
-
-    private fun getSuggestions() {
-        firestore.collection("products")
-            .get()
-            .addOnSuccessListener { result ->
-                val suggestions: List<Product> = result.toObjects()
-                _suggestionsState.value =
-                    _suggestionsState.value.copy(
-                        suggestions = suggestions.shuffled(),
-                        isLoading = false
-                    )
-            }
     }
 
     fun onEvent(event: InspectProductEvents) {
@@ -74,6 +62,22 @@ class InspectProductViewModel @Inject constructor(
                     )
                 )
             }
+            is InspectProductEvents.OnAddToCartClick -> {
+                viewModelScope.launch {
+                    repository.addToCart(
+                        id = event.product.id,
+                        title = event.product.title,
+                        amount = event.product.amount.toLong(),
+                        modelSizeInfo = event.product.modelSizeInfo,
+                        composition = event.product.composition,
+                        imageUrl = event.product.imageUrl,
+                        price = event.product.price,
+                        size = event.product.size,
+                        quantity = 1
+                    )
+                }
+                emitEvent(UiEvent.Toast)
+            }
         }
     }
 
@@ -81,5 +85,18 @@ class InspectProductViewModel @Inject constructor(
         viewModelScope.launch {
             _uiEvent.emit(event)
         }
+    }
+
+    private fun getSuggestions() {
+        firestore.collection("products")
+            .get()
+            .addOnSuccessListener { result ->
+                val suggestions: List<Product> = result.toObjects()
+                _state.value =
+                    _state.value.copy(
+                        suggestions = suggestions.shuffled(),
+                        isLoading = false
+                    )
+            }
     }
 }

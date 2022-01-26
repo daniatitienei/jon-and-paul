@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id("dagger.hilt.android.plugin")
     id 'com.google.gms.google-services'
+    id("com.squareup.sqldelight")
 }
 
 android {
@@ -41,7 +42,7 @@ android {
     }
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
-        kotlinCompilerVersion '1.5.21'
+        kotlinCompilerVersion '1.5.31'
     }
     packagingOptions {
         resources {
@@ -51,6 +52,10 @@ android {
 }
 
 dependencies {
+    /* SQLDelight */
+    implementation "com.squareup.sqldelight:android-driver:1.5.3"
+    implementation "com.squareup.sqldelight:coroutines-extensions-jvm:1.5.3"
+
     /* Coil */
     implementation("io.coil-kt:coil-compose:1.4.0")
 
@@ -104,4 +109,10 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+}
+
+sqldelight {
+    CartDatabase {
+        packageName = "com.jonandpaul.jonandpaul"
+    }
 }

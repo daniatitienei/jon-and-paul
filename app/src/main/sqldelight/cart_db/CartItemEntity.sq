@@ -1,0 +1,24 @@
+CREATE TABLE CartItemEntity (
+    id INTEGER PRIMARY KEY NOT NULL,
+        amount INTEGER NOT NULL,
+        imageUrl TEXT NOT NULL,
+        modelSizeInfo TEXT NOT NULL,
+        size TEXT NOT NULL,
+        price REAL NOT NULL,
+        title TEXT NOT NULL,
+        quantity INTEGER NOT NULL,
+        composition TEXT NOT NULL
+);
+
+getCartItems:
+SELECT * FROM CartItemEntity;
+
+addToCart:
+INSERT OR REPLACE INTO CartItemEntity(id, amount, imageUrl, modelSizeInfo, size, price, title, quantity, composition)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+removeFromCart:
+DELETE FROM CartItemEntity WHERE id == :id;
+
+updateQuantity:
+UPDATE CartItemEntity SET quantity = :quantity WHERE id == :id;

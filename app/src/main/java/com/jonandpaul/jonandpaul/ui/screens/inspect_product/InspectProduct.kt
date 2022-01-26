@@ -1,5 +1,6 @@
 package com.jonandpaul.jonandpaul.ui.screens.inspect_product
 
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -16,15 +17,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.jonandpaul.jonandpaul.R
@@ -49,7 +48,9 @@ fun InspectProductScreen(
         mutableStateOf(false)
     }
 
-    val suggestions = viewModel.suggestionsState.value.suggestions
+    val suggestions = viewModel.state.value.suggestions
+
+    val context = LocalContext.current
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -60,6 +61,13 @@ fun InspectProductScreen(
                 is UiEvent.Navigate -> {
                     onNavigate(event)
                 }
+                is UiEvent.Toast -> {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.item_added_to_cart),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
                 else -> Unit
             }
         }
@@ -69,7 +77,9 @@ fun InspectProductScreen(
         backgroundColor = MaterialTheme.colors.background,
         bottomBar = {
             BottomBar(
-                onAddToCartClick = { /*TODO*/ }
+                onAddToCartClick = {
+                    viewModel.onEvent(InspectProductEvents.OnAddToCartClick(product = product))
+                }
             )
         }
     ) { innerPadding ->

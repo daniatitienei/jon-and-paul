@@ -4,9 +4,14 @@ import android.app.Application
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.jonandpaul.jonandpaul.CartDatabase
 import com.jonandpaul.jonandpaul.JonAndPaulApplication
+import com.jonandpaul.jonandpaul.data.repository.CartDataSourceImpl
+import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.squareup.sqldelight.android.AndroidSqliteDriver
+import com.squareup.sqldelight.db.SqlDriver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,4 +40,14 @@ object AppModule {
         .addLast(
             KotlinJsonAdapterFactory()
         ).build()
+
+    @Provides
+    @Singleton
+    fun provideCartDataSource(driver: SqlDriver): CartDataSource =
+        CartDataSourceImpl(CartDatabase(driver = driver))
+
+    @Provides
+    @Singleton
+    fun provideCartDatabase(app: Application): SqlDriver =
+        AndroidSqliteDriver(CartDatabase.Schema, app, "cart.db")
 }
