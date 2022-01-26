@@ -27,4 +27,13 @@
     <string name="you_can_register_here">Te poti inregistra aici</string>
     <string name="auth_error_wrong_password">Parola este gresita.</string>
     <string name="item_added_to_cart">Articolul a fost adaugat</string>
+    <string name="cart_is_empty">Cosul este gol</string>
+    <string name="item_removed">Articolul a fost eliminat</string>
+    <string name="shipping_address">Adresa de livrare</string>
+    <string name="add_address">Adaugati o adresa</string>
+    <string name="current_address">ADRESA CURENTA</string>
+    <string name="shipping_address_placeholder">Aleea, numarul</string>
+    <string name="shipping_address_label">Adresa</string>
+    <string name="change_address">TOATE ADRESELE</string>
+    <string name="save">SALVEAZA</string>
 </resources>

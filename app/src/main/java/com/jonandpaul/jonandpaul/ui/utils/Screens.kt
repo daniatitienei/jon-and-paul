@@ -8,5 +8,8 @@ sealed class Screens(val route: String) {
 
     object Register : Screens("register")
     object Login : Screens("login")
+
     object InspectProduct : Screens(route = "inspect_product/{product}")
+
+    object Address : Screens(route = "address")
 }

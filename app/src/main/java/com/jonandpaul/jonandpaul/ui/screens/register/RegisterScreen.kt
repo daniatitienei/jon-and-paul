@@ -130,7 +130,8 @@ fun RegisterScreen(
                             contentDescription = null,
                         )
                     }
-                }
+                },
+                elevation = 0.dp
             )
         }
     ) {

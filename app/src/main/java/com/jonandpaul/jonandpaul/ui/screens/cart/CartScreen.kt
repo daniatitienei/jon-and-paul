@@ -1,5 +1,6 @@
 package com.jonandpaul.jonandpaul.ui.screens.cart
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -56,6 +58,8 @@ fun CartScreen(
     val modalBottomSheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
+    val context = LocalContext.current
+
     val cartItems = viewModel.cartItems.collectAsState(initial = emptyList()).value
 
     LaunchedEffect(key1 = true) {
@@ -71,6 +75,13 @@ fun CartScreen(
                 }
                 is UiEvent.PopBackStack -> {
                     onPopBackStack(event)
+                }
+                is UiEvent.Toast -> {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.item_removed),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 else -> Unit
             }
@@ -127,13 +138,14 @@ fun CartScreen(
                                 tint = Black900
                             )
                         }
-                    }
+                    },
+                    elevation = 0.dp
                 )
             }
         ) {
             if (cartItems.isNotEmpty()) {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(15.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp)
                 ) {
                     items(cartItems.size) { index ->
@@ -149,12 +161,17 @@ fun CartScreen(
                     }
 
                     item {
-                        Text(text = "Adresa de livrare", style = MaterialTheme.typography.h6)
+                        Text(
+                            text = stringResource(id = R.string.shipping_address),
+                            style = MaterialTheme.typography.h6
+                        )
 
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { }
+                                .clickable {
+                                    viewModel.onEvent(CartEvents.OnAddressClick)
+                                }
                                 .padding(vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -164,8 +181,9 @@ fun CartScreen(
                             ) {
                                 Icon(Icons.Outlined.Place, contentDescription = null)
                                 Spacer(modifier = Modifier.width(10.dp))
-                                Text(text = "Aleea Constructorilor 5, Resita")
+                                Text(text = stringResource(id = R.string.add_address))
                             }
+
                             Icon(
                                 Icons.Rounded.ArrowBackIosNew,
                                 contentDescription = null,
@@ -221,7 +239,7 @@ fun CartScreen(
                         ) {
                             Text(text = stringResource(id = R.string.subtotal))
                             Text(
-                                text = "40.00 RON",
+                                text = "${String.format("%.2f", viewModel.subtotal.value)} RON",
                                 color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
                             )
                         }
@@ -247,7 +265,7 @@ fun CartScreen(
                         ) {
                             Text(text = stringResource(id = R.string.total))
                             Text(
-                                text = "65.00 RON",
+                                text = "${String.format("%.2f", viewModel.total.value)} RON",
                                 style = MaterialTheme.typography.h6
                             )
                         }
@@ -277,7 +295,10 @@ fun CartScreen(
                 ) {
                     LottieAnimation(composition = composition, progress = progress)
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text(text = "Cosul este gol", style = MaterialTheme.typography.h6)
+                    Text(
+                        text = stringResource(id = R.string.cart_is_empty),
+                        style = MaterialTheme.typography.h6
+                    )
                 }
         }
     }

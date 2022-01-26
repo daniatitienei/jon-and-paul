@@ -1,6 +1,7 @@
 package com.jonandpaul.jonandpaul.ui
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
@@ -11,6 +12,7 @@ import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.screens.account.AccountScreen
+import com.jonandpaul.jonandpaul.ui.screens.address.AddressScreen
 import com.jonandpaul.jonandpaul.ui.screens.cart.CartScreen
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
 import com.jonandpaul.jonandpaul.ui.screens.inspect_product.InspectProductScreen
@@ -40,7 +42,41 @@ fun Navigation(moshi: Moshi) {
             )
         }
 
-        composable(route = Screens.Cart.route) {
+        composable(
+            route = Screens.Cart.route,
+            enterTransition = {
+                when (this.initialState.destination.route) {
+                    Screens.Home.route -> {
+                        slideInVertically(initialOffsetY = { 1000 }) + fadeIn(tween(500))
+                    }
+                    else -> fadeIn(tween(500))
+                }
+            },
+            exitTransition = {
+                when (this.targetState.destination.route) {
+                    Screens.Home.route -> {
+                        slideOutVertically(targetOffsetY = { 1000 }) + fadeOut(tween(500))
+                    }
+                    else -> fadeOut(tween(500))
+                }
+            },
+            popEnterTransition = {
+                when (this.initialState.destination.route) {
+                    Screens.Home.route -> {
+                        slideInVertically(initialOffsetY = { 1000 }) + fadeIn(tween(500))
+                    }
+                    else -> fadeIn(tween(500))
+                }
+            },
+            popExitTransition = {
+                when (this.targetState.destination.route) {
+                    Screens.Home.route -> {
+                        slideOutVertically(targetOffsetY = { 1000 }) + fadeOut(tween(500))
+                    }
+                    else -> fadeOut(tween(500))
+                }
+            }
+        ) {
             CartScreen(
                 onNavigate = { destination ->
                     navController.navigate(destination.route) {
@@ -50,6 +86,33 @@ fun Navigation(moshi: Moshi) {
                 onPopBackStack = {
                     navController.popBackStack()
                 }
+            )
+        }
+
+        composable(
+            route = Screens.Address.route,
+            enterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+            },
+            exitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+            },
+            popEnterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+            },
+            popExitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+            }
+        ) {
+            AddressScreen(
+                onNavigate = { destination ->
+                    navController.navigate(destination.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
+                },
             )
         }
 
@@ -107,7 +170,7 @@ fun Navigation(moshi: Moshi) {
                     Screens.Register.route -> {
                         slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
                     }
-                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Down)
+                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Up)
                 }
             },
             exitTransition = {
@@ -115,7 +178,7 @@ fun Navigation(moshi: Moshi) {
                     Screens.Register.route -> {
                         slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
                     }
-                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Up)
+                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Down)
                 }
             },
             popEnterTransition = {
@@ -123,7 +186,7 @@ fun Navigation(moshi: Moshi) {
                     Screens.Register.route -> {
                         slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
                     }
-                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Down)
+                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Up)
                 }
             },
             popExitTransition = {
@@ -131,7 +194,7 @@ fun Navigation(moshi: Moshi) {
                     Screens.Register.route -> {
                         slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
                     }
-                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Up)
+                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Down)
                 }
             }
         ) {
@@ -160,7 +223,7 @@ fun Navigation(moshi: Moshi) {
                     Screens.Login.route -> {
                         slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
                     }
-                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Down)
+                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Up)
                 }
             },
             exitTransition = {
@@ -168,7 +231,7 @@ fun Navigation(moshi: Moshi) {
                     Screens.Login.route -> {
                         slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
                     }
-                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Up)
+                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Down)
                 }
             },
             popEnterTransition = {
@@ -176,7 +239,7 @@ fun Navigation(moshi: Moshi) {
                     Screens.Login.route -> {
                         slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
                     }
-                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Down)
+                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Up)
                 }
             },
             popExitTransition = {
@@ -184,7 +247,7 @@ fun Navigation(moshi: Moshi) {
                     Screens.Login.route -> {
                         slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
                     }
-                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Up)
+                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Down)
                 }
             }
         ) {
