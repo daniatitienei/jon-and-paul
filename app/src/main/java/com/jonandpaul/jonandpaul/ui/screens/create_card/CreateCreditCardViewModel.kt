@@ -1,37 +1,40 @@
-package com.jonandpaul.jonandpaul.ui.screens.address
+package com.jonandpaul.jonandpaul.ui.screens.create_card
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
-import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.AddressUseCases
+import com.jonandpaul.jonandpaul.domain.repository.CreditCardDataSource
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AddressViewModel @Inject constructor(
-    private val useCases: AddressUseCases
+class CreateCreditCardViewModel @Inject constructor(
+    private val repository: CreditCardDataSource
 ) : ViewModel() {
-
-    val currentAddress = useCases.getAddress()
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
-    fun onEvent(event: AddressEvents) {
+    fun onEvent(event: CreateCreditCardEvents) {
         when (event) {
-            is AddressEvents.OnNavigationClick -> {
+            is CreateCreditCardEvents.OnNavigationClick -> {
                 emitEvent(UiEvent.PopBackStack)
             }
-            is AddressEvents.OnSaveClick -> {
+            is CreateCreditCardEvents.OnAddCard -> {
                 viewModelScope.launch {
-                    useCases.saveAddress(newAddress = event.newAddress)
+                    repository.insertCreditCard(
+                        ownerName = event.owner,
+                        cvv = event.cvv,
+                        number = event.number,
+                        expirationDate = event.expirationDate
+                    )
                 }
+                emitEvent(UiEvent.Toast)
+                emitEvent(UiEvent.PopBackStack)
             }
         }
     }

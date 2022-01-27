@@ -11,29 +11,31 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CreditCard
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material.icons.outlined.Place
-import androidx.compose.material.icons.rounded.ArrowBackIosNew
-import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import cartdb.CartItemEntity
 import coil.compose.rememberImagePainter
 import com.airbnb.lottie.compose.*
+import com.jonandpaul.jonandpaul.CartItemEntity
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
@@ -62,6 +64,10 @@ fun CartScreen(
 
     val cartItems = viewModel.cartItems.collectAsState(initial = emptyList()).value
 
+    val creditCards = viewModel.creditCards.collectAsState(initial = emptyList()).value
+
+    val currentAddress = viewModel.currentAddress.collectAsState(initial = "").value
+
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
             when (event) {
@@ -87,6 +93,7 @@ fun CartScreen(
             }
         }
     }
+
 
     ModalBottomSheetLayout(
         sheetState = modalBottomSheetState,
@@ -181,7 +188,7 @@ fun CartScreen(
                             ) {
                                 Icon(Icons.Outlined.Place, contentDescription = null)
                                 Spacer(modifier = Modifier.width(10.dp))
-                                Text(text = stringResource(id = R.string.add_address))
+                                Text(text = currentAddress.ifEmpty { stringResource(id = R.string.add_address) })
                             }
 
                             Icon(
@@ -196,12 +203,14 @@ fun CartScreen(
                     }
 
                     item {
-                        Text(text = "Metoda de plata", style = MaterialTheme.typography.h6)
+                        Text(text = stringResource(id = R.string.payment_method), style = MaterialTheme.typography.h6)
 
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { }
+                                .clickable {
+                                    viewModel.onEvent(CartEvents.OnCreateCreditCardClick)
+                                }
                                 .padding(vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -221,8 +230,28 @@ fun CartScreen(
                                     .weight(1f),
                                 tint = Black900
                             )
-                            /* TODO Select card and cash on delivery */
                         }
+
+                        repeat(creditCards.size) {
+                            PaymentMethod(
+                                onClick = { /*TODO*/ },
+                                title = "${stringResource(id = R.string.card_end_with)} ${
+                                    creditCards[it].number.subSequence(
+                                        12,
+                                        16
+                                    )
+                                }",
+                                icon = Icons.Outlined.CreditCard,
+                                isSelected = false
+                            )
+                        }
+
+                        PaymentMethod(
+                            onClick = { /*TODO*/ },
+                            title = stringResource(id = R.string.cash_on_delivery),
+                            icon = Icons.Outlined.Payments,
+                            isSelected = true
+                        )
                     }
 
                     item {
@@ -301,6 +330,42 @@ fun CartScreen(
                     )
                 }
         }
+    }
+
+}
+
+@Composable
+private fun PaymentMethod(
+    onClick: () -> Unit,
+    title: String,
+    icon: ImageVector,
+    isSelected: Boolean
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row(
+            modifier = Modifier.weight(9f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                icon,
+                contentDescription = null
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(text = title)
+        }
+        Icon(
+            if (isSelected) Icons.Rounded.RadioButtonChecked else Icons.Rounded.RadioButtonUnchecked,
+            contentDescription = null,
+            modifier = Modifier
+                .weight(1f),
+            tint = Black900
+        )
     }
 }
 

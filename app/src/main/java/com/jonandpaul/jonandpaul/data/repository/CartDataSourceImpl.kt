@@ -1,12 +1,11 @@
 package com.jonandpaul.jonandpaul.data.repository
 
-import cartdb.CartItemEntity
 import com.jonandpaul.jonandpaul.CartDatabase
+import com.jonandpaul.jonandpaul.CartItemEntity
 import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 
 class CartDataSourceImpl(
     db: CartDatabase

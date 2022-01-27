@@ -12,4 +12,5 @@ sealed class Screens(val route: String) {
     object InspectProduct : Screens(route = "inspect_product/{product}")
 
     object Address : Screens(route = "address")
+    object AddCreditCard : Screens(route = "add_credit_card")
 }

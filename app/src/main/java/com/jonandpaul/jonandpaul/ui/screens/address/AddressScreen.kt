@@ -1,5 +1,10 @@
 package com.jonandpaul.jonandpaul.ui.screens.address
 
+import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,10 +37,13 @@ fun AddressScreen(
     onPopBackStack: (UiEvent.PopBackStack) -> Unit,
     viewModel: AddressViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
 
-    var searchBar by remember {
+    var newAddress by remember {
         mutableStateOf("")
     }
+
+    val currentAddress = viewModel.currentAddress.collectAsState(initial = "").value
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -67,10 +76,13 @@ fun AddressScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentWidth(align = Alignment.CenterHorizontally)
-                    .padding(horizontal = 15.dp)
+                    .padding(horizontal = 15.dp, vertical = 20.dp)
             ) {
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        viewModel.onEvent(AddressEvents.OnSaveClick(newAddress = newAddress))
+                    },
+                    enabled = newAddress.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -81,70 +93,57 @@ fun AddressScreen(
             }
         }
     ) { innerPadding ->
-        LazyColumn(
-            contentPadding = PaddingValues(
+        Column(
+            modifier = Modifier.padding(
                 start = 15.dp,
                 end = 15.dp,
                 top = 20.dp,
                 bottom = innerPadding.calculateBottomPadding()
-            ),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            )
         ) {
-            item {
-                CurrentAddress(address = "Aleea Constructorilor, 5")
-            }
-
-            item {
-                TextField(
-                    value = searchBar,
-                    onValueChange = { searchBar = it },
-                    placeholder = {
-                        Text(
-                            text = stringResource(
-                                id = R.string.shipping_address_placeholder
-                            ),
-                            color = MaterialTheme.colors.primary.copy(alpha = 0.5f)
-                        )
-                    },
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.Transparent
-                    ),
-                    trailingIcon = {
-                        Icon(Icons.Rounded.Search, contentDescription = null)
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Search,
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onSearch = { /*TODO*/ }
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            item {
-                Text(
-                    text = stringResource(id = R.string.change_address),
-                    color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
-                )
-
-                Spacer(modifier = Modifier.height(5.dp))
-
-                repeat(20) {
-                    Row(
-                        modifier = Modifier
-                            .clickable { }
-                            .padding(vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = "Aleea Constructorilor, 5", modifier = Modifier.weight(9f))
-                        Icon(
-                            Icons.Outlined.Place,
-                            contentDescription = null,
-                            modifier = Modifier.weight(1f)
-                        )
+            TextField(
+                value = newAddress,
+                onValueChange = { newAddress = it },
+                placeholder = {
+                    Text(
+                        text = stringResource(
+                            id = R.string.shipping_address_placeholder
+                        ),
+                        color = MaterialTheme.colors.primary.copy(alpha = 0.5f)
+                    )
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent
+                ),
+                trailingIcon = {
+                    Icon(Icons.Rounded.Search, contentDescription = null)
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        if (newAddress.isNotEmpty())
+                            viewModel.onEvent(AddressEvents.OnSaveClick(newAddress = newAddress))
+                        else
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.empty_address_error),
+                                Toast.LENGTH_LONG
+                            ).show()
                     }
-                }
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            AnimatedVisibility(
+                visible = currentAddress.isNotEmpty(),
+                enter = fadeIn(tween(500)),
+                exit = fadeOut(tween(500))
+            ) {
+                CurrentAddress(address = currentAddress)
             }
         }
     }
