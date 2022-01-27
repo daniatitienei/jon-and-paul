@@ -14,6 +14,7 @@ import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.screens.account.AccountScreen
 import com.jonandpaul.jonandpaul.ui.screens.address.AddressScreen
 import com.jonandpaul.jonandpaul.ui.screens.cart.CartScreen
+import com.jonandpaul.jonandpaul.ui.screens.create_card.CreateCreditCardScreen
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
 import com.jonandpaul.jonandpaul.ui.screens.inspect_product.InspectProductScreen
 import com.jonandpaul.jonandpaul.ui.screens.login.LoginScreen
@@ -113,6 +114,28 @@ fun Navigation(moshi: Moshi) {
                 onPopBackStack = {
                     navController.popBackStack()
                 },
+            )
+        }
+
+        composable(
+            route = Screens.AddCreditCard.route,
+            enterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+            },
+            exitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+            },
+            popEnterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+            },
+            popExitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+            }
+        ) {
+            CreateCreditCardScreen(
+                onPopBackStack = {
+                    navController.popBackStack()
+                }
             )
         }
 

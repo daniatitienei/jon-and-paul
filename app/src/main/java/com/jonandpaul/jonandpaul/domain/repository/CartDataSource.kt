@@ -1,6 +1,6 @@
 package com.jonandpaul.jonandpaul.domain.repository
 
-import cartdb.CartItemEntity
+import com.jonandpaul.jonandpaul.CartItemEntity
 import kotlinx.coroutines.flow.Flow
 
 interface CartDataSource {

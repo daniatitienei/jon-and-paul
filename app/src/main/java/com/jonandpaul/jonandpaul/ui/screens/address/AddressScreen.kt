@@ -76,19 +76,13 @@ fun AddressScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentWidth(align = Alignment.CenterHorizontally)
-                    .padding(horizontal = 15.dp)
+                    .padding(horizontal = 15.dp, vertical = 20.dp)
             ) {
                 Button(
                     onClick = {
-                        if (newAddress.isNotEmpty())
-                            viewModel.onEvent(AddressEvents.OnSaveClick(newAddress = newAddress))
-                        else
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.empty_address_error),
-                                Toast.LENGTH_LONG
-                            ).show()
+                        viewModel.onEvent(AddressEvents.OnSaveClick(newAddress = newAddress))
                     },
+                    enabled = newAddress.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(

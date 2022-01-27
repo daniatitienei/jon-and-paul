@@ -38,4 +38,15 @@
     <string name="size">Marime</string>
     <string name="other_users_have_bought">Alți utilizatori au achiziționat și</string>
     <string name="empty_address_error">Adresa nu trebuie sa fie goala</string>
+    <string name="add_new_card">Adaugă un card nou</string>
+    <string name="name">Numele</string>
+    <string name="owner_name">Numele deținătorului</string>
+    <string name="card_number">Numărul cardului</string>
+    <string name="expiration_date">Data de expirare</string>
+    <string name="month_year">LL/AA</string>
+    <string name="cvc_cvv">CVC/CVV</string>
+    <string name="card_added">Cardul a fost adaugat.</string>
+    <string name="card_end_with">Numărul cardului se termină cu</string>
+    <string name="cash_on_delivery">Ramburs</string>
+    <string name="payment_method">Metoda de plata</string>
 </resources>
