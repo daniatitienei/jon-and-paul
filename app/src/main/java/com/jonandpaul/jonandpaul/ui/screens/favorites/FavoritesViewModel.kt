@@ -10,18 +10,23 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.domain.model.User
+import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
+import com.squareup.moshi.Moshi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val moshi: Moshi
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
@@ -45,7 +50,21 @@ class FavoritesViewModel @Inject constructor(
                 emitEvent(UiEvent.PopBackStack)
             }
             is FavoritesEvents.OnProductClick -> {
-                /*TODO*/
+                val jsonAdapter = moshi.adapter(Product::class.java)
+
+                val product = event.product.copy(
+                    imageUrl = URLEncoder.encode(
+                        event.product.imageUrl,
+                        StandardCharsets.UTF_8.toString()
+                    )
+                )
+                val productJson = jsonAdapter.toJson(product)
+
+                emitEvent(
+                    UiEvent.Navigate(
+                        route = Screens.InspectProduct.route.replace("{product}", productJson)
+                    )
+                )
             }
         }
     }

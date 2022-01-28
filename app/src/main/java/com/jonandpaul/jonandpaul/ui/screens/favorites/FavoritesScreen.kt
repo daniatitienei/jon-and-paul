@@ -27,7 +27,6 @@ fun FavoritesScreen(
     onNavigate: (UiEvent.Navigate) -> Unit,
     viewModel: FavoritesViewModel = hiltViewModel()
 ) {
-
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
             when (event) {
@@ -41,14 +40,18 @@ fun FavoritesScreen(
             }
         }
     }
-    
+
     val favorites = viewModel.state.value.favorites
 
     Scaffold(
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(
+                        onClick = {
+                            viewModel.onEvent(FavoritesEvents.OnNavigationClick)
+                        }
+                    ) {
                         Icon(Icons.Rounded.ArrowBackIosNew, contentDescription = null)
                     }
                 },
@@ -70,7 +73,9 @@ fun FavoritesScreen(
                 items(favorites) { product ->
                     ProductCard(
                         product = product,
-                        onClick = { /*TODO*/ },
+                        onClick = {
+                            viewModel.onEvent(FavoritesEvents.OnProductClick(product = product))
+                        },
                         imageSize = 240.dp,
                         isFavorite = true,
                         onFavoriteClick = {
