@@ -24,8 +24,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.airbnb.lottie.compose.*
@@ -153,24 +157,35 @@ fun CartScreen(
             if (cartItems.isNotEmpty()) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(20.dp),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp)
+                    contentPadding = PaddingValues(horizontal = 15.dp, vertical = 20.dp)
                 ) {
-                    items(cartItems.size) { index ->
-                        CartItemCard(
-                            item = cartItems[index],
-                            showQuantityPicker = {
-                                currentCartProductId = cartItems[index].id
-                                viewModel.onEvent(CartEvents.ShowModalBottomSheet)
-                            },
-                            onEvent = viewModel::onEvent
+                    item {
+                        Text(
+                            text = stringResource(id = R.string.articles),
+                            fontWeight = FontWeight.Bold
                         )
 
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        repeat(cartItems.size) { index ->
+                            CartItemCard(
+                                item = cartItems[index],
+                                showQuantityPicker = {
+                                    currentCartProductId = cartItems[index].id
+                                    viewModel.onEvent(CartEvents.ShowModalBottomSheet)
+                                },
+                                onEvent = viewModel::onEvent
+                            )
+
+                            if (index != cartItems.size - 1)
+                                Spacer(modifier = Modifier.height(20.dp))
+                        }
                     }
 
                     item {
                         Text(
                             text = stringResource(id = R.string.shipping_address),
-                            style = MaterialTheme.typography.h6
+                            fontWeight = FontWeight.Bold
                         )
 
                         Row(
@@ -203,7 +218,10 @@ fun CartScreen(
                     }
 
                     item {
-                        Text(text = stringResource(id = R.string.payment_method), style = MaterialTheme.typography.h6)
+                        Text(
+                            text = stringResource(id = R.string.payment_method),
+                            fontWeight = FontWeight.Bold
+                        )
 
                         Row(
                             modifier = Modifier
@@ -255,10 +273,31 @@ fun CartScreen(
                     }
 
                     item {
-                        Text(
-                            text = stringResource(id = R.string.info_about_order),
-                            style = MaterialTheme.typography.h6
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append(stringResource(id = R.string.info_about_order))
+                                    }
+
+                                    append(" ")
+
+                                    withStyle(
+                                        style = SpanStyle(
+                                            fontSize = 12.sp,
+                                            color = MaterialTheme.colors.primary.copy(alpha = 0.5f)
+                                        )
+                                    ) {
+                                        append(stringResource(id = R.string.order_track_auth))
+                                    }
+                                },
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+
+                        }
 
                         Spacer(modifier = Modifier.height(10.dp))
 

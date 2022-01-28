@@ -50,4 +50,6 @@
     <string name="card_end_with">Numărul cardului se termină cu</string>
     <string name="cash_on_delivery">Ramburs</string>
     <string name="payment_method">Metoda de plata</string>
+    <string name="order_track_auth">(pentru a urmarii statusul comenzii trebuie sa aveti un cont)</string>
+    <string name="articles">Articole</string>
 </resources>
