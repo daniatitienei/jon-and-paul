@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
 import com.jonandpaul.jonandpaul.domain.repository.CreditCardDataSource
 import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.AddressUseCases
@@ -21,16 +22,14 @@ import javax.inject.Inject
 class CartViewModel @Inject constructor(
     private val cartRepository: CartDataSource,
     private val creditCardRepository: CreditCardDataSource,
-    private val addressUseCases: AddressUseCases
+    private val addressUseCases: AddressUseCases,
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
     val cartItems = cartRepository.getCartItems()
-
     val creditCards = creditCardRepository.getCreditCards()
-
     val currentAddress = addressUseCases.getAddress()
 
     private var _subtotal = mutableStateOf<Double>(0.0)

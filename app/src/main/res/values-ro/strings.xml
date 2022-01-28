@@ -52,4 +52,6 @@
     <string name="payment_method">Metoda de plata</string>
     <string name="order_track_auth">(pentru a urmarii statusul comenzii trebuie sa aveti un cont)</string>
     <string name="articles">Articole</string>
+    <string name="favorites">Articole favorite</string>
+    <string name="you_do_not_have_any_favorite_article">Nu aveti niciun articol preferat</string>
 </resources>

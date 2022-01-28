@@ -24,12 +24,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.airbnb.lottie.compose.*
@@ -39,7 +35,6 @@ import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
@@ -48,15 +43,6 @@ fun CartScreen(
     onNavigate: (UiEvent.Navigate) -> Unit,
     onPopBackStack: (UiEvent.PopBackStack) -> Unit,
 ) {
-    val composition by rememberLottieComposition(
-        spec = LottieCompositionSpec.Url("https://assets3.lottiefiles.com/packages/lf20_cy82iv.json"),
-    )
-
-    val progress by animateLottieCompositionAsState(
-        composition = composition,
-        iterations = LottieConstants.IterateForever
-    )
-
     var currentCartProductId by remember {
         mutableStateOf<Long?>(null)
     }
@@ -67,10 +53,12 @@ fun CartScreen(
     val context = LocalContext.current
 
     val cartItems = viewModel.cartItems.collectAsState(initial = emptyList()).value
-
     val creditCards = viewModel.creditCards.collectAsState(initial = emptyList()).value
-
     val currentAddress = viewModel.currentAddress.collectAsState(initial = "").value
+
+    var selectedPaymentMethod by remember {
+        mutableStateOf(creditCards.size)
+    }
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -209,10 +197,11 @@ fun CartScreen(
                             Icon(
                                 Icons.Rounded.ArrowBackIosNew,
                                 contentDescription = null,
+                                tint = MaterialTheme.colors.primary.copy(alpha = 0.5f),
                                 modifier = Modifier
                                     .rotate(180f)
-                                    .weight(1f),
-                                tint = Black900
+                                    .weight(1f)
+                                    .size(16.dp),
                             )
                         }
                     }
@@ -243,16 +232,17 @@ fun CartScreen(
                             Icon(
                                 Icons.Rounded.ArrowBackIosNew,
                                 contentDescription = null,
+                                tint = MaterialTheme.colors.primary.copy(alpha = 0.5f),
                                 modifier = Modifier
                                     .rotate(180f)
-                                    .weight(1f),
-                                tint = Black900
+                                    .weight(1f)
+                                    .size(16.dp),
                             )
                         }
 
                         repeat(creditCards.size) {
                             PaymentMethod(
-                                onClick = { /*TODO*/ },
+                                onClick = { selectedPaymentMethod = it },
                                 title = "${stringResource(id = R.string.card_end_with)} ${
                                     creditCards[it].number.subSequence(
                                         12,
@@ -260,15 +250,15 @@ fun CartScreen(
                                     )
                                 }",
                                 icon = Icons.Outlined.CreditCard,
-                                isSelected = false
+                                isSelected = selectedPaymentMethod == it
                             )
                         }
 
                         PaymentMethod(
-                            onClick = { /*TODO*/ },
+                            onClick = { selectedPaymentMethod = creditCards.size + 1 },
                             title = stringResource(id = R.string.cash_on_delivery),
                             icon = Icons.Outlined.Payments,
-                            isSelected = true
+                            isSelected = selectedPaymentMethod == creditCards.size + 1
                         )
                     }
 
@@ -278,22 +268,8 @@ fun CartScreen(
                         ) {
 
                             Text(
-                                text = buildAnnotatedString {
-                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append(stringResource(id = R.string.info_about_order))
-                                    }
-
-                                    append(" ")
-
-                                    withStyle(
-                                        style = SpanStyle(
-                                            fontSize = 12.sp,
-                                            color = MaterialTheme.colors.primary.copy(alpha = 0.5f)
-                                        )
-                                    ) {
-                                        append(stringResource(id = R.string.order_track_auth))
-                                    }
-                                },
+                                text = stringResource(id = R.string.info_about_order),
+                                fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.width(5.dp))
 
@@ -356,17 +332,12 @@ fun CartScreen(
                     }
                 }
             } else
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .wrapContentSize(align = Alignment.Center)
                 ) {
-                    LottieAnimation(composition = composition, progress = progress)
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = stringResource(id = R.string.cart_is_empty),
-                        style = MaterialTheme.typography.h6
-                    )
+                    Text(text = stringResource(id = R.string.cart_is_empty))
                 }
         }
     }
