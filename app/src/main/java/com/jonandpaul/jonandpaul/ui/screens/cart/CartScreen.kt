@@ -35,7 +35,6 @@ import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
@@ -44,15 +43,6 @@ fun CartScreen(
     onNavigate: (UiEvent.Navigate) -> Unit,
     onPopBackStack: (UiEvent.PopBackStack) -> Unit,
 ) {
-    val composition by rememberLottieComposition(
-        spec = LottieCompositionSpec.Url("https://assets3.lottiefiles.com/packages/lf20_cy82iv.json"),
-    )
-
-    val progress by animateLottieCompositionAsState(
-        composition = composition,
-        iterations = LottieConstants.IterateForever
-    )
-
     var currentCartProductId by remember {
         mutableStateOf<Long?>(null)
     }
@@ -63,10 +53,12 @@ fun CartScreen(
     val context = LocalContext.current
 
     val cartItems = viewModel.cartItems.collectAsState(initial = emptyList()).value
-
     val creditCards = viewModel.creditCards.collectAsState(initial = emptyList()).value
-
     val currentAddress = viewModel.currentAddress.collectAsState(initial = "").value
+
+    var selectedPaymentMethod by remember {
+        mutableStateOf(creditCards.size)
+    }
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -153,24 +145,35 @@ fun CartScreen(
             if (cartItems.isNotEmpty()) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(20.dp),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp)
+                    contentPadding = PaddingValues(horizontal = 15.dp, vertical = 20.dp)
                 ) {
-                    items(cartItems.size) { index ->
-                        CartItemCard(
-                            item = cartItems[index],
-                            showQuantityPicker = {
-                                currentCartProductId = cartItems[index].id
-                                viewModel.onEvent(CartEvents.ShowModalBottomSheet)
-                            },
-                            onEvent = viewModel::onEvent
+                    item {
+                        Text(
+                            text = stringResource(id = R.string.articles),
+                            fontWeight = FontWeight.Bold
                         )
 
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        repeat(cartItems.size) { index ->
+                            CartItemCard(
+                                item = cartItems[index],
+                                showQuantityPicker = {
+                                    currentCartProductId = cartItems[index].id
+                                    viewModel.onEvent(CartEvents.ShowModalBottomSheet)
+                                },
+                                onEvent = viewModel::onEvent
+                            )
+
+                            if (index != cartItems.size - 1)
+                                Spacer(modifier = Modifier.height(20.dp))
+                        }
                     }
 
                     item {
                         Text(
                             text = stringResource(id = R.string.shipping_address),
-                            style = MaterialTheme.typography.h6
+                            fontWeight = FontWeight.Bold
                         )
 
                         Row(
@@ -194,16 +197,20 @@ fun CartScreen(
                             Icon(
                                 Icons.Rounded.ArrowBackIosNew,
                                 contentDescription = null,
+                                tint = MaterialTheme.colors.primary.copy(alpha = 0.5f),
                                 modifier = Modifier
                                     .rotate(180f)
-                                    .weight(1f),
-                                tint = Black900
+                                    .weight(1f)
+                                    .size(16.dp),
                             )
                         }
                     }
 
                     item {
-                        Text(text = stringResource(id = R.string.payment_method), style = MaterialTheme.typography.h6)
+                        Text(
+                            text = stringResource(id = R.string.payment_method),
+                            fontWeight = FontWeight.Bold
+                        )
 
                         Row(
                             modifier = Modifier
@@ -225,16 +232,17 @@ fun CartScreen(
                             Icon(
                                 Icons.Rounded.ArrowBackIosNew,
                                 contentDescription = null,
+                                tint = MaterialTheme.colors.primary.copy(alpha = 0.5f),
                                 modifier = Modifier
                                     .rotate(180f)
-                                    .weight(1f),
-                                tint = Black900
+                                    .weight(1f)
+                                    .size(16.dp),
                             )
                         }
 
                         repeat(creditCards.size) {
                             PaymentMethod(
-                                onClick = { /*TODO*/ },
+                                onClick = { selectedPaymentMethod = it },
                                 title = "${stringResource(id = R.string.card_end_with)} ${
                                     creditCards[it].number.subSequence(
                                         12,
@@ -242,23 +250,30 @@ fun CartScreen(
                                     )
                                 }",
                                 icon = Icons.Outlined.CreditCard,
-                                isSelected = false
+                                isSelected = selectedPaymentMethod == it
                             )
                         }
 
                         PaymentMethod(
-                            onClick = { /*TODO*/ },
+                            onClick = { selectedPaymentMethod = creditCards.size + 1 },
                             title = stringResource(id = R.string.cash_on_delivery),
                             icon = Icons.Outlined.Payments,
-                            isSelected = true
+                            isSelected = selectedPaymentMethod == creditCards.size + 1
                         )
                     }
 
                     item {
-                        Text(
-                            text = stringResource(id = R.string.info_about_order),
-                            style = MaterialTheme.typography.h6
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Text(
+                                text = stringResource(id = R.string.info_about_order),
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+
+                        }
 
                         Spacer(modifier = Modifier.height(10.dp))
 
@@ -317,17 +332,12 @@ fun CartScreen(
                     }
                 }
             } else
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .wrapContentSize(align = Alignment.Center)
                 ) {
-                    LottieAnimation(composition = composition, progress = progress)
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = stringResource(id = R.string.cart_is_empty),
-                        style = MaterialTheme.typography.h6
-                    )
+                    Text(text = stringResource(id = R.string.cart_is_empty))
                 }
         }
     }

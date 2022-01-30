@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -143,7 +144,8 @@ fun CreateCreditCardScreen(
                 placeholderText = stringResource(id = R.string.owner_name),
                 onImeActionClick = {
                     focusManager.moveFocus(FocusDirection.Down)
-                }
+                },
+                keyboardType = KeyboardType.Text
             )
 
             Spacer(modifier = Modifier.height(15.dp))
@@ -153,11 +155,6 @@ fun CreateCreditCardScreen(
                 onValueChange = {
                     if (it.length < 17)
                         cardNumber = it
-
-                    Log.d(
-                        "credit_card",
-                        "cardNumber: ${it.length}"
-                    )
                 },
                 labelText = stringResource(id = R.string.card_number),
                 placeholderText = "0000 0000 0000 0000",
@@ -167,7 +164,8 @@ fun CreateCreditCardScreen(
                 visualTransformation = CardNumberVisualTransformation(),
                 onImeActionClick = {
                     focusManager.moveFocus(FocusDirection.Down)
-                }
+                },
+                keyboardType = KeyboardType.Number
             )
 
             Spacer(modifier = Modifier.height(15.dp))
@@ -181,10 +179,6 @@ fun CreateCreditCardScreen(
                     onValueChange = {
                         if (it.length < 5)
                             expirationDate = it
-                        Log.d(
-                            "credit_card",
-                            "exp: ${it.length}"
-                        )
                     },
                     labelText = stringResource(id = R.string.expiration_date),
                     placeholderText = stringResource(id = R.string.month_year),
@@ -192,7 +186,8 @@ fun CreateCreditCardScreen(
                     visualTransformation = ExpirationDateVisualTransformation(),
                     onImeActionClick = {
                         focusManager.moveFocus(FocusDirection.Right)
-                    }
+                    },
+                    keyboardType = KeyboardType.Number
                 )
 
                 Spacer(modifier = Modifier.weight(0.1f))
@@ -209,7 +204,8 @@ fun CreateCreditCardScreen(
                     imeAction = ImeAction.Done,
                     onImeActionClick = {
                         keyboardController?.hide()
-                    }
+                    },
+                    keyboardType = KeyboardType.Number
                 )
             }
         }
@@ -226,7 +222,8 @@ private fun CreditCardTextField(
     trailingIcon: (@Composable () -> Unit)? = null,
     imeAction: ImeAction = ImeAction.Next,
     onImeActionClick: (KeyboardActionScope) -> Unit,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardType: KeyboardType
 ) {
     TextField(
         value = value,
@@ -251,7 +248,8 @@ private fun CreditCardTextField(
         trailingIcon = trailingIcon,
         keyboardOptions = KeyboardOptions(
             imeAction = imeAction,
-            capitalization = KeyboardCapitalization.Words
+            capitalization = KeyboardCapitalization.Words,
+            keyboardType = keyboardType
         ),
         keyboardActions = KeyboardActions(
             onNext = onImeActionClick,

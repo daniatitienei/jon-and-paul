@@ -133,12 +133,26 @@ fun HomeScreen(
                         contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
                     ) {
                         items(items) { product ->
+                            var isFavorite by remember {
+                                mutableStateOf(false)
+                            }
+
                             ProductCard(
                                 product = product,
                                 onClick = {
                                     viewModel.onEvent(HomeEvents.OnProductClick(product = product))
                                 },
-                                imageSize = 240.dp
+                                imageSize = 240.dp,
+                                isFavorite = isFavorite,
+                                onFavoriteClick = {
+                                    viewModel.onEvent(
+                                        HomeEvents.OnFavoriteClick(
+                                            product = product,
+                                            isFavorite = isFavorite
+                                        )
+                                    )
+                                    isFavorite = !isFavorite
+                                }
                             )
                         }
                     }

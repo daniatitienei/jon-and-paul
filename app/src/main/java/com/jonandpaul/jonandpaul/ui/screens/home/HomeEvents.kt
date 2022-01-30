@@ -12,6 +12,8 @@ sealed class HomeEvents {
 
     data class OnProductClick(var product: Product) : HomeEvents()
 
+    data class OnFavoriteClick(val isFavorite: Boolean, val product: Product) : HomeEvents()
+
     /* Cart */
     object ShowModalBottomSheet : HomeEvents()
     object HideModalBottomSheet : HomeEvents()

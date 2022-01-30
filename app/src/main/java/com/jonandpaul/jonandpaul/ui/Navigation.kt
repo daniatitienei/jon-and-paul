@@ -15,10 +15,9 @@ import com.jonandpaul.jonandpaul.ui.screens.account.AccountScreen
 import com.jonandpaul.jonandpaul.ui.screens.address.AddressScreen
 import com.jonandpaul.jonandpaul.ui.screens.cart.CartScreen
 import com.jonandpaul.jonandpaul.ui.screens.create_card.CreateCreditCardScreen
+import com.jonandpaul.jonandpaul.ui.screens.favorites.FavoritesScreen
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
 import com.jonandpaul.jonandpaul.ui.screens.inspect_product.InspectProductScreen
-import com.jonandpaul.jonandpaul.ui.screens.login.LoginScreen
-import com.jonandpaul.jonandpaul.ui.screens.register.RegisterScreen
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
@@ -90,6 +89,19 @@ fun Navigation(moshi: Moshi) {
             )
         }
 
+        composable(route = Screens.Favorites.route) {
+            FavoritesScreen(
+                onNavigate = { destination ->
+                    navController.navigate(destination.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
         composable(
             route = Screens.Address.route,
             enterTransition = {
@@ -106,11 +118,6 @@ fun Navigation(moshi: Moshi) {
             }
         ) {
             AddressScreen(
-                onNavigate = { destination ->
-                    navController.navigate(destination.route) {
-                        launchSingleTop = true
-                    }
-                },
                 onPopBackStack = {
                     navController.popBackStack()
                 },
@@ -184,112 +191,6 @@ fun Navigation(moshi: Moshi) {
                     product = product
                 )
             }
-        }
-
-        composable(
-            route = Screens.Login.route,
-            enterTransition = {
-                when (this.initialState.destination.route) {
-                    Screens.Register.route -> {
-                        slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
-                    }
-                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Up)
-                }
-            },
-            exitTransition = {
-                when (this.targetState.destination.route) {
-                    Screens.Register.route -> {
-                        slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
-                    }
-                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Down)
-                }
-            },
-            popEnterTransition = {
-                when (this.initialState.destination.route) {
-                    Screens.Register.route -> {
-                        slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
-                    }
-                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Up)
-                }
-            },
-            popExitTransition = {
-                when (this.targetState.destination.route) {
-                    Screens.Register.route -> {
-                        slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
-                    }
-                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Down)
-                }
-            }
-        ) {
-            LoginScreen(
-                onNavigate = { destination ->
-                    navController.navigate(destination.route) {
-                        launchSingleTop = true
-
-                        destination.popUpTo?.let { popUpToRoute ->
-                            popUpTo(popUpToRoute) {
-                                inclusive = true
-                            }
-                        }
-                    }
-                },
-                onPopBackStack = {
-                    navController.popBackStack()
-                }
-            )
-        }
-
-        composable(
-            route = Screens.Register.route,
-            enterTransition = {
-                when (this.initialState.destination.route) {
-                    Screens.Login.route -> {
-                        slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
-                    }
-                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Up)
-                }
-            },
-            exitTransition = {
-                when (this.targetState.destination.route) {
-                    Screens.Login.route -> {
-                        slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
-                    }
-                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Down)
-                }
-            },
-            popEnterTransition = {
-                when (this.initialState.destination.route) {
-                    Screens.Login.route -> {
-                        slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
-                    }
-                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Up)
-                }
-            },
-            popExitTransition = {
-                when (this.targetState.destination.route) {
-                    Screens.Login.route -> {
-                        slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
-                    }
-                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Down)
-                }
-            }
-        ) {
-            RegisterScreen(
-                onNavigate = { destination ->
-                    navController.navigate(destination.route) {
-                        launchSingleTop = true
-
-                        destination.popUpTo?.let { popUpToRoute ->
-                            popUpTo(popUpToRoute) {
-                                inclusive = true
-                            }
-                        }
-                    }
-                },
-                onPopBackStack = {
-                    navController.popBackStack()
-                }
-            )
         }
     }
 }

@@ -62,7 +62,8 @@ fun AccountScreen(
                 title = {
                     Text(text = stringResource(id = R.string.my_account))
                 },
-                backgroundColor = MaterialTheme.colors.background
+                backgroundColor = MaterialTheme.colors.background,
+                elevation = 0.dp
             )
         }
     ) {
@@ -106,37 +107,6 @@ fun AccountScreen(
                 },
                 modifier = Modifier.clickable { }
             )
-
-            ListItem(
-                icon = {
-                    Icon(Icons.Outlined.Person, contentDescription = null)
-                },
-                text = {
-                    Text(text = stringResource(id = R.string.my_info))
-                },
-                trailing = {
-                    Icon(
-                        Icons.Rounded.ArrowForwardIos,
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.primary.copy(alpha = 0.5f),
-                        modifier = Modifier.size(16.dp)
-                    )
-                },
-                modifier = Modifier.clickable { }
-            )
-
-            ListItem(
-                icon = {
-                    Icon(Icons.Outlined.Logout, contentDescription = null)
-                },
-                text = {
-                    Text(text = stringResource(id = R.string.logout))
-                },
-                modifier = Modifier.clickable {
-                    viewModel.onEvent(AccountEvents.OnLogoutClick)
-                }
-            )
-
         }
     }
 }
