@@ -6,21 +6,17 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.navigation.compose.NavHost
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.screens.account.AccountScreen
-import com.jonandpaul.jonandpaul.ui.screens.address.AddressScreen
+import com.jonandpaul.jonandpaul.ui.screens.address.ShippingDetailsScreen
 import com.jonandpaul.jonandpaul.ui.screens.cart.CartScreen
-import com.jonandpaul.jonandpaul.ui.screens.create_card.CreateCreditCardScreen
+import com.jonandpaul.jonandpaul.ui.screens.favorites.FavoritesScreen
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
 import com.jonandpaul.jonandpaul.ui.screens.inspect_product.InspectProductScreen
-import com.jonandpaul.jonandpaul.ui.screens.login.LoginScreen
-import com.jonandpaul.jonandpaul.ui.screens.register.RegisterScreen
 import com.jonandpaul.jonandpaul.ui.utils.Screens
-import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 
 @ExperimentalAnimationApi
@@ -90,22 +86,8 @@ fun Navigation(moshi: Moshi) {
             )
         }
 
-        composable(
-            route = Screens.Address.route,
-            enterTransition = {
-                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
-            },
-            exitTransition = {
-                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
-            },
-            popEnterTransition = {
-                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
-            },
-            popExitTransition = {
-                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
-            }
-        ) {
-            AddressScreen(
+        composable(route = Screens.Favorites.route) {
+            FavoritesScreen(
                 onNavigate = { destination ->
                     navController.navigate(destination.route) {
                         launchSingleTop = true
@@ -113,29 +95,37 @@ fun Navigation(moshi: Moshi) {
                 },
                 onPopBackStack = {
                     navController.popBackStack()
-                },
+                }
             )
         }
 
         composable(
-            route = Screens.AddCreditCard.route,
+            route = Screens.Address.route,
             enterTransition = {
-                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
             },
             exitTransition = {
-                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
             },
             popEnterTransition = {
-                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
             },
             popExitTransition = {
-                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
             }
         ) {
-            CreateCreditCardScreen(
+            ShippingDetailsScreen(
                 onPopBackStack = {
                     navController.popBackStack()
-                }
+                },
             )
         }
 
@@ -155,16 +145,24 @@ fun Navigation(moshi: Moshi) {
         composable(
             route = Screens.InspectProduct.route,
             enterTransition = {
-                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
             },
             exitTransition = {
-                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
             },
             popEnterTransition = {
-                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
             },
             popExitTransition = {
-                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
             }
         ) { backStackEntry ->
             val productJson = backStackEntry.arguments?.getString("product")
@@ -184,112 +182,6 @@ fun Navigation(moshi: Moshi) {
                     product = product
                 )
             }
-        }
-
-        composable(
-            route = Screens.Login.route,
-            enterTransition = {
-                when (this.initialState.destination.route) {
-                    Screens.Register.route -> {
-                        slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
-                    }
-                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Up)
-                }
-            },
-            exitTransition = {
-                when (this.targetState.destination.route) {
-                    Screens.Register.route -> {
-                        slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
-                    }
-                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Down)
-                }
-            },
-            popEnterTransition = {
-                when (this.initialState.destination.route) {
-                    Screens.Register.route -> {
-                        slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
-                    }
-                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Up)
-                }
-            },
-            popExitTransition = {
-                when (this.targetState.destination.route) {
-                    Screens.Register.route -> {
-                        slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
-                    }
-                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Down)
-                }
-            }
-        ) {
-            LoginScreen(
-                onNavigate = { destination ->
-                    navController.navigate(destination.route) {
-                        launchSingleTop = true
-
-                        destination.popUpTo?.let { popUpToRoute ->
-                            popUpTo(popUpToRoute) {
-                                inclusive = true
-                            }
-                        }
-                    }
-                },
-                onPopBackStack = {
-                    navController.popBackStack()
-                }
-            )
-        }
-
-        composable(
-            route = Screens.Register.route,
-            enterTransition = {
-                when (this.initialState.destination.route) {
-                    Screens.Login.route -> {
-                        slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
-                    }
-                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Up)
-                }
-            },
-            exitTransition = {
-                when (this.targetState.destination.route) {
-                    Screens.Login.route -> {
-                        slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
-                    }
-                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Down)
-                }
-            },
-            popEnterTransition = {
-                when (this.initialState.destination.route) {
-                    Screens.Login.route -> {
-                        slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
-                    }
-                    else -> slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Up)
-                }
-            },
-            popExitTransition = {
-                when (this.targetState.destination.route) {
-                    Screens.Login.route -> {
-                        slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
-                    }
-                    else -> slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Down)
-                }
-            }
-        ) {
-            RegisterScreen(
-                onNavigate = { destination ->
-                    navController.navigate(destination.route) {
-                        launchSingleTop = true
-
-                        destination.popUpTo?.let { popUpToRoute ->
-                            popUpTo(popUpToRoute) {
-                                inclusive = true
-                            }
-                        }
-                    }
-                },
-                onPopBackStack = {
-                    navController.popBackStack()
-                }
-            )
         }
     }
 }

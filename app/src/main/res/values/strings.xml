@@ -31,7 +31,7 @@
     <string name="shipping_address">Adresa de livrare</string>
     <string name="add_address">Adaugati o adresa</string>
     <string name="current_address">ADRESA CURENTA</string>
-    <string name="shipping_address_placeholder">Scrieti aleea, numarul, orasul</string>
+    <string name="shipping_address_placeholder">Aleea, numarul</string>
     <string name="shipping_address_label">Adresa</string>
     <string name="change_address">TOATE ADRESELE</string>
     <string name="save">SALVEAZA</string>
@@ -49,4 +49,17 @@
     <string name="card_end_with">Numărul cardului se termină cu</string>
     <string name="cash_on_delivery">Ramburs</string>
     <string name="payment_method">Metoda de plata</string>
+    <string name="order_track_auth">(pentru a urmarii statusul comenzii trebuie sa aveti un cont)</string>
+    <string name="articles">Articole</string>
+    <string name="favorites">Articole favorite</string>
+    <string name="you_do_not_have_any_favorite_article">Nu aveti niciun articol preferat</string>
+    <string name="first_name">Prenume</string>
+    <string name="last_name">Nume</string>
+    <string name="county">Judet</string>
+    <string name="city">Oras</string>
+    <string name="postal_code">Codul postal</string>
+    <string name="phone">Telefon</string>
+    <string name="counties">Judete</string>
+    <string name="address_saved">Adresa salvata</string>
+    <string name="all_fields_must_be_completed">Toate campurile trebuie completate</string>
 </resources>

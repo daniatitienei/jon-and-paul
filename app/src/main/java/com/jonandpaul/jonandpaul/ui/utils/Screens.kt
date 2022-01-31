@@ -6,11 +6,7 @@ sealed class Screens(val route: String) {
     object Favorites : Screens(route = "favorites")
     object Account : Screens(route = "account")
 
-    object Register : Screens("register")
-    object Login : Screens("login")
-
     object InspectProduct : Screens(route = "inspect_product/{product}")
 
     object Address : Screens(route = "address")
-    object AddCreditCard : Screens(route = "add_credit_card")
 }

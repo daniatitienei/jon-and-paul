@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CreditCard
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material.icons.outlined.Place
@@ -28,14 +27,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
-import com.airbnb.lottie.compose.*
 import com.jonandpaul.jonandpaul.CartItemEntity
 import com.jonandpaul.jonandpaul.R
+import com.jonandpaul.jonandpaul.domain.model.ShippingDetails
 import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
@@ -44,15 +42,6 @@ fun CartScreen(
     onNavigate: (UiEvent.Navigate) -> Unit,
     onPopBackStack: (UiEvent.PopBackStack) -> Unit,
 ) {
-    val composition by rememberLottieComposition(
-        spec = LottieCompositionSpec.Url("https://assets3.lottiefiles.com/packages/lf20_cy82iv.json"),
-    )
-
-    val progress by animateLottieCompositionAsState(
-        composition = composition,
-        iterations = LottieConstants.IterateForever
-    )
-
     var currentCartProductId by remember {
         mutableStateOf<Long?>(null)
     }
@@ -63,10 +52,8 @@ fun CartScreen(
     val context = LocalContext.current
 
     val cartItems = viewModel.cartItems.collectAsState(initial = emptyList()).value
-
-    val creditCards = viewModel.creditCards.collectAsState(initial = emptyList()).value
-
-    val currentAddress = viewModel.currentAddress.collectAsState(initial = "").value
+    val currentShippingDetails =
+        viewModel.currentShippingDetails.collectAsState(initial = null).value
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -153,24 +140,35 @@ fun CartScreen(
             if (cartItems.isNotEmpty()) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(20.dp),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp)
+                    contentPadding = PaddingValues(horizontal = 15.dp, vertical = 20.dp)
                 ) {
-                    items(cartItems.size) { index ->
-                        CartItemCard(
-                            item = cartItems[index],
-                            showQuantityPicker = {
-                                currentCartProductId = cartItems[index].id
-                                viewModel.onEvent(CartEvents.ShowModalBottomSheet)
-                            },
-                            onEvent = viewModel::onEvent
+                    item {
+                        Text(
+                            text = stringResource(id = R.string.articles),
+                            fontWeight = FontWeight.Bold
                         )
 
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        repeat(cartItems.size) { index ->
+                            CartItemCard(
+                                item = cartItems[index],
+                                showQuantityPicker = {
+                                    currentCartProductId = cartItems[index].id
+                                    viewModel.onEvent(CartEvents.ShowModalBottomSheet)
+                                },
+                                onEvent = viewModel::onEvent
+                            )
+
+                            if (index != cartItems.size - 1)
+                                Spacer(modifier = Modifier.height(20.dp))
+                        }
                     }
 
                     item {
                         Text(
                             text = stringResource(id = R.string.shipping_address),
-                            style = MaterialTheme.typography.h6
+                            fontWeight = FontWeight.Bold
                         )
 
                         Row(
@@ -188,63 +186,29 @@ fun CartScreen(
                             ) {
                                 Icon(Icons.Outlined.Place, contentDescription = null)
                                 Spacer(modifier = Modifier.width(10.dp))
-                                Text(text = currentAddress.ifEmpty { stringResource(id = R.string.add_address) })
+                                currentShippingDetails?.let {
+                                    Text(
+                                        text = "${it.address}, ${it.postalCode}".ifEmpty { stringResource(id = R.string.add_address) }
+                                    )
+                                }
                             }
-
                             Icon(
                                 Icons.Rounded.ArrowBackIosNew,
                                 contentDescription = null,
+                                tint = MaterialTheme.colors.primary.copy(alpha = 0.5f),
                                 modifier = Modifier
                                     .rotate(180f)
-                                    .weight(1f),
-                                tint = Black900
+                                    .weight(1f)
+                                    .size(16.dp),
                             )
                         }
                     }
 
                     item {
-                        Text(text = stringResource(id = R.string.payment_method), style = MaterialTheme.typography.h6)
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    viewModel.onEvent(CartEvents.OnCreateCreditCardClick)
-                                }
-                                .padding(vertical = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Row(
-                                modifier = Modifier.weight(9f),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(Icons.Outlined.CreditCard, contentDescription = null)
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Text(text = stringResource(id = R.string.add_a_card))
-                            }
-                            Icon(
-                                Icons.Rounded.ArrowBackIosNew,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .rotate(180f)
-                                    .weight(1f),
-                                tint = Black900
-                            )
-                        }
-
-                        repeat(creditCards.size) {
-                            PaymentMethod(
-                                onClick = { /*TODO*/ },
-                                title = "${stringResource(id = R.string.card_end_with)} ${
-                                    creditCards[it].number.subSequence(
-                                        12,
-                                        16
-                                    )
-                                }",
-                                icon = Icons.Outlined.CreditCard,
-                                isSelected = false
-                            )
-                        }
+                        Text(
+                            text = stringResource(id = R.string.payment_method),
+                            fontWeight = FontWeight.Bold
+                        )
 
                         PaymentMethod(
                             onClick = { /*TODO*/ },
@@ -255,10 +219,17 @@ fun CartScreen(
                     }
 
                     item {
-                        Text(
-                            text = stringResource(id = R.string.info_about_order),
-                            style = MaterialTheme.typography.h6
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Text(
+                                text = stringResource(id = R.string.info_about_order),
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+
+                        }
 
                         Spacer(modifier = Modifier.height(10.dp))
 
@@ -317,17 +288,12 @@ fun CartScreen(
                     }
                 }
             } else
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .wrapContentSize(align = Alignment.Center)
                 ) {
-                    LottieAnimation(composition = composition, progress = progress)
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = stringResource(id = R.string.cart_is_empty),
-                        style = MaterialTheme.typography.h6
-                    )
+                    Text(text = stringResource(id = R.string.cart_is_empty))
                 }
         }
     }

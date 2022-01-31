@@ -32,11 +32,9 @@ fun ProductCard(
     product: Product,
     onClick: () -> Unit,
     imageSize: Dp,
+    isFavorite: Boolean = false,
+    onFavoriteClick: () -> Unit = {},
 ) {
-    var isFavorite by remember {
-        mutableStateOf(false)
-    }
-
     Column(
         modifier = Modifier.clickable {
             onClick()
@@ -66,13 +64,13 @@ fun ProductCard(
                     .padding(end = 10.dp, top = 10.dp)
             ) {
                 IconButton(
-                    onClick = { isFavorite = !isFavorite },
+                    onClick = onFavoriteClick,
                     modifier = Modifier
                         .clip(CircleShape)
                         .background(Color.White)
                 ) {
                     Icon(
-                        if (!isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                        if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
                         contentDescription = null,
                         tint = Red900,
                     )

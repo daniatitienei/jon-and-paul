@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.jonandpaul.jonandpaul.domain.model.Product
@@ -36,6 +37,13 @@ class HomeViewModel @Inject constructor(
 
     init {
         getProducts()
+
+        if (auth.currentUser == null) {
+            auth.signInAnonymously().addOnSuccessListener {
+                firestore.collection("users").document(auth.currentUser!!.uid)
+                    .set(hashMapOf("favorites" to listOf<Product>()))
+            }
+        }
     }
 
     fun onEvent(event: HomeEvents) {
@@ -43,7 +51,7 @@ class HomeViewModel @Inject constructor(
             is HomeEvents.OnAccountClick -> {
                 emitEvent(
                     UiEvent.Navigate(
-                        route = if (auth.currentUser == null) Screens.Register.route else Screens.Account.route
+                        route = Screens.Account.route
                     )
                 )
             }
@@ -51,18 +59,18 @@ class HomeViewModel @Inject constructor(
                 emitEvent(UiEvent.Navigate(route = Screens.Cart.route))
             }
             is HomeEvents.OnFavoritesClick -> {
-
+                emitEvent(UiEvent.Navigate(route = Screens.Favorites.route))
             }
             is HomeEvents.OnProductClick -> {
                 val jsonAdapter = moshi.adapter(Product::class.java)
 
-                event.product = event.product.copy(
+                val product = event.product.copy(
                     imageUrl = URLEncoder.encode(
                         event.product.imageUrl,
                         StandardCharsets.UTF_8.toString()
                     )
                 )
-                val productJson = jsonAdapter.toJson(event.product)
+                val productJson = jsonAdapter.toJson(product)
 
                 emitEvent(
                     UiEvent.Navigate(
@@ -81,6 +89,12 @@ class HomeViewModel @Inject constructor(
             }
             is HomeEvents.ConcealBackdrop -> {
                 emitEvent(UiEvent.BackdropScaffold)
+            }
+            is HomeEvents.OnFavoriteClick -> {
+                if (event.isFavorite)
+                    removeFavorite(product = event.product)
+                else
+                    addFavorite(product = event.product)
             }
         }
     }
@@ -102,5 +116,15 @@ class HomeViewModel @Inject constructor(
 
                 Log.d("product_state", _state.toString())
             }
+    }
+
+    private fun addFavorite(product: Product) {
+        firestore.collection("users").document(auth.currentUser!!.uid)
+            .update("favorites", FieldValue.arrayUnion(product))
+    }
+
+    private fun removeFavorite(product: Product) {
+        firestore.collection("users").document(auth.currentUser!!.uid)
+            .update("favorites", FieldValue.arrayRemove(product))
     }
 }

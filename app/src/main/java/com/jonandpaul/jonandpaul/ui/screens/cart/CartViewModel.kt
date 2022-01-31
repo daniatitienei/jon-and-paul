@@ -5,8 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
-import com.jonandpaul.jonandpaul.domain.repository.CreditCardDataSource
-import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.AddressUseCases
+import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.ShippingDetailsUseCases
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,18 +19,14 @@ import javax.inject.Inject
 @HiltViewModel
 class CartViewModel @Inject constructor(
     private val cartRepository: CartDataSource,
-    private val creditCardRepository: CreditCardDataSource,
-    private val addressUseCases: AddressUseCases
+    private val shippingDetailsUseCases: ShippingDetailsUseCases,
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
     val cartItems = cartRepository.getCartItems()
-
-    val creditCards = creditCardRepository.getCreditCards()
-
-    val currentAddress = addressUseCases.getAddress()
+    val currentShippingDetails = shippingDetailsUseCases.getShippingDetails()
 
     private var _subtotal = mutableStateOf<Double>(0.0)
     val subtotal: State<Double> = _subtotal
@@ -53,9 +48,6 @@ class CartViewModel @Inject constructor(
             }
             is CartEvents.OnAddressClick -> {
                 emitEvent(UiEvent.Navigate(route = Screens.Address.route))
-            }
-            is CartEvents.OnCreateCreditCardClick -> {
-                emitEvent(UiEvent.Navigate(route = Screens.AddCreditCard.route))
             }
             is CartEvents.OnDeleteProduct -> {
                 viewModelScope.launch {
