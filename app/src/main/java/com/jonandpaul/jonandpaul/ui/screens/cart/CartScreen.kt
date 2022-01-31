@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CreditCard
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material.icons.outlined.Place
@@ -30,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.jonandpaul.jonandpaul.CartItemEntity
 import com.jonandpaul.jonandpaul.R
+import com.jonandpaul.jonandpaul.domain.model.ShippingDetails
 import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
@@ -52,7 +52,8 @@ fun CartScreen(
     val context = LocalContext.current
 
     val cartItems = viewModel.cartItems.collectAsState(initial = emptyList()).value
-    val currentAddress = viewModel.currentAddress.collectAsState(initial = "").value
+    val currentShippingDetails =
+        viewModel.currentShippingDetails.collectAsState(initial = null).value
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -185,9 +186,12 @@ fun CartScreen(
                             ) {
                                 Icon(Icons.Outlined.Place, contentDescription = null)
                                 Spacer(modifier = Modifier.width(10.dp))
-                                Text(text = currentAddress.ifEmpty { stringResource(id = R.string.add_address) })
+                                currentShippingDetails?.let {
+                                    Text(
+                                        text = "${it.address}, ${it.postalCode}".ifEmpty { stringResource(id = R.string.add_address) }
+                                    )
+                                }
                             }
-
                             Icon(
                                 Icons.Rounded.ArrowBackIosNew,
                                 contentDescription = null,

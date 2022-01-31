@@ -6,19 +6,17 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.navigation.compose.NavHost
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.screens.account.AccountScreen
-import com.jonandpaul.jonandpaul.ui.screens.address.AddressScreen
+import com.jonandpaul.jonandpaul.ui.screens.address.ShippingDetailsScreen
 import com.jonandpaul.jonandpaul.ui.screens.cart.CartScreen
 import com.jonandpaul.jonandpaul.ui.screens.favorites.FavoritesScreen
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
 import com.jonandpaul.jonandpaul.ui.screens.inspect_product.InspectProductScreen
 import com.jonandpaul.jonandpaul.ui.utils.Screens
-import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 
 @ExperimentalAnimationApi
@@ -104,19 +102,27 @@ fun Navigation(moshi: Moshi) {
         composable(
             route = Screens.Address.route,
             enterTransition = {
-                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
             },
             exitTransition = {
-                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
             },
             popEnterTransition = {
-                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
             },
             popExitTransition = {
-                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
             }
         ) {
-            AddressScreen(
+            ShippingDetailsScreen(
                 onPopBackStack = {
                     navController.popBackStack()
                 },
@@ -139,16 +145,24 @@ fun Navigation(moshi: Moshi) {
         composable(
             route = Screens.InspectProduct.route,
             enterTransition = {
-                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
             },
             exitTransition = {
-                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
             },
             popEnterTransition = {
-                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left)
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
             },
             popExitTransition = {
-                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right)
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
             }
         ) { backStackEntry ->
             val productJson = backStackEntry.arguments?.getString("product")

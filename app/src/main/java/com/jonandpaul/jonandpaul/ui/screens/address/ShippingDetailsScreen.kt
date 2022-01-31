@@ -1,9 +1,6 @@
 package com.jonandpaul.jonandpaul.ui.screens.address
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,9 +12,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,20 +26,27 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.County
+import com.jonandpaul.jonandpaul.domain.model.ShippingDetails
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.ui.utils.Resource
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
+import com.jonandpaul.jonandpaul.ui.utils.text_transformations.PhoneNumberVisualTransformation
 import kotlinx.coroutines.flow.collect
 
+@ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @Composable
-fun AddressScreen(
+fun ShippingDetailsScreen(
     onPopBackStack: (UiEvent.PopBackStack) -> Unit,
-    viewModel: AddressViewModel = hiltViewModel()
+    viewModel: ShippingDetailsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
 
-    var newAddress by remember {
+    val focusManager = LocalFocusManager.current
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    var address by remember {
         mutableStateOf("")
     }
 
@@ -70,7 +78,6 @@ fun AddressScreen(
         mutableStateOf(false)
     }
 
-    val currentAddress = viewModel.currentAddress.collectAsState(initial = "").value
     val counties =
         viewModel.counties.collectAsState(initial = Resource.Success<List<County>>(data = emptyList())).value
 
@@ -86,26 +93,28 @@ fun AddressScreen(
     }
 
     if (isCountiesDialogOpen)
-        AlertDialog(
-            onDismissRequest = { isCountiesDialogOpen = false },
-            buttons = {
-                LazyColumn(
-                    contentPadding = PaddingValues(horizontal = 15.dp, vertical = 10.dp)
-                ) {
-                    items(counties.data!!.size) { index ->
-                        ListItem(
-                            text = {
-                                Text(text = counties.data[index].nume)
-                            },
-                            modifier = Modifier.clickable {
-                                isCountiesDialogOpen = false
-                                county = counties.data[index].nume
-                            }
-                        )
+        counties.data?.let { counties: List<County> ->
+            AlertDialog(
+                onDismissRequest = { isCountiesDialogOpen = false },
+                buttons = {
+                    LazyColumn(
+                        contentPadding = PaddingValues(horizontal = 15.dp, vertical = 10.dp)
+                    ) {
+                        items(counties.size) { index ->
+                            ListItem(
+                                text = {
+                                    Text(text = counties[index].nume)
+                                },
+                                modifier = Modifier.clickable {
+                                    isCountiesDialogOpen = false
+                                    county = counties[index].nume
+                                }
+                            )
+                        }
                     }
                 }
-            }
-        )
+            )
+        }
 
     Scaffold(
         topBar = {
@@ -116,7 +125,7 @@ fun AddressScreen(
                     Text(text = stringResource(id = R.string.shipping_address))
                 },
                 navigationIcon = {
-                    IconButton(onClick = { viewModel.onEvent(AddressEvents.OnNavigationClick) }) {
+                    IconButton(onClick = { viewModel.onEvent(ShippingDetailsEvents.OnNavigationClick) }) {
                         Icon(Icons.Rounded.ArrowBackIosNew, contentDescription = null)
                     }
                 }
@@ -131,9 +140,21 @@ fun AddressScreen(
             ) {
                 Button(
                     onClick = {
-                        viewModel.onEvent(AddressEvents.OnSaveClick(newAddress = newAddress))
+                        viewModel.onEvent(
+                            ShippingDetailsEvents.OnSaveClick(
+                                shippingDetails = ShippingDetails(
+                                    address = address,
+                                    city = city,
+                                    county = county,
+                                    firstName = firstName,
+                                    lastName = lastName,
+                                    phone = phoneNumber,
+                                    postalCode = postalCode
+                                )
+                            )
+                        )
                     },
-                    enabled = newAddress.isNotEmpty(),
+                    enabled = address.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -160,7 +181,9 @@ fun AddressScreen(
                     onValueChange = { firstName = it },
                     placeholderText = stringResource(id = R.string.first_name),
                     labelText = stringResource(id = R.string.first_name),
-                    onImeActionClick = { /*TODO*/ },
+                    onImeActionClick = {
+                        focusManager.moveFocus(FocusDirection.Right)
+                    },
                     modifier = Modifier.weight(0.9f)
                 )
 
@@ -171,28 +194,32 @@ fun AddressScreen(
                     onValueChange = { lastName = it },
                     placeholderText = stringResource(id = R.string.last_name),
                     labelText = stringResource(id = R.string.last_name),
-                    onImeActionClick = { /*TODO*/ },
+                    onImeActionClick = {
+                        focusManager.moveFocus(FocusDirection.Down)
+                    },
                     modifier = Modifier.weight(0.9f)
                 )
             }
 
             AddressTextField(
-                value = newAddress,
-                onValueChange = { newAddress = it },
+                value = address,
+                onValueChange = { address = it },
                 placeholderText = stringResource(
                     id = R.string.shipping_address
                 ),
                 labelText = stringResource(
                     id = R.string.shipping_address_label
                 ),
-                onImeActionClick = { /*TODO*/ },
+                onImeActionClick = {
+                    isCountiesDialogOpen = true
+                },
                 singleLine = false,
             )
 
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                /* TODO: API request to get all counties */
+                /* Opens up an alert dialog with all Romania counties */
                 AddressTextField(
                     value = county,
                     onValueChange = { county = it },
@@ -214,7 +241,9 @@ fun AddressScreen(
                     onValueChange = { city = it },
                     placeholderText = stringResource(id = R.string.city),
                     labelText = stringResource(id = R.string.city),
-                    onImeActionClick = { /*TODO*/ },
+                    onImeActionClick = {
+                        focusManager.moveFocus(FocusDirection.Down)
+                    },
                     modifier = Modifier.weight(0.9f)
                 )
             }
@@ -224,29 +253,76 @@ fun AddressScreen(
                 onValueChange = { postalCode = it },
                 placeholderText = stringResource(id = R.string.postal_code),
                 labelText = stringResource(id = R.string.postal_code),
-                onImeActionClick = { /*TODO*/ },
+                onImeActionClick = {
+                    focusManager.moveFocus(FocusDirection.Down)
+                },
                 keyboardType = KeyboardType.Number
             )
 
 
-            AddressTextField(
-                value = phoneNumber,
-                onValueChange = { phoneNumber = it },
-                placeholderText = stringResource(id = R.string.phone),
-                labelText = stringResource(id = R.string.phone),
-                onImeActionClick = { /*TODO*/ },
-                keyboardType = KeyboardType.Phone
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Text(
+                    text = "+40",
+                    modifier = Modifier.padding(
+                        bottom = 13.dp
+                    )
+                )
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                AddressTextField(
+                    value = phoneNumber,
+                    onValueChange = {
+                        if (it.length <= 9)
+                            phoneNumber = it
+                    },
+                    placeholderText = stringResource(id = R.string.phone),
+                    labelText = stringResource(id = R.string.phone),
+                    imeAction = ImeAction.Done,
+                    onImeActionClick = {
+                        keyboardController?.hide()
+
+                        if (address.isNotEmpty() && city.isNotEmpty() &&
+                            county.isNotEmpty() && firstName.isNotEmpty() &&
+                            lastName.isNotEmpty() && phoneNumber.isNotEmpty() &&
+                            postalCode.isNotEmpty()
+                        ) {
+                            viewModel.onEvent(
+                                ShippingDetailsEvents.OnSaveClick(
+                                    shippingDetails = ShippingDetails(
+                                        address = address,
+                                        city = city,
+                                        county = county,
+                                        firstName = firstName,
+                                        lastName = lastName,
+                                        phone = phoneNumber,
+                                        postalCode = postalCode
+                                    )
+                                )
+                            )
+
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.address_saved),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.all_fields_must_be_completed),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    },
+                    keyboardType = KeyboardType.Phone,
+                    visualTransformation = PhoneNumberVisualTransformation(),
+                )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
-
-            AnimatedVisibility(
-                visible = currentAddress.isNotEmpty(),
-                enter = fadeIn(tween(500)),
-                exit = fadeOut(tween(500))
-            ) {
-                CurrentAddress(address = currentAddress)
-            }
         }
     }
 }
@@ -263,7 +339,8 @@ private fun AddressTextField(
     singleLine: Boolean = true,
     keyboardType: KeyboardType = KeyboardType.Text,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    leadingIcon: (@Composable () -> Unit)? = null
 ) {
     TextField(
         value = value,
@@ -288,6 +365,7 @@ private fun AddressTextField(
             capitalization = KeyboardCapitalization.Words,
             keyboardType = keyboardType
         ),
+        leadingIcon = leadingIcon,
         keyboardActions = KeyboardActions(
             onDone = onImeActionClick,
             onNext = onImeActionClick
@@ -319,12 +397,13 @@ private fun CurrentAddressPreview() {
     }
 }
 
+@ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @Preview(showBackground = true)
 @Composable
 private fun AddressPreview() {
     JonAndPaulTheme {
-        AddressScreen(
+        ShippingDetailsScreen(
             onPopBackStack = {}
         )
     }
