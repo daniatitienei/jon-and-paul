@@ -59,7 +59,10 @@ class CartViewModel @Inject constructor(
                 emitEvent(UiEvent.PopBackStack)
             }
             is CartEvents.OnOrderClick -> {
-
+                viewModelScope.launch {
+                    cartRepository.clearCart()
+                }
+                emitEvent(UiEvent.Navigate(route = Screens.OrderPlaced.route))
             }
             is CartEvents.OnUpdateQuantity -> {
                 viewModelScope.launch {

@@ -11,6 +11,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.jonandpaul.jonandpaul.ui.screens.order_placed.OrderPlacedScreen
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

@@ -16,6 +16,7 @@ import com.jonandpaul.jonandpaul.ui.screens.cart.CartScreen
 import com.jonandpaul.jonandpaul.ui.screens.favorites.FavoritesScreen
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
 import com.jonandpaul.jonandpaul.ui.screens.inspect_product.InspectProductScreen
+import com.jonandpaul.jonandpaul.ui.screens.order_placed.OrderPlacedScreen
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.squareup.moshi.Moshi
 
@@ -182,6 +183,42 @@ fun Navigation(moshi: Moshi) {
                     product = product
                 )
             }
+        }
+
+        composable(
+            route = Screens.OrderPlaced.route,
+            enterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
+            },
+            popEnterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
+            }
+        ) {
+            OrderPlacedScreen(
+                onNavigate = { destination ->
+                    navController.navigate(destination.route) {
+                        launchSingleTop = true
+
+                        popUpTo(Screens.OrderPlaced.route) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
         }
     }
 }

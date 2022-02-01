@@ -7,6 +7,6 @@ sealed class Screens(val route: String) {
     object Account : Screens(route = "account")
 
     object InspectProduct : Screens(route = "inspect_product/{product}")
-
     object Address : Screens(route = "address")
+    object OrderPlaced : Screens(route = "order_placed")
 }

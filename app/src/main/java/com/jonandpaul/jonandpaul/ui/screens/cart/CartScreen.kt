@@ -188,7 +188,9 @@ fun CartScreen(
                                 Spacer(modifier = Modifier.width(10.dp))
                                 currentShippingDetails?.let {
                                     Text(
-                                        text = "${it.address}, ${it.postalCode}".ifEmpty { stringResource(id = R.string.add_address) }
+                                        text = if (it.address.isNotEmpty())
+                                            "${it.address}, ${it.postalCode}"
+                                        else stringResource(id = R.string.add_address)
                                     )
                                 }
                             }
@@ -274,7 +276,9 @@ fun CartScreen(
 
 
                         Button(
-                            onClick = { /*TODO*/ },
+                            onClick = {
+                                viewModel.onEvent(CartEvents.OnOrderClick)
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             contentPadding = PaddingValues(vertical = 5.dp)
                         ) {
@@ -368,7 +372,9 @@ private fun CartItemCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Column {
+                Column(
+                    modifier = Modifier.weight(3f)
+                ) {
                     Text(text = item.title)
 
                     Spacer(modifier = Modifier.height(5.dp))
@@ -386,7 +392,8 @@ private fun CartItemCard(
                 IconButton(
                     onClick = {
                         onEvent(CartEvents.OnDeleteProduct(id = item.id))
-                    }
+                    },
+                    modifier = Modifier.weight(1f)
                 ) {
                     Icon(Icons.Outlined.Delete, contentDescription = null)
                 }
