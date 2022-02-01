@@ -22,3 +22,6 @@ DELETE FROM CartItemEntity WHERE id == :id;
 
 updateQuantity:
 UPDATE CartItemEntity SET quantity = :quantity WHERE id == :id;
+
+clearCart:
+DELETE FROM CartItemEntity;

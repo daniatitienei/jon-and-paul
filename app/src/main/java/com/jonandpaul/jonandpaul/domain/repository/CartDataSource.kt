@@ -21,4 +21,6 @@ interface CartDataSource {
     suspend fun removeItem(id: Long)
 
     suspend fun updateQuantityForAnItem(id: Long, quantity: Long)
+
+    suspend fun clearCart()
 }

@@ -62,4 +62,6 @@
     <string name="counties">Judete</string>
     <string name="address_saved">Adresa salvata</string>
     <string name="all_fields_must_be_completed">Toate campurile trebuie completate</string>
+    <string name="order_placed">Comanda a fost plasata</string>
+    <string name="thank_you">Va multumim!</string>
 </resources>

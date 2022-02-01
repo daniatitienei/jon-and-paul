@@ -47,4 +47,8 @@ class CartDataSourceImpl(
     override suspend fun updateQuantityForAnItem(id: Long, quantity: Long) {
         queries.updateQuantity(id = id, quantity = quantity)
     }
+
+    override suspend fun clearCart() {
+        queries.clearCart()
+    }
 }
