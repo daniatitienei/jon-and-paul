@@ -2,35 +2,35 @@ package com.jonandpaul.jonandpaul.ui.screens.address
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
-import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.AddressUseCases
+import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.ShippingDetailsUseCases
+import com.jonandpaul.jonandpaul.domain.use_case.counties_api.GetCounties
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AddressViewModel @Inject constructor(
-    private val useCases: AddressUseCases
+class ShippingDetailsViewModel @Inject constructor(
+    private val shippingDetailsUseCases: ShippingDetailsUseCases,
+    private val getCounties: GetCounties
 ) : ViewModel() {
 
-    val currentAddress = useCases.getAddress()
+    val counties = getCounties()
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
-    fun onEvent(event: AddressEvents) {
+    fun onEvent(event: ShippingDetailsEvents) {
         when (event) {
-            is AddressEvents.OnNavigationClick -> {
+            is ShippingDetailsEvents.OnNavigationClick -> {
                 emitEvent(UiEvent.PopBackStack)
             }
-            is AddressEvents.OnSaveClick -> {
+            is ShippingDetailsEvents.OnSaveClick -> {
                 viewModelScope.launch {
-                    useCases.saveAddress(newAddress = event.newAddress)
+                    shippingDetailsUseCases.saveShippingDetails(shippingDetails = event.shippingDetails)
                 }
             }
         }

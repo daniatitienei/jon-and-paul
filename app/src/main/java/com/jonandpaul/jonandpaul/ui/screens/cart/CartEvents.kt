@@ -8,7 +8,6 @@ sealed class CartEvents {
     data class OnUpdateQuantity(val id: Long, val quantity: Long) : CartEvents()
 
     object OnAddressClick : CartEvents()
-    object OnCreateCreditCardClick : CartEvents()
     object OnOrderClick : CartEvents()
 
     object OnNavigationClick : CartEvents()
