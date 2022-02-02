@@ -127,4 +127,18 @@ class HomeViewModel @Inject constructor(
         firestore.collection("users").document(auth.currentUser!!.uid)
             .update("favorites", FieldValue.arrayRemove(product))
     }
+
+    private fun getFavorites() {
+        firestore.collection("users").document(auth.currentUser!!.uid)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.w("getFavorites", error.message.toString())
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Log.d("getFavorites", snapshot.data!!["favorites"].toString())
+                }
+            }
+    }
 }

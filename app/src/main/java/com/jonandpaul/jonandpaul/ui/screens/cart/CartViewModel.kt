@@ -4,6 +4,9 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
 import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.ShippingDetailsUseCases
 import com.jonandpaul.jonandpaul.ui.utils.Screens
@@ -20,6 +23,8 @@ import javax.inject.Inject
 class CartViewModel @Inject constructor(
     private val cartRepository: CartDataSource,
     private val shippingDetailsUseCases: ShippingDetailsUseCases,
+    private val firestore: FirebaseFirestore,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
@@ -59,10 +64,33 @@ class CartViewModel @Inject constructor(
                 emitEvent(UiEvent.PopBackStack)
             }
             is CartEvents.OnOrderClick -> {
-                viewModelScope.launch {
-                    cartRepository.clearCart()
-                }
-                emitEvent(UiEvent.Navigate(route = Screens.OrderPlaced.route))
+                firestore.collection("orders")
+                    .add(
+                        hashMapOf(
+                            "items" to event.items,
+                            "shippingDetails" to event.shippingDetails
+                        )
+                    )
+                    .addOnSuccessListener {
+                        firestore.collection("users")
+                            .document(auth.currentUser!!.uid)
+                            .set(
+                                hashMapOf(
+                                    "orders" to listOf(
+                                        mapOf(
+                                            "items" to event.items,
+                                            "shippingDetails" to event.shippingDetails
+                                        )
+                                    )
+                                ),
+                                SetOptions.merge()
+                            )
+
+                        viewModelScope.launch {
+                            cartRepository.clearCart()
+                        }
+                        emitEvent(UiEvent.Navigate(route = Screens.OrderPlaced.route))
+                    }
             }
             is CartEvents.OnUpdateQuantity -> {
                 viewModelScope.launch {

@@ -274,19 +274,27 @@ fun CartScreen(
 
                         Spacer(modifier = Modifier.height(10.dp))
 
+                        currentShippingDetails?.let {
 
-                        Button(
-                            onClick = {
-                                viewModel.onEvent(CartEvents.OnOrderClick)
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(vertical = 5.dp)
-                        ) {
-                            Text(
-                                text = stringResource(id = R.string.buy),
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                            )
+                            Button(
+                                onClick = {
+                                    viewModel.onEvent(
+                                        CartEvents.OnOrderClick(
+                                            items = cartItems,
+                                            shippingDetails = currentShippingDetails!!
+                                        )
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                contentPadding = PaddingValues(vertical = 5.dp),
+                                enabled = it.address.isNotEmpty()
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.buy),
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                )
+                            }
                         }
 
                     }
