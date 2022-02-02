@@ -1,5 +1,6 @@
 package com.jonandpaul.jonandpaul.ui.screens.home
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -132,38 +133,53 @@ fun HomeScreen(
                     }
                 } else {
                     val items: List<Product> =
-                        if (filteredProducts.isNotEmpty()) filteredProducts else products
+                        filteredProducts.ifEmpty { products }
 
-                    LazyVerticalGrid(
-                        cells = GridCells.Fixed(2),
-                        verticalArrangement = Arrangement.spacedBy(20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(15.dp),
-                        contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
-                    ) {
-                        items(items) { product ->
-                            var isFavorite by remember {
-                                mutableStateOf(false)
-                            }
-
-                            ProductCard(
-                                product = product,
-                                onClick = {
-                                    viewModel.onEvent(HomeEvents.OnProductClick(product = product))
-                                },
-                                imageSize = 240.dp,
-                                isFavorite = isFavorite,
-                                onFavoriteClick = {
-                                    viewModel.onEvent(
-                                        HomeEvents.OnFavoriteClick(
-                                            product = product,
-                                            isFavorite = isFavorite
-                                        )
-                                    )
-                                    isFavorite = !isFavorite
-                                }
+                    if (viewModel.state.value.isLoading)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .wrapContentSize(align = Alignment.Center)
+                                .background(MaterialTheme.colors.background)
+                        ) {
+                            androidx.compose.material3.CircularProgressIndicator(
+                                color = MaterialTheme.colors.primary
                             )
                         }
-                    }
+                    else
+                        LazyVerticalGrid(
+                            cells = GridCells.Fixed(2),
+                            verticalArrangement = Arrangement.spacedBy(20.dp),
+                            horizontalArrangement = Arrangement.spacedBy(15.dp),
+                            contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
+                        ) {
+                            items(items) { product ->
+
+                                Log.d("productList at ${product.id}", product.isFavorite.toString())
+
+                                var isFavorite by remember {
+                                    mutableStateOf(product.isFavorite)
+                                }
+
+                                ProductCard(
+                                    product = product,
+                                    onClick = {
+                                        viewModel.onEvent(HomeEvents.OnProductClick(product = product))
+                                    },
+                                    imageSize = 240.dp,
+                                    isFavorite = isFavorite,
+                                    onFavoriteClick = {
+                                        viewModel.onEvent(
+                                            HomeEvents.OnFavoriteClick(
+                                                product = product,
+                                                isFavorite = isFavorite
+                                            )
+                                        )
+                                        isFavorite = !isFavorite
+                                    }
+                                )
+                            }
+                        }
                 }
             }
         }
@@ -249,7 +265,7 @@ private fun HomeTopBar(
             }
         },
         title = {
-            Text(text = "Jon & Paul")
+            Text(text = stringResource(id = R.string.app_name))
         },
         actions = {
             IconButton(
@@ -275,7 +291,7 @@ private fun HomeTopBar(
                 else
                     Icon(
                         Icons.Outlined.ShoppingBag,
-                        contentDescription = "Cosul meu",
+                        contentDescription = stringResource(id = R.string.my_cart),
                         tint = Black900
                     )
             }
@@ -286,7 +302,7 @@ private fun HomeTopBar(
             ) {
                 Icon(
                     Icons.Rounded.FavoriteBorder,
-                    contentDescription = "Favorite",
+                    contentDescription = stringResource(id = R.string.my_cart),
                     tint = Black900
                 )
             }
@@ -297,7 +313,7 @@ private fun HomeTopBar(
             ) {
                 Icon(
                     Icons.Rounded.PersonOutline,
-                    contentDescription = "Cont",
+                    contentDescription = stringResource(id = R.string.my_account),
                     tint = Black900
                 )
             }
