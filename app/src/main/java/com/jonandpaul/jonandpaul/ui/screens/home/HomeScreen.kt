@@ -15,6 +15,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material.icons.rounded.*
+import androidx.compose.material3.SmallTopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -23,8 +25,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
@@ -44,6 +49,8 @@ fun HomeScreen(
         rememberBackdropScaffoldState(initialValue = BackdropValue.Concealed)
 
     val scope = rememberCoroutineScope()
+
+    val cartItems = viewModel.cartItems.collectAsState(initial = emptyList()).value
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -82,7 +89,7 @@ fun HomeScreen(
         scaffoldState = backdropScaffoldState,
         backLayerBackgroundColor = MaterialTheme.colors.background,
         appBar = {
-            TopBar(
+            HomeTopBar(
                 backdropScaffoldState = backdropScaffoldState,
                 onSearchClick = {
                     if (backdropScaffoldState.isConcealed) {
@@ -96,6 +103,7 @@ fun HomeScreen(
                     }
                 },
                 onEvent = viewModel::onEvent,
+                cartSize = cartItems.size
             )
         },
         backLayerContent = {
@@ -176,7 +184,11 @@ private fun SearchBar(
         value = value,
         onValueChange = onValueChange,
         placeholder = {
-            Text(text = placeholder)
+            Text(
+                text = placeholder,
+                color = MaterialTheme.colors.primary.copy(alpha = 0.5f),
+                style = MaterialTheme.typography.body1
+            )
         },
         colors = TextFieldDefaults.textFieldColors(
             backgroundColor = Color.White,
@@ -214,13 +226,16 @@ private fun SearchBar(
 
 @ExperimentalMaterialApi
 @Composable
-private fun TopBar(
+private fun HomeTopBar(
     backdropScaffoldState: BackdropScaffoldState,
     onSearchClick: () -> Unit,
     onEvent: (HomeEvents) -> Unit,
+    cartSize: Int
 ) {
-    TopAppBar(
-        backgroundColor = MaterialTheme.colors.background,
+    SmallTopAppBar(
+        colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = MaterialTheme.colors.background
+        ),
         navigationIcon = {
             IconButton(onClick = onSearchClick) {
                 Icon(
@@ -242,11 +257,27 @@ private fun TopBar(
                     onEvent(HomeEvents.OnCartClick)
                 }
             ) {
-                Icon(
-                    Icons.Outlined.ShoppingBag,
-                    contentDescription = "Cosul meu",
-                    tint = Black900
-                )
+                if (cartSize > 0)
+                    androidx.compose.material3.BadgedBox(badge = {
+                        Badge {
+                            Text(
+                                text = cartSize.toString(),
+                                color = MaterialTheme.colors.background
+                            )
+                        }
+                    }) {
+                        Icon(
+                            Icons.Outlined.ShoppingBag,
+                            contentDescription = stringResource(id = R.string.my_cart),
+                            tint = Black900
+                        )
+                    }
+                else
+                    Icon(
+                        Icons.Outlined.ShoppingBag,
+                        contentDescription = "Cosul meu",
+                        tint = Black900
+                    )
             }
             IconButton(
                 onClick = {
@@ -271,6 +302,5 @@ private fun TopBar(
                 )
             }
         },
-        elevation = 0.dp,
     )
 }

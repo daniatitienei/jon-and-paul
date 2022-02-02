@@ -1,6 +1,8 @@
 package com.jonandpaul.jonandpaul.ui.screens.order_placed
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,6 +39,7 @@ fun OrderPlacedScreen(
         modifier = Modifier
             .fillMaxSize()
             .wrapContentSize(align = Alignment.Center)
+            .background(MaterialTheme.colors.background)
     ) {
         LottieAnimation(composition = composition, progress = progress)
     }

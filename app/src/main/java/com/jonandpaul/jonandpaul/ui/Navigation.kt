@@ -87,7 +87,29 @@ fun Navigation(moshi: Moshi) {
             )
         }
 
-        composable(route = Screens.Favorites.route) {
+        composable(
+            route = Screens.Favorites.route,
+            enterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
+            },
+            popEnterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
+            }
+        ) {
             FavoritesScreen(
                 onNavigate = { destination ->
                     navController.navigate(destination.route) {
@@ -130,7 +152,29 @@ fun Navigation(moshi: Moshi) {
             )
         }
 
-        composable(route = Screens.Account.route) {
+        composable(
+            route = Screens.Account.route,
+            enterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
+            },
+            popEnterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
+            }
+        ) {
             AccountScreen(
                 onNavigate = { destination ->
                     navController.navigate(destination.route) {

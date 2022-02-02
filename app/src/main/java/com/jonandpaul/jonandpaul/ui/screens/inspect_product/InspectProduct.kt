@@ -10,6 +10,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material.icons.rounded.*
+import androidx.compose.material3.SmallTopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -182,7 +184,10 @@ private fun BottomBar(
             onClick = onSizeClick,
             modifier = Modifier.weight(0.9f)
         ) {
-            Text(text = "Marime: universala", style = MaterialTheme.typography.body2)
+            Text(
+                text = "${stringResource(id = R.string.size)}: ${stringResource(id = R.string.un)}",
+                style = MaterialTheme.typography.body2
+            )
         }
 
         Spacer(modifier = Modifier.weight(0.1f))
@@ -200,7 +205,7 @@ private fun BottomBar(
             Spacer(modifier = Modifier.width(5.dp))
 
             Text(
-                text = "Adauga in cos",
+                text = stringResource(id = R.string.add_to_cart),
                 color = MaterialTheme.colors.onPrimary,
                 fontSize = MaterialTheme.typography.body2.fontSize
             )
@@ -233,7 +238,7 @@ private fun HeaderImageWithTopAppBar(
             contentScale = ContentScale.Crop,
             modifier = Modifier.size(500.dp)
         )
-        TopAppBar(
+        SmallTopAppBar(
             title = {},
             navigationIcon = {
                 IconButton(
@@ -262,8 +267,9 @@ private fun HeaderImageWithTopAppBar(
                     )
                 }
             },
-            backgroundColor = Color.Transparent,
-            elevation = 0.dp,
+            colors = TopAppBarDefaults.smallTopAppBarColors(
+                containerColor = Color.Transparent
+            ),
             modifier = Modifier.padding(10.dp)
         )
     }
@@ -285,7 +291,7 @@ private fun ProductInfoCard(
             Text(
                 text = buildAnnotatedString {
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("Bucăți - ")
+                        append("${stringResource(id = R.string.pieces)} - ")
                     }
                     append(amount.toString())
                 }
@@ -296,7 +302,7 @@ private fun ProductInfoCard(
             Text(
                 text = buildAnnotatedString {
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("Mărime - ")
+                        append("${stringResource(id = R.string.size)} - ")
                     }
                     append(size)
                 }
@@ -307,7 +313,7 @@ private fun ProductInfoCard(
             Text(
                 text = buildAnnotatedString {
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("Compoziție - ")
+                        append("${stringResource(id = R.string.composition)} - ")
                     }
                     append(composition)
                 }

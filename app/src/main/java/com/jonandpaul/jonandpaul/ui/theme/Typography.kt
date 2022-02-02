@@ -49,12 +49,12 @@ val JonAndPaulTypography = Typography(
     body1 = TextStyle(
         fontFamily = Lato,
         fontSize = 16.sp,
-        color = Black900
+        color = Black900,
     ),
     body2 = TextStyle(
         fontFamily = Lato,
         fontSize = 14.sp,
-        color = Black900
+        color = Black900,
     ),
     button = TextStyle(
         fontFamily = Lato,

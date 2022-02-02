@@ -13,6 +13,8 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.rounded.*
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,7 +31,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.jonandpaul.jonandpaul.CartItemEntity
 import com.jonandpaul.jonandpaul.R
-import com.jonandpaul.jonandpaul.domain.model.ShippingDetails
 import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
@@ -115,10 +116,9 @@ fun CartScreen(
     ) {
         Scaffold(
             topBar = {
-                TopAppBar(
-                    backgroundColor = MaterialTheme.colors.background,
+                CenterAlignedTopAppBar(
                     title = {
-                        Text("Cosul meu")
+                        Text(text = stringResource(id = R.string.my_cart))
                     },
                     navigationIcon = {
                         IconButton(
@@ -133,7 +133,9 @@ fun CartScreen(
                             )
                         }
                     },
-                    elevation = 0.dp
+                    colors = TopAppBarDefaults.smallTopAppBarColors(
+                        containerColor = MaterialTheme.colors.background
+                    ),
                 )
             }
         ) {
@@ -275,7 +277,6 @@ fun CartScreen(
                         Spacer(modifier = Modifier.height(10.dp))
 
                         currentShippingDetails?.let {
-
                             Button(
                                 onClick = {
                                     viewModel.onEvent(

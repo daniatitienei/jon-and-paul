@@ -11,8 +11,11 @@ import androidx.compose.material.icons.outlined.CreditCard
 import androidx.compose.material.icons.outlined.LocalShipping
 import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -49,21 +52,22 @@ fun AccountScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 navigationIcon = {
                     IconButton(
                         onClick = {
                             viewModel.onEvent(AccountEvents.OnPopBackStack)
                         }
                     ) {
-                        Icon(Icons.Rounded.Close, contentDescription = null)
+                        Icon(Icons.Rounded.ArrowBackIosNew, contentDescription = null)
                     }
                 },
                 title = {
                     Text(text = stringResource(id = R.string.my_account))
                 },
-                backgroundColor = MaterialTheme.colors.background,
-                elevation = 0.dp
+                colors = TopAppBarDefaults.smallTopAppBarColors(
+                    containerColor = MaterialTheme.colors.background
+                ),
             )
         }
     ) {
@@ -77,25 +81,7 @@ fun AccountScreen(
                     Icon(Icons.Outlined.LocalShipping, contentDescription = null)
                 },
                 text = {
-                    Text(text = stringResource(id = R.string.my_orders))
-                },
-                trailing = {
-                    Icon(
-                        Icons.Rounded.ArrowForwardIos,
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.primary.copy(alpha = 0.5f),
-                        modifier = Modifier.size(16.dp)
-                    )
-                },
-                modifier = Modifier.clickable { }
-            )
-
-            ListItem(
-                icon = {
-                    Icon(Icons.Outlined.CreditCard, contentDescription = null)
-                },
-                text = {
-                    Text(text = stringResource(id = R.string.my_cards))
+                    Text(text = stringResource(id = R.string.my_orders), style = MaterialTheme.typography.body1)
                 },
                 trailing = {
                     Icon(

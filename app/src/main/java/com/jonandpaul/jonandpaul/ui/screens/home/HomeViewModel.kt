@@ -10,6 +10,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.jonandpaul.jonandpaul.domain.model.Product
+import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.squareup.moshi.Moshi
@@ -26,7 +27,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val moshi: Moshi,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val cartRepository: CartDataSource
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
@@ -34,6 +36,8 @@ class HomeViewModel @Inject constructor(
 
     private var _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
+
+    val cartItems = cartRepository.getCartItems()
 
     init {
         getProducts()
