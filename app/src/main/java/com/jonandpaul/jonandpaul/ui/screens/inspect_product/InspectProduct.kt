@@ -47,11 +47,14 @@ fun InspectProductScreen(
 ) {
     val columnScroll = rememberScrollState()
 
-    var isFavorite by remember {
-        mutableStateOf(false)
-    }
 
     val suggestions = viewModel.state.value.suggestions
+
+    var isFavorite by remember {
+        mutableStateOf(
+            product.isFavorite
+        )
+    }
 
     val context = LocalContext.current
 
@@ -96,6 +99,11 @@ fun InspectProductScreen(
                 onEvent = viewModel::onEvent,
                 isFavorite = isFavorite,
                 onFavoriteClick = {
+                    viewModel.onEvent(
+                        InspectProductEvents.OnFavoriteClick(
+                            product = product
+                        )
+                    )
                     isFavorite = !isFavorite
                 },
             )
