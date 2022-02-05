@@ -19,15 +19,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.jonandpaul.jonandpaul.R
+import com.jonandpaul.jonandpaul.domain.model.Order
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
+import com.jonandpaul.jonandpaul.ui.utils.formatAsPhoneNumber
 
 @Composable
-fun InspectOrderScreen() {
+fun InspectOrderScreen(
+    viewModel: InspectOrderViewModel = hiltViewModel()
+) {
+    val order = viewModel.state.value.order
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = "Comanda nr.1") },
+                title = { Text(text = stringResource(id = R.string.order) + " #${order.id}") },
                 navigationIcon = {
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(Icons.Rounded.ArrowBackIosNew, contentDescription = null)
@@ -67,8 +74,9 @@ fun InspectOrderScreen() {
 
                 Spacer(modifier = Modifier.height(5.dp))
 
-                Text(text = "Atitienei Daniel")
-                Text(text = "Aleea Constructorilor Nr.5 bloc 5 scara 2 Etaj 2 apartament 42, Reşiţa, Caraş-Severin")
+                Text(text = "${order.shippingDetails.lastName} ${order.shippingDetails.firstName}")
+                Text(text = "${order.shippingDetails.address}, ${order.shippingDetails.postalCode}, ${order.shippingDetails.city}, ${order.shippingDetails.county}")
+                Text(text = "+40 ${order.shippingDetails.phone}")
             }
 
             item {

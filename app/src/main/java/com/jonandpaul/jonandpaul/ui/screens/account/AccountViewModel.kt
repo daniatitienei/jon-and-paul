@@ -23,7 +23,7 @@ class AccountViewModel : ViewModel() {
                 emitEvent(UiEvent.PopBackStack)
             }
             is AccountEvents.OnOrdersClick -> {
-                emitEvent(UiEvent.Navigate(route = Screens.InspectOrder.route))
+                emitEvent(UiEvent.Navigate(route = Screens.LatestOrders.route))
             }
         }
     }

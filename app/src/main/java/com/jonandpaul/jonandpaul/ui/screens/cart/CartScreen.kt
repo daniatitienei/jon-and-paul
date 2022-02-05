@@ -287,7 +287,7 @@ fun CartScreen(
                                     viewModel.onEvent(
                                         CartEvents.OnOrderClick(
                                             items = cartItems,
-                                            shippingDetails = currentShippingDetails
+                                            shippingDetails = currentShippingDetails,
                                         )
                                     )
                                 },

@@ -10,6 +10,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.jonandpaul.jonandpaul.domain.model.Order
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.screens.account.AccountScreen
 import com.jonandpaul.jonandpaul.ui.screens.address.ShippingDetailsScreen
@@ -18,6 +19,7 @@ import com.jonandpaul.jonandpaul.ui.screens.favorites.FavoritesScreen
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
 import com.jonandpaul.jonandpaul.ui.screens.inspect_order.InspectOrderScreen
 import com.jonandpaul.jonandpaul.ui.screens.inspect_product.InspectProductScreen
+import com.jonandpaul.jonandpaul.ui.screens.latest_orders.LatestOrdersScreen
 import com.jonandpaul.jonandpaul.ui.screens.order_placed.OrderPlacedScreen
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.squareup.moshi.Moshi
@@ -290,8 +292,45 @@ fun Navigation(moshi: Moshi) {
                     tween(500)
                 )
             }
-        ) {
+        ) { backStackEntry ->
+            val orderId = backStackEntry.arguments?.getString("order_id")
+
             InspectOrderScreen()
+        }
+
+        composable(
+            route = Screens.LatestOrders.route,
+            enterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
+            },
+            popEnterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
+            }
+        ) {
+            LatestOrdersScreen(
+                onNavigate = { destination ->
+                    navController.navigate(destination.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
+                },
+            )
         }
     }
 }

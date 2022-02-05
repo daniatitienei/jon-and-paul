@@ -3,6 +3,7 @@ package com.jonandpaul.jonandpaul.ui.screens.inspect_product
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -30,7 +31,7 @@ class InspectProductViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val moshi: Moshi,
     private val repository: CartDataSource,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
@@ -42,7 +43,6 @@ class InspectProductViewModel @Inject constructor(
     init {
         getSuggestions()
     }
-
 
     fun onEvent(event: InspectProductEvents) {
         when (event) {

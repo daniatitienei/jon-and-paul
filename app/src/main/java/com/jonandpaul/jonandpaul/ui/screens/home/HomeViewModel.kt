@@ -65,13 +65,13 @@ class HomeViewModel @Inject constructor(
             is HomeEvents.OnProductClick -> {
                 val jsonAdapter = moshi.adapter(Product::class.java)
 
-                val product = event.product.copy(
+                val productWithImageUrlFormatted = event.product.copy(
                     imageUrl = URLEncoder.encode(
                         event.product.imageUrl,
                         StandardCharsets.UTF_8.toString()
                     )
                 )
-                val productJson = jsonAdapter.toJson(product)
+                val productJson = jsonAdapter.toJson(productWithImageUrlFormatted)
 
                 emitEvent(
                     UiEvent.Navigate(

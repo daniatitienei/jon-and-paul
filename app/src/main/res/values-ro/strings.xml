@@ -56,4 +56,6 @@
     <string name="composition">Compoziție</string>
     <string name="quantity">Cantitate</string>
     <string name="billing_info">Date de facturare</string>
+    <string name="order">Comanda</string>
+    <string name="pending">În aşteptare</string>
 </resources>
