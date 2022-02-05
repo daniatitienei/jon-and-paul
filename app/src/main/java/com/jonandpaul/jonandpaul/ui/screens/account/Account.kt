@@ -5,33 +5,28 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ListItem
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CreditCard
 import androidx.compose.material.icons.outlined.LocalShipping
-import androidx.compose.material.icons.outlined.Logout
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.ArrowForwardIos
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonandpaul.jonandpaul.R
-import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import kotlinx.coroutines.flow.collect
 
 @ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun AccountScreen(
-    viewModel: AccountViewModel = hiltViewModel(),
+    viewModel: AccountViewModel = viewModel(),
     onPopBackStack: (UiEvent.PopBackStack) -> Unit,
     onNavigate: (UiEvent.Navigate) -> Unit,
 ) {
@@ -66,7 +61,7 @@ fun AccountScreen(
                     Text(text = stringResource(id = R.string.my_account))
                 },
                 colors = TopAppBarDefaults.smallTopAppBarColors(
-                    containerColor = MaterialTheme.colors.background
+                    containerColor = MaterialTheme.colorScheme.background
                 ),
             )
         }
@@ -81,17 +76,21 @@ fun AccountScreen(
                     Icon(Icons.Outlined.LocalShipping, contentDescription = null)
                 },
                 text = {
-                    Text(text = stringResource(id = R.string.my_orders), style = MaterialTheme.typography.body1)
+                    Text(
+                        text = stringResource(id = R.string.my_orders),
+                    )
                 },
                 trailing = {
                     Icon(
                         Icons.Rounded.ArrowForwardIos,
                         contentDescription = null,
-                        tint = MaterialTheme.colors.primary.copy(alpha = 0.5f),
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                         modifier = Modifier.size(16.dp)
                     )
                 },
-                modifier = Modifier.clickable { }
+                modifier = Modifier.clickable {
+                    viewModel.onEvent(AccountEvents.OnOrdersClick)
+                }
             )
         }
     }

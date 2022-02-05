@@ -1,21 +1,20 @@
 package com.jonandpaul.jonandpaul.ui.screens.order_placed
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.airbnb.lottie.compose.*
-import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.jonandpaul.jonandpaul.ui.utils.Constants
-import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import kotlinx.coroutines.delay
@@ -39,7 +38,7 @@ fun OrderPlacedScreen(
         modifier = Modifier
             .fillMaxSize()
             .wrapContentSize(align = Alignment.Center)
-            .background(MaterialTheme.colors.background)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         LottieAnimation(composition = composition, progress = progress)
     }

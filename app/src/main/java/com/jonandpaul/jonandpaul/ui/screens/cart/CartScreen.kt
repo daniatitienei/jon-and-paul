@@ -7,14 +7,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.rounded.*
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +25,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +39,7 @@ import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
 import kotlinx.coroutines.flow.collect
 
+@ExperimentalMaterial3Api
 @ExperimentalMaterialApi
 @Composable
 fun CartScreen(
@@ -93,8 +97,6 @@ fun CartScreen(
                 items(20) { quantity ->
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(40.dp)
                             .clickable {
                                 currentCartProductId?.let { id ->
                                     viewModel.onEvent(
@@ -106,6 +108,9 @@ fun CartScreen(
                                 }
                                 viewModel.onEvent(CartEvents.HideModalBottomSheet)
                             }
+                            .fillMaxWidth()
+                            .wrapContentWidth(align = Alignment.CenterHorizontally)
+                            .height(40.dp)
                             .wrapContentHeight(align = Alignment.CenterVertically)
                     ) {
                         Text(text = (quantity + 1).toString())
@@ -134,7 +139,7 @@ fun CartScreen(
                         }
                     },
                     colors = TopAppBarDefaults.smallTopAppBarColors(
-                        containerColor = MaterialTheme.colors.background
+                        containerColor = MaterialTheme.colorScheme.background
                     ),
                 )
             }
@@ -199,7 +204,7 @@ fun CartScreen(
                             Icon(
                                 Icons.Rounded.ArrowBackIosNew,
                                 contentDescription = null,
-                                tint = MaterialTheme.colors.primary.copy(alpha = 0.5f),
+                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                                 modifier = Modifier
                                     .rotate(180f)
                                     .weight(1f)
@@ -244,7 +249,7 @@ fun CartScreen(
                             Text(text = stringResource(id = R.string.subtotal))
                             Text(
                                 text = "${viewModel.subtotal.value.twoDecimals()} RON",
-                                color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                             )
                         }
 
@@ -257,7 +262,7 @@ fun CartScreen(
                             Text(text = stringResource(id = R.string.shipping))
                             Text(
                                 text = "15.00 RON",
-                                color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                             )
                         }
 
@@ -270,7 +275,7 @@ fun CartScreen(
                             Text(text = stringResource(id = R.string.total))
                             Text(
                                 text = "${viewModel.total.value.twoDecimals()} RON",
-                                style = MaterialTheme.typography.h6
+                                style = MaterialTheme.typography.titleLarge
                             )
                         }
 
@@ -282,7 +287,7 @@ fun CartScreen(
                                     viewModel.onEvent(
                                         CartEvents.OnOrderClick(
                                             items = cartItems,
-                                            shippingDetails = currentShippingDetails!!
+                                            shippingDetails = currentShippingDetails
                                         )
                                     )
                                 },
@@ -341,8 +346,7 @@ private fun PaymentMethod(
         Icon(
             if (isSelected) Icons.Rounded.RadioButtonChecked else Icons.Rounded.RadioButtonUnchecked,
             contentDescription = null,
-            modifier = Modifier
-                .weight(1f),
+            modifier = Modifier.weight(1f),
             tint = Black900
         )
     }
@@ -355,6 +359,10 @@ private fun CartItemCard(
     showQuantityPicker: () -> Unit,
     onEvent: (CartEvents) -> Unit,
 ) {
+    val configuration = LocalConfiguration.current
+
+    val screenHeight = configuration.screenHeightDp.dp
+
     Row {
         Image(
             painter = rememberImagePainter(
@@ -366,7 +374,8 @@ private fun CartItemCard(
             contentDescription = null,
             modifier = Modifier
                 .weight(1f)
-                .size(150.dp)
+                .width(150.dp)
+                .height(screenHeight / 4)
                 .clip(RoundedCornerShape(10.dp)),
             contentScale = ContentScale.Crop
         )
@@ -390,7 +399,7 @@ private fun CartItemCard(
 
                     Text(
                         text = "${stringResource(id = R.string.size)}: ${item.size}",
-                        color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                     )
 
                     Spacer(modifier = Modifier.height(5.dp))
@@ -431,7 +440,7 @@ private fun CartItemCard(
                         Icons.Rounded.ArrowBackIosNew,
                         contentDescription = null,
                         tint = Black900.copy(alpha = 0.3f),
-                        modifier = Modifier.rotate(-90f)
+                        modifier = Modifier.rotate(270f)
                     )
                 }
             }

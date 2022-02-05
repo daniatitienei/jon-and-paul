@@ -16,8 +16,14 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material.icons.rounded.*
-import androidx.compose.material3.SmallTopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -88,7 +94,7 @@ fun HomeScreen(
 
     BackdropScaffold(
         scaffoldState = backdropScaffoldState,
-        backLayerBackgroundColor = MaterialTheme.colors.background,
+        backLayerBackgroundColor = MaterialTheme.colorScheme.background,
         appBar = {
             HomeTopBar(
                 backdropScaffoldState = backdropScaffoldState,
@@ -140,10 +146,10 @@ fun HomeScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .wrapContentSize(align = Alignment.Center)
-                                .background(MaterialTheme.colors.background)
+                                .background(MaterialTheme.colorScheme.background)
                         ) {
                             androidx.compose.material3.CircularProgressIndicator(
-                                color = MaterialTheme.colors.primary
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     else
@@ -202,8 +208,7 @@ private fun SearchBar(
         placeholder = {
             Text(
                 text = placeholder,
-                color = MaterialTheme.colors.primary.copy(alpha = 0.5f),
-                style = MaterialTheme.typography.body1
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
             )
         },
         colors = TextFieldDefaults.textFieldColors(
@@ -250,7 +255,7 @@ private fun HomeTopBar(
 ) {
     SmallTopAppBar(
         colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = MaterialTheme.colors.background
+            containerColor = MaterialTheme.colorScheme.background
         ),
         navigationIcon = {
             IconButton(onClick = onSearchClick) {
@@ -274,11 +279,11 @@ private fun HomeTopBar(
                 }
             ) {
                 if (cartSize > 0)
-                    androidx.compose.material3.BadgedBox(badge = {
+                    BadgedBox(badge = {
                         Badge {
                             Text(
                                 text = cartSize.toString(),
-                                color = MaterialTheme.colors.background
+                                color = MaterialTheme.colorScheme.background
                             )
                         }
                     }) {

@@ -1,17 +1,22 @@
 package com.jonandpaul.jonandpaul.ui.screens.inspect_product
 
 import android.widget.Toast
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.BottomAppBar
+import androidx.compose.material.Card
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ShoppingBag
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material3.SmallTopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.rounded.ArrowBackIosNew
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,20 +29,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.Product
-import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.ui.theme.Red900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.components.ProductCard
 import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
 import kotlinx.coroutines.flow.collect
 
+@ExperimentalMaterial3Api
 @Composable
 fun InspectProductScreen(
     onNavigate: (UiEvent.Navigate) -> Unit,
@@ -80,14 +85,14 @@ fun InspectProductScreen(
     }
 
     Scaffold(
-        backgroundColor = MaterialTheme.colors.background,
         bottomBar = {
             BottomBar(
                 onAddToCartClick = {
                     viewModel.onEvent(InspectProductEvents.OnAddToCartClick(product = product))
                 }
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -115,15 +120,13 @@ fun InspectProductScreen(
             ) {
                 Text(
                     text = product.title,
-                    style = MaterialTheme.typography.h6,
-                    fontWeight = FontWeight.Normal
                 )
 
                 Spacer(modifier = Modifier.height(5.dp))
 
                 Text(
                     text = "${product.price.twoDecimals()} RON",
-                    style = MaterialTheme.typography.h6,
+                    fontWeight = FontWeight.Bold
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -152,7 +155,7 @@ fun InspectProductScreen(
                         .wrapContentWidth(align = Alignment.CenterHorizontally)
                 ) {
                     CircularProgressIndicator(
-                        color = MaterialTheme.colors.primary
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             } else {
@@ -186,15 +189,15 @@ private fun BottomBar(
         contentPadding = PaddingValues(
             horizontal = 15.dp
         ),
-        backgroundColor = MaterialTheme.colors.background
+        backgroundColor = MaterialTheme.colorScheme.background
     ) {
         OutlinedButton(
             onClick = onSizeClick,
             modifier = Modifier.weight(0.9f)
         ) {
             Text(
-                text = "${stringResource(id = R.string.size)}: ${stringResource(id = R.string.un)}",
-                style = MaterialTheme.typography.body2
+                text = stringResource(id = R.string.size) + ": " + stringResource(id = R.string.un),
+                style = MaterialTheme.typography.bodySmall
             )
         }
 
@@ -207,15 +210,15 @@ private fun BottomBar(
             Icon(
                 Icons.Outlined.ShoppingBag,
                 contentDescription = null,
-                tint = MaterialTheme.colors.onPrimary
+                tint = MaterialTheme.colorScheme.onPrimary
             )
 
             Spacer(modifier = Modifier.width(5.dp))
 
             Text(
                 text = stringResource(id = R.string.add_to_cart),
-                color = MaterialTheme.colors.onPrimary,
-                fontSize = MaterialTheme.typography.body2.fontSize
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = MaterialTheme.typography.bodySmall.fontSize,
             )
         }
     }
@@ -327,13 +330,5 @@ private fun ProductInfoCard(
                 }
             )
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun InspectProductPreview() {
-    JonAndPaulTheme {
-        InspectProductScreen({}, {}, Product())
     }
 }

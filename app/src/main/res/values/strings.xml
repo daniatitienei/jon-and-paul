@@ -53,4 +53,6 @@
     <string name="add_to_cart">Adaugă in coş</string>
     <string name="pieces">Bucăți</string>
     <string name="composition">Compoziție</string>
+    <string name="quantity">Cantitate</string>
+    <string name="billing_info">Date de facturare</string>
 </resources>

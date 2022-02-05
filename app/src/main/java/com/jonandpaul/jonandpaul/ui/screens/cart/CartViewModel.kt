@@ -72,18 +72,12 @@ class CartViewModel @Inject constructor(
                         )
                     )
                     .addOnSuccessListener {
-                        firestore.collection("users")
-                            .document(auth.currentUser!!.uid)
-                            .set(
+                        firestore.collection("users/${auth.currentUser!!.uid}/orders")
+                            .add(
                                 hashMapOf(
-                                    "orders" to listOf(
-                                        mapOf(
-                                            "items" to event.items,
-                                            "shippingDetails" to event.shippingDetails
-                                        )
-                                    )
-                                ),
-                                SetOptions.merge()
+                                    "items" to event.items,
+                                    "shippingDetails" to event.shippingDetails
+                                )
                             )
 
                         viewModelScope.launch {

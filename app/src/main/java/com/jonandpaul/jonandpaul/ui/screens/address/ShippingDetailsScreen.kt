@@ -7,9 +7,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ListItem
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -20,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,6 +39,7 @@ import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.text_transformations.PhoneNumberVisualTransformation
 import kotlinx.coroutines.flow.collect
 
+@ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @Composable
@@ -96,7 +103,7 @@ fun ShippingDetailsScreen(
         counties.data?.let { counties: List<County> ->
             AlertDialog(
                 onDismissRequest = { isCountiesDialogOpen = false },
-                buttons = {
+                text = {
                     LazyColumn(
                         contentPadding = PaddingValues(horizontal = 15.dp, vertical = 10.dp)
                     ) {
@@ -112,15 +119,17 @@ fun ShippingDetailsScreen(
                             )
                         }
                     }
+                },
+                confirmButton = {},
+                icon = {
+                    Icon(Icons.Outlined.Place, contentDescription = null)
                 }
             )
         }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                backgroundColor = MaterialTheme.colors.background,
-                elevation = 0.dp,
+            CenterAlignedTopAppBar(
                 title = {
                     Text(text = stringResource(id = R.string.shipping_address))
                 },
@@ -128,7 +137,10 @@ fun ShippingDetailsScreen(
                     IconButton(onClick = { viewModel.onEvent(ShippingDetailsEvents.OnNavigationClick) }) {
                         Icon(Icons.Rounded.ArrowBackIosNew, contentDescription = null)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         },
         bottomBar = {
@@ -159,7 +171,7 @@ fun ShippingDetailsScreen(
                 ) {
                     Text(
                         text = stringResource(id = R.string.save),
-                        color = MaterialTheme.colors.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
@@ -201,6 +213,8 @@ fun ShippingDetailsScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(10.dp))
+
             AddressTextField(
                 value = address,
                 onValueChange = { address = it },
@@ -215,6 +229,8 @@ fun ShippingDetailsScreen(
                 },
                 singleLine = false,
             )
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth()
@@ -248,6 +264,8 @@ fun ShippingDetailsScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(10.dp))
+
             AddressTextField(
                 value = postalCode,
                 onValueChange = { postalCode = it },
@@ -259,6 +277,7 @@ fun ShippingDetailsScreen(
                 keyboardType = KeyboardType.Number
             )
 
+            Spacer(modifier = Modifier.height(10.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -348,17 +367,22 @@ private fun AddressTextField(
         placeholder = {
             Text(
                 text = placeholderText,
-                color = MaterialTheme.colors.primary.copy(alpha = 0.5f)
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                style = MaterialTheme.typography.bodyMedium
             )
         },
         label = {
             Text(
                 text = labelText,
-                color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                style = MaterialTheme.typography.labelMedium
             )
         },
         colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = Color.Transparent
+            backgroundColor = Color.Transparent,
+            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            disabledTextColor = MaterialTheme.colorScheme.primary
         ),
         keyboardOptions = KeyboardOptions(
             imeAction = imeAction,
@@ -382,7 +406,7 @@ fun CurrentAddress(address: String) {
     Column {
         Text(
             text = stringResource(id = R.string.current_address),
-            color = MaterialTheme.colors.primary.copy(alpha = 0.7f)
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
         )
         Spacer(modifier = Modifier.height(5.dp))
         Text(text = address)
@@ -394,17 +418,5 @@ fun CurrentAddress(address: String) {
 private fun CurrentAddressPreview() {
     JonAndPaulTheme {
         CurrentAddress(address = "Aleea Constructorilor, 5")
-    }
-}
-
-@ExperimentalComposeUiApi
-@ExperimentalMaterialApi
-@Preview(showBackground = true)
-@Composable
-private fun AddressPreview() {
-    JonAndPaulTheme {
-        ShippingDetailsScreen(
-            onPopBackStack = {}
-        )
     }
 }

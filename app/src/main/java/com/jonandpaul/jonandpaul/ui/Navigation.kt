@@ -4,6 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -15,11 +16,13 @@ import com.jonandpaul.jonandpaul.ui.screens.address.ShippingDetailsScreen
 import com.jonandpaul.jonandpaul.ui.screens.cart.CartScreen
 import com.jonandpaul.jonandpaul.ui.screens.favorites.FavoritesScreen
 import com.jonandpaul.jonandpaul.ui.screens.home.HomeScreen
+import com.jonandpaul.jonandpaul.ui.screens.inspect_order.InspectOrderScreen
 import com.jonandpaul.jonandpaul.ui.screens.inspect_product.InspectProductScreen
 import com.jonandpaul.jonandpaul.ui.screens.order_placed.OrderPlacedScreen
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.squareup.moshi.Moshi
 
+@ExperimentalMaterial3Api
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
@@ -211,7 +214,7 @@ fun Navigation(moshi: Moshi) {
             }
         ) { backStackEntry ->
             val productJson = backStackEntry.arguments?.getString("product")
-            val jsonAdapter = moshi.adapter(Product::class.java)
+            val jsonAdapter = moshi.adapter(Product::class.java).lenient()
             val productObject = jsonAdapter.fromJson(productJson!!)
 
             productObject?.let { product ->
@@ -263,6 +266,32 @@ fun Navigation(moshi: Moshi) {
                     }
                 }
             )
+        }
+
+        composable(
+            route = Screens.InspectOrder.route,
+            enterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
+            },
+            popEnterTransition = {
+                slideIntoContainer(towards = AnimatedContentScope.SlideDirection.Left) + fadeIn(
+                    tween(500)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(towards = AnimatedContentScope.SlideDirection.Right) + fadeOut(
+                    tween(500)
+                )
+            }
+        ) {
+            InspectOrderScreen()
         }
     }
 }
