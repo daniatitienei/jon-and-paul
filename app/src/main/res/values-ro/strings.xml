@@ -58,4 +58,5 @@
     <string name="billing_info">Date de facturare</string>
     <string name="order">Comanda</string>
     <string name="pending">În aşteptare</string>
+    <string name="no_latest_orders">Nu aveți comenzi recente</string>
 </resources>

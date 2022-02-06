@@ -9,7 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:name=".JonAndPaulApplication"
-        android:theme="@style/Theme.JonAndPaul">
+        android:theme="@style/Theme.App.Starting">
         <activity
             android:name="com.jonandpaul.jonandpaul.ui.MainActivity"
             android:exported="true"

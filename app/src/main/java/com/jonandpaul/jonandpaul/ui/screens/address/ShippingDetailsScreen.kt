@@ -165,7 +165,9 @@ fun ShippingDetailsScreen(
                             )
                         )
                     },
-                    enabled = address.isNotEmpty(),
+                    enabled = address.isNotEmpty() && city.isNotEmpty() && county.isNotEmpty() &&
+                            firstName.isNotEmpty() && lastName.isNotEmpty() && phoneNumber.isNotEmpty() &&
+                            postalCode.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(

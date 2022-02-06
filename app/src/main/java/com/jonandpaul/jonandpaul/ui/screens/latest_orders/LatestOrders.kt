@@ -71,6 +71,14 @@ fun LatestOrdersScreen(
             ) {
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
+        else if (viewModel.state.value.latestOrders.isEmpty())
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize(align = Alignment.Center)
+            ) {
+                Text(text = stringResource(id = R.string.no_latest_orders))
+            }
         else
             LazyColumn(
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 15.dp),

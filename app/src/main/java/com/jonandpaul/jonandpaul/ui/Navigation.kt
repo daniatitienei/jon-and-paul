@@ -3,13 +3,22 @@ package com.jonandpaul.jonandpaul.ui
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.jonandpaul.jonandpaul.domain.model.Order
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.screens.account.AccountScreen
@@ -21,6 +30,7 @@ import com.jonandpaul.jonandpaul.ui.screens.inspect_order.InspectOrderScreen
 import com.jonandpaul.jonandpaul.ui.screens.inspect_product.InspectProductScreen
 import com.jonandpaul.jonandpaul.ui.screens.latest_orders.LatestOrdersScreen
 import com.jonandpaul.jonandpaul.ui.screens.order_placed.OrderPlacedScreen
+import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.squareup.moshi.Moshi
 
@@ -30,11 +40,15 @@ import com.squareup.moshi.Moshi
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @Composable
-fun Navigation(moshi: Moshi) {
-
+fun Navigation(
+    moshi: Moshi,
+) {
     val navController = rememberAnimatedNavController()
 
-    AnimatedNavHost(navController = navController, startDestination = Screens.Home.route) {
+    AnimatedNavHost(
+        navController = navController,
+        startDestination = Screens.Home.route
+    ) {
         composable(route = Screens.Home.route) {
             HomeScreen(
                 onNavigate = { destination ->
