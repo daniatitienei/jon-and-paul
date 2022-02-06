@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.auth.FirebaseAuth
@@ -24,6 +25,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.screens.order_placed.OrderPlacedScreen
+import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -48,6 +50,18 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        auth.signInAnonymously()
+            .addOnSuccessListener {
+                firestore.collection("users").document(auth.currentUser!!.uid)
+                    .set(hashMapOf("favorites" to listOf<Product>()))
+            }
+
+        installSplashScreen().apply {
+            setKeepOnScreenCondition {
+                auth.currentUser == null
+            }
+        }
+
         setContent {
             val systemUiController = rememberSystemUiController()
 
@@ -59,7 +73,7 @@ class MainActivity : ComponentActivity() {
             }
 
             JonAndPaulTheme {
-                Navigation(moshi = moshi, auth = auth, firestore = firestore)
+                Navigation(moshi = moshi)
             }
         }
     }

@@ -42,14 +42,12 @@ import com.squareup.moshi.Moshi
 @Composable
 fun Navigation(
     moshi: Moshi,
-    auth: FirebaseAuth,
-    firestore: FirebaseFirestore
 ) {
     val navController = rememberAnimatedNavController()
 
     AnimatedNavHost(
         navController = navController,
-        startDestination = if (auth.currentUser == null) "authenticating" else Screens.Home.route
+        startDestination = Screens.Home.route
     ) {
         composable(route = Screens.Home.route) {
             HomeScreen(
@@ -59,25 +57,6 @@ fun Navigation(
                     }
                 }
             )
-        }
-
-        composable(route = "authenticating") {
-
-            auth.signInAnonymously()
-                .addOnSuccessListener {
-                    firestore.collection("users").document(auth.currentUser!!.uid)
-                        .set(hashMapOf("favorites" to listOf<Product>()))
-
-                    navController.navigate(route = Screens.Home.route)
-                }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .wrapContentSize(align = Alignment.Center)
-            ) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-            }
         }
 
         composable(
