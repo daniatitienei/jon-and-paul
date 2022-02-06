@@ -29,7 +29,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -39,7 +38,7 @@ import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.theme.Red900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.components.ProductCard
-import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
+import com.jonandpaul.jonandpaul.ui.utils.twoDecimalsString
 import kotlinx.coroutines.flow.collect
 
 @ExperimentalMaterial3Api
@@ -51,7 +50,6 @@ fun InspectProductScreen(
     viewModel: InspectProductViewModel = hiltViewModel()
 ) {
     val columnScroll = rememberScrollState()
-
 
     val suggestions = viewModel.state.value.suggestions
 
@@ -125,7 +123,7 @@ fun InspectProductScreen(
                 Spacer(modifier = Modifier.height(5.dp))
 
                 Text(
-                    text = "${product.price.twoDecimals()} RON",
+                    text = "${product.price.twoDecimalsString()} RON",
                     fontWeight = FontWeight.Bold
                 )
 
@@ -232,11 +230,13 @@ private fun HeaderImageWithTopAppBar(
     isFavorite: Boolean,
     onFavoriteClick: () -> Unit,
 ) {
+    val screenHeight = LocalConfiguration.current.screenHeightDp
+
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(bottomEnd = 20.dp, bottomStart = 20.dp))
             .fillMaxWidth()
-            .height((LocalConfiguration.current.screenHeightDp / 1.5).dp)
+            .height((screenHeight / 1.5).dp)
     ) {
         Image(
             painter = rememberImagePainter(
@@ -247,7 +247,9 @@ private fun HeaderImageWithTopAppBar(
             ),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.size(500.dp)
+            modifier = Modifier
+                .width(500.dp)
+                .height((screenHeight / 1.5).dp)
         )
         SmallTopAppBar(
             title = {},
@@ -295,6 +297,7 @@ private fun ProductInfoCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = 5.dp,
+        shape = RoundedCornerShape(10.dp)
     ) {
         Column(
             modifier = Modifier.padding(20.dp)

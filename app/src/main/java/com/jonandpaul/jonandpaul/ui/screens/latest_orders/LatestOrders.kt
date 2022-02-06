@@ -12,19 +12,17 @@ import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
-import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
+import com.jonandpaul.jonandpaul.ui.utils.twoDecimalsString
 import kotlinx.coroutines.flow.collect
 
 @ExperimentalMaterialApi
@@ -81,7 +79,7 @@ fun LatestOrdersScreen(
                 items(viewModel.state.value.latestOrders) { order ->
                     OrderCard(
                         title = stringResource(id = R.string.order) + " #${order.id}",
-                        total = order.total.twoDecimals(),
+                        total = order.total.twoDecimalsString(),
                         orderStatus = order.status,
                         onClick = {
                             viewModel.onEvent(LatestOrdersEvents.OnOrderClick(order = order))

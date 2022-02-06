@@ -1,7 +1,5 @@
 package com.jonandpaul.jonandpaul.ui.utils
 
 fun String.formatAsPhoneNumber(): String {
-    return this
-
-//    123 456 789
+    return this.substring(1, 2) + " " + substring(3, 5) + " " + substring(6, 8)
 }

@@ -36,7 +36,7 @@ import com.jonandpaul.jonandpaul.CartItemEntity
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
-import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
+import com.jonandpaul.jonandpaul.ui.utils.twoDecimalsString
 import kotlinx.coroutines.flow.collect
 
 @ExperimentalMaterial3Api
@@ -248,7 +248,7 @@ fun CartScreen(
                         ) {
                             Text(text = stringResource(id = R.string.subtotal))
                             Text(
-                                text = "${viewModel.subtotal.value.twoDecimals()} RON",
+                                text = "${viewModel.subtotal.value.twoDecimalsString()} RON",
                                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                             )
                         }
@@ -274,7 +274,7 @@ fun CartScreen(
                         ) {
                             Text(text = stringResource(id = R.string.total))
                             Text(
-                                text = "${viewModel.total.value.twoDecimals()} RON",
+                                text = "${viewModel.total.value.twoDecimalsString()} RON",
                                 style = MaterialTheme.typography.titleLarge
                             )
                         }
@@ -363,7 +363,11 @@ private fun CartItemCard(
 
     val screenHeight = configuration.screenHeightDp.dp
 
-    Row {
+    Row(
+        modifier = Modifier.clickable {
+            onEvent(CartEvents.OnProductClick(product = item))
+        }
+    ) {
         Image(
             painter = rememberImagePainter(
                 data = item.imageUrl,
@@ -404,7 +408,10 @@ private fun CartItemCard(
 
                     Spacer(modifier = Modifier.height(5.dp))
 
-                    Text(text = "${item.price.twoDecimals()} RON", fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "${item.price.twoDecimalsString()} RON",
+                        fontWeight = FontWeight.Bold
+                    )
                 }
 
                 IconButton(

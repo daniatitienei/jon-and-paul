@@ -292,10 +292,17 @@ fun Navigation(moshi: Moshi) {
                     tween(500)
                 )
             }
-        ) { backStackEntry ->
-            val orderId = backStackEntry.arguments?.getString("order_id")
-
-            InspectOrderScreen()
+        ) {
+            InspectOrderScreen(
+                onNavigate = { destination ->
+                    navController.navigate(destination.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable(

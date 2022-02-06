@@ -23,9 +23,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.jonandpaul.jonandpaul.domain.model.Product
-import com.jonandpaul.jonandpaul.ui.screens.home.HomeEvents
 import com.jonandpaul.jonandpaul.ui.theme.Red900
-import com.jonandpaul.jonandpaul.ui.utils.twoDecimals
+import com.jonandpaul.jonandpaul.ui.utils.twoDecimalsString
 
 @Composable
 fun ProductCard(
@@ -87,7 +86,7 @@ fun ProductCard(
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            Text(text = "${product.price.twoDecimals()} RON", fontWeight = FontWeight.Bold)
+            Text(text = "${product.price.twoDecimalsString()} RON", fontWeight = FontWeight.Bold)
         }
     }
 }

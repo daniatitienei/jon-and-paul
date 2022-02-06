@@ -25,7 +25,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,7 +35,7 @@ import com.jonandpaul.jonandpaul.domain.model.ShippingDetails
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.ui.utils.Resource
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
-import com.jonandpaul.jonandpaul.ui.utils.text_transformations.PhoneNumberVisualTransformation
+import com.jonandpaul.jonandpaul.ui.utils.text_transformations.visual_transformation.PhoneNumberVisualTransformation
 import kotlinx.coroutines.flow.collect
 
 @ExperimentalMaterial3Api

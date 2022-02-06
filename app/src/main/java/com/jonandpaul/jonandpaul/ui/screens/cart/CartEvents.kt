@@ -14,4 +14,5 @@ sealed class CartEvents {
     data class OnOrderClick(val items: List<CartItemEntity>, val shippingDetails: ShippingDetails) : CartEvents()
 
     object OnNavigationClick : CartEvents()
+    data class OnProductClick(val product: CartItemEntity) : CartEvents()
 }
