@@ -31,6 +31,7 @@ class ShippingDetailsViewModel @Inject constructor(
             is ShippingDetailsEvents.OnSaveClick -> {
                 viewModelScope.launch {
                     shippingDetailsUseCases.saveShippingDetails(shippingDetails = event.shippingDetails)
+                    emitEvent(UiEvent.PopBackStack)
                 }
             }
         }
