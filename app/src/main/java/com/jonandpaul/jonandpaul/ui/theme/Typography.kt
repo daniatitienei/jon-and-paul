@@ -1,6 +1,6 @@
 package com.jonandpaul.jonandpaul.ui.theme
 
-import androidx.compose.material.Typography
+import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -16,62 +16,43 @@ val Lato = FontFamily(
 )
 
 val JonAndPaulTypography = Typography(
-    h4 = TextStyle(
-        fontFamily = Lato,
-        fontWeight = FontWeight.W600,
-        fontSize = 30.sp,
-        color = Black900
-    ),
-    h5 = TextStyle(
-        fontFamily = Lato,
-        fontWeight = FontWeight.W600,
-        fontSize = 24.sp,
-        color = Black900
-    ),
-    h6 = TextStyle(
-        fontFamily = Lato,
+    titleLarge = TextStyle(
         fontWeight = FontWeight.W600,
         fontSize = 20.sp,
         color = Black900
     ),
-    subtitle1 = TextStyle(
-        fontFamily = Lato,
+    titleMedium = TextStyle(
         fontWeight = FontWeight.W600,
         fontSize = 16.sp,
         color = Black900
     ),
-    subtitle2 = TextStyle(
-        fontFamily = Lato,
-        fontWeight = FontWeight.W500,
-        fontSize = 14.sp,
-        color = Black900
-    ),
-    body1 = TextStyle(
-        fontFamily = Lato,
-        fontSize = 16.sp,
-        color = Black900
-    ),
-    body2 = TextStyle(
-        fontFamily = Lato,
-        fontSize = 14.sp,
-        color = Black900
-    ),
-    button = TextStyle(
-        fontFamily = Lato,
-        fontWeight = FontWeight.W500,
-        fontSize = 16.sp,
-        color = Black900
-    ),
-    caption = TextStyle(
-        fontFamily = Lato,
-        fontWeight = FontWeight.Normal,
+    titleSmall = TextStyle(
+        fontWeight = FontWeight.W600,
         fontSize = 12.sp,
         color = Black900
     ),
-    overline = TextStyle(
-        fontFamily = Lato,
-        fontWeight = FontWeight.W500,
+    bodySmall = TextStyle(
         fontSize = 12.sp,
-        color = Black900
-    )
+        color = Black900,
+    ),
+    bodyMedium = TextStyle(
+        fontSize = 14.sp,
+        color = Black900,
+    ),
+    bodyLarge = TextStyle(
+        fontSize = 16.sp,
+        color = Black900,
+    ),
+    labelSmall = TextStyle(
+        fontSize = 12.sp,
+        color = Black900,
+    ),
+    labelMedium = TextStyle(
+        fontSize = 14.sp,
+        color = Black900,
+    ),
+    labelLarge = TextStyle(
+        fontSize = 16.sp,
+        color = Black900,
+    ),
 )

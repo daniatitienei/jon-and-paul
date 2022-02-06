@@ -1,5 +1,6 @@
 package com.jonandpaul.jonandpaul.ui.screens.home
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -15,6 +16,14 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material.icons.rounded.*
+import androidx.compose.material3.*
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -23,8 +32,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
@@ -44,6 +56,8 @@ fun HomeScreen(
         rememberBackdropScaffoldState(initialValue = BackdropValue.Concealed)
 
     val scope = rememberCoroutineScope()
+
+    val cartItems = viewModel.cartItems.collectAsState(initial = emptyList()).value
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -80,9 +94,9 @@ fun HomeScreen(
 
     BackdropScaffold(
         scaffoldState = backdropScaffoldState,
-        backLayerBackgroundColor = MaterialTheme.colors.background,
+        backLayerBackgroundColor = MaterialTheme.colorScheme.background,
         appBar = {
-            TopBar(
+            HomeTopBar(
                 backdropScaffoldState = backdropScaffoldState,
                 onSearchClick = {
                     if (backdropScaffoldState.isConcealed) {
@@ -96,6 +110,7 @@ fun HomeScreen(
                     }
                 },
                 onEvent = viewModel::onEvent,
+                cartSize = cartItems.size
             )
         },
         backLayerContent = {
@@ -124,38 +139,53 @@ fun HomeScreen(
                     }
                 } else {
                     val items: List<Product> =
-                        if (filteredProducts.isNotEmpty()) filteredProducts else products
+                        filteredProducts.ifEmpty { products }
 
-                    LazyVerticalGrid(
-                        cells = GridCells.Fixed(2),
-                        verticalArrangement = Arrangement.spacedBy(20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(15.dp),
-                        contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
-                    ) {
-                        items(items) { product ->
-                            var isFavorite by remember {
-                                mutableStateOf(false)
-                            }
-
-                            ProductCard(
-                                product = product,
-                                onClick = {
-                                    viewModel.onEvent(HomeEvents.OnProductClick(product = product))
-                                },
-                                imageSize = 240.dp,
-                                isFavorite = isFavorite,
-                                onFavoriteClick = {
-                                    viewModel.onEvent(
-                                        HomeEvents.OnFavoriteClick(
-                                            product = product,
-                                            isFavorite = isFavorite
-                                        )
-                                    )
-                                    isFavorite = !isFavorite
-                                }
+                    if (viewModel.state.value.isLoading)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .wrapContentSize(align = Alignment.Center)
+                                .background(MaterialTheme.colorScheme.background)
+                        ) {
+                            androidx.compose.material3.CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
-                    }
+                    else
+                        LazyVerticalGrid(
+                            cells = GridCells.Fixed(2),
+                            verticalArrangement = Arrangement.spacedBy(20.dp),
+                            horizontalArrangement = Arrangement.spacedBy(15.dp),
+                            contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
+                        ) {
+                            items(items) { product ->
+
+                                Log.d("productList at ${product.id}", product.isFavorite.toString())
+
+                                var isFavorite by remember {
+                                    mutableStateOf(product.isFavorite)
+                                }
+
+                                ProductCard(
+                                    product = product,
+                                    onClick = {
+                                        viewModel.onEvent(HomeEvents.OnProductClick(product = product))
+                                    },
+                                    imageSize = 240.dp,
+                                    isFavorite = isFavorite,
+                                    onFavoriteClick = {
+                                        viewModel.onEvent(
+                                            HomeEvents.OnFavoriteClick(
+                                                product = product,
+                                                isFavorite = isFavorite
+                                            )
+                                        )
+                                        isFavorite = !isFavorite
+                                    }
+                                )
+                            }
+                        }
                 }
             }
         }
@@ -176,7 +206,10 @@ private fun SearchBar(
         value = value,
         onValueChange = onValueChange,
         placeholder = {
-            Text(text = placeholder)
+            Text(
+                text = placeholder,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+            )
         },
         colors = TextFieldDefaults.textFieldColors(
             backgroundColor = Color.White,
@@ -214,13 +247,16 @@ private fun SearchBar(
 
 @ExperimentalMaterialApi
 @Composable
-private fun TopBar(
+private fun HomeTopBar(
     backdropScaffoldState: BackdropScaffoldState,
     onSearchClick: () -> Unit,
     onEvent: (HomeEvents) -> Unit,
+    cartSize: Int
 ) {
-    TopAppBar(
-        backgroundColor = MaterialTheme.colors.background,
+    SmallTopAppBar(
+        colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background
+        ),
         navigationIcon = {
             IconButton(onClick = onSearchClick) {
                 Icon(
@@ -234,7 +270,7 @@ private fun TopBar(
             }
         },
         title = {
-            Text(text = "Jon & Paul")
+            Text(text = stringResource(id = R.string.app_name))
         },
         actions = {
             IconButton(
@@ -242,11 +278,27 @@ private fun TopBar(
                     onEvent(HomeEvents.OnCartClick)
                 }
             ) {
-                Icon(
-                    Icons.Outlined.ShoppingBag,
-                    contentDescription = "Cosul meu",
-                    tint = Black900
-                )
+                if (cartSize > 0)
+                    BadgedBox(badge = {
+                        Badge {
+                            Text(
+                                text = cartSize.toString(),
+                                color = MaterialTheme.colorScheme.background
+                            )
+                        }
+                    }) {
+                        Icon(
+                            Icons.Outlined.ShoppingBag,
+                            contentDescription = stringResource(id = R.string.my_cart),
+                            tint = Black900
+                        )
+                    }
+                else
+                    Icon(
+                        Icons.Outlined.ShoppingBag,
+                        contentDescription = stringResource(id = R.string.my_cart),
+                        tint = Black900
+                    )
             }
             IconButton(
                 onClick = {
@@ -255,7 +307,7 @@ private fun TopBar(
             ) {
                 Icon(
                     Icons.Rounded.FavoriteBorder,
-                    contentDescription = "Favorite",
+                    contentDescription = stringResource(id = R.string.my_cart),
                     tint = Black900
                 )
             }
@@ -266,11 +318,10 @@ private fun TopBar(
             ) {
                 Icon(
                     Icons.Rounded.PersonOutline,
-                    contentDescription = "Cont",
+                    contentDescription = stringResource(id = R.string.my_account),
                     tint = Black900
                 )
             }
         },
-        elevation = 0.dp,
     )
 }

@@ -8,5 +8,6 @@ data class Product(
     val modelSizeInfo: String = "",
     val size: String = "UN",
     val price: Double = 20.00,
-    val title: String = ""
+    val title: String = "",
+    val isFavorite: Boolean = false
 )

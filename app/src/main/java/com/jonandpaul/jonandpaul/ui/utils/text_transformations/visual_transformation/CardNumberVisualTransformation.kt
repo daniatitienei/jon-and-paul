@@ -1,4 +1,4 @@
-package com.jonandpaul.jonandpaul.ui.utils.text_transformations
+package com.jonandpaul.jonandpaul.ui.utils.text_transformations.visual_transformation
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping

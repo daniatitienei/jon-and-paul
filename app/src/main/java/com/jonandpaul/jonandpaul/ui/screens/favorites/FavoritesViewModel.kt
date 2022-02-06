@@ -88,6 +88,6 @@ class FavoritesViewModel @Inject constructor(
 
     private fun removeFavorite(product: Product) {
         firestore.collection("users").document(auth.currentUser!!.uid)
-            .update("favorites", FieldValue.arrayRemove(product))
+            .update("favorites", FieldValue.arrayRemove(product.copy(isFavorite = false)))
     }
 }

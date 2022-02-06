@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -20,6 +20,7 @@ import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.components.ProductCard
 import kotlinx.coroutines.flow.collect
 
+@ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 @Composable
 fun FavoritesScreen(
@@ -45,7 +46,7 @@ fun FavoritesScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -58,8 +59,9 @@ fun FavoritesScreen(
                 title = {
                     Text(text = stringResource(id = R.string.favorites))
                 },
-                backgroundColor = MaterialTheme.colors.background,
-                elevation = 0.dp
+                colors = TopAppBarDefaults.smallTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
             )
         }
     ) {
