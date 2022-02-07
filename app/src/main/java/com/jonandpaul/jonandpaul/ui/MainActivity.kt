@@ -50,11 +50,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        auth.signInAnonymously()
-            .addOnSuccessListener {
-                firestore.collection("users").document(auth.currentUser!!.uid)
-                    .set(hashMapOf("favorites" to listOf<Product>()))
-            }
+        if (auth.currentUser == null)
+            auth.signInAnonymously()
+                .addOnSuccessListener {
+                    firestore.collection("users").document(auth.currentUser!!.uid)
+                        .set(hashMapOf("favorites" to listOf<Product>()))
+                }
 
         installSplashScreen().apply {
             setKeepOnScreenCondition {

@@ -161,8 +161,6 @@ fun HomeScreen(
                         ) {
                             items(items) { product ->
 
-                                Log.d("productList at ${product.id}", product.isFavorite.toString())
-
                                 var isFavorite by remember {
                                     mutableStateOf(product.isFavorite)
                                 }
