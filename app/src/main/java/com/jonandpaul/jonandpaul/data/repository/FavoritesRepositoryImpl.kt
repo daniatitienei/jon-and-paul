@@ -1,5 +1,6 @@
 package com.jonandpaul.jonandpaul.data.repository
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -19,24 +20,22 @@ class FavoritesRepositoryImpl(
     private val auth: FirebaseAuth
 ) : FavoritesRepository {
     override fun getFavorites(): Flow<Resource<List<Product>>> = callbackFlow {
-        if (auth.currentUser != null) {
-            val snapshotListener = firestore.collection("users").document(auth.currentUser!!.uid)
-                .addSnapshotListener { snapshot, e ->
-                    val response = if (snapshot != null && snapshot.exists()) {
-                        val favorites = snapshot.toObject<FavoritesState>()!!.favorites
-                        Resource.Success<List<Product>>(data = favorites)
-                    } else {
-                        Resource.Error<List<Product>>(message = e?.message.toString())
-                    }
 
-                    trySend(response).isSuccess
+        val snapshotListener = firestore.collection("users").document(auth.currentUser!!.uid)
+            .addSnapshotListener { snapshot, e ->
+                val response = if (snapshot != null && snapshot.exists()) {
+                    val favorites = snapshot.toObject<FavoritesState>()!!.favorites
+                    Resource.Success<List<Product>>(data = favorites)
+                } else {
+                    Resource.Error<List<Product>>(message = e?.localizedMessage.toString())
                 }
-            awaitClose {
-                snapshotListener.remove()
+
+                trySend(response).isSuccess
             }
-        } else {
-            trySend(Resource.Loading<List<Product>>())
+        awaitClose {
+            snapshotListener.remove()
         }
+
     }
 
     override fun removeFavorite(product: Product) {

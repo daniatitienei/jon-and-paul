@@ -1,8 +1,10 @@
 package com.jonandpaul.jonandpaul.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
@@ -18,6 +20,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.auth.FirebaseAuth
@@ -28,6 +32,9 @@ import com.jonandpaul.jonandpaul.ui.screens.order_placed.OrderPlacedScreen
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 
 @ExperimentalMaterial3Api
@@ -41,25 +48,14 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var moshi: Moshi
 
-    @Inject
-    lateinit var auth: FirebaseAuth
-
-    @Inject
-    lateinit var firestore: FirebaseFirestore
+    val viewModel: AuthViewModel by viewModels<AuthViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (auth.currentUser == null)
-            auth.signInAnonymously()
-                .addOnSuccessListener {
-                    firestore.collection("users").document(auth.currentUser!!.uid)
-                        .set(hashMapOf("favorites" to listOf<Product>()))
-                }
-
         installSplashScreen().apply {
             setKeepOnScreenCondition {
-                auth.currentUser == null
+                viewModel.state.value.isLoading
             }
         }
 
@@ -80,3 +76,34 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@HiltViewModel
+class AuthViewModel @Inject constructor(
+    auth: FirebaseAuth,
+    firestore: FirebaseFirestore
+) : ViewModel() {
+
+    private var _state = MutableStateFlow<AuthState>(AuthState())
+    val state = _state
+
+    init {
+        auth.addAuthStateListener {
+            _state.value = _state.value.copy(
+                user = it.currentUser,
+                isLoading = it.currentUser == null
+            )
+        }
+
+        if (auth.currentUser == null)
+            auth.signInAnonymously()
+                .addOnSuccessListener {
+                    firestore.collection("users").document(auth.currentUser!!.uid)
+                        .set(hashMapOf("favorites" to listOf<Product>()))
+                }
+
+    }
+}
+
+data class AuthState(
+    val user: FirebaseUser? = null,
+    val isLoading: Boolean = true
+)

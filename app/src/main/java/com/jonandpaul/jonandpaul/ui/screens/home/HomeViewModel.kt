@@ -104,6 +104,8 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getProducts() {
+        Log.d("user_products", auth.currentUser?.uid.toString())
+
         firestore.collection("products")
             .addSnapshotListener { snapshots, error ->
                 if (error != null)
@@ -128,6 +130,9 @@ class HomeViewModel @Inject constructor(
 
     private fun getFavorites() {
         useCases.getFavorites().onEach { result ->
+
+            Log.d("result", result.toString())
+
             when (result) {
                 is Resource.Success -> {
                     _state.value = _state.value.copy(
@@ -161,6 +166,8 @@ class HomeViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     _state.value = _state.value.copy(error = result.error)
+
+                    Log.d("result_error", result.error.toString())
                 }
             }
         }.launchIn(viewModelScope)
