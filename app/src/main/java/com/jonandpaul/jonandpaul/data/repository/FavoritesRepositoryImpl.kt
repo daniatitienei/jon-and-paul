@@ -19,8 +19,8 @@ class FavoritesRepositoryImpl(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth
 ) : FavoritesRepository {
-    override fun getFavorites(): Flow<Resource<List<Product>>> = callbackFlow {
 
+    override fun getFavorites(): Flow<Resource<List<Product>>> = callbackFlow {
         val snapshotListener = firestore.collection("users").document(auth.currentUser!!.uid)
             .addSnapshotListener { snapshot, e ->
                 val response = if (snapshot != null && snapshot.exists()) {
@@ -41,6 +41,12 @@ class FavoritesRepositoryImpl(
     override fun removeFavorite(product: Product) {
         if (auth.currentUser != null)
             firestore.collection("users").document(auth.currentUser!!.uid)
-                .update("favorites", FieldValue.arrayRemove(product.copy(isFavorite = false)))
+                .update("favorites", FieldValue.arrayRemove(product))
+    }
+
+    override fun insertFavorite(product: Product) {
+        if (auth.currentUser != null)
+            firestore.collection("users").document(auth.currentUser!!.uid)
+                .update("favorites", FieldValue.arrayUnion(product))
     }
 }

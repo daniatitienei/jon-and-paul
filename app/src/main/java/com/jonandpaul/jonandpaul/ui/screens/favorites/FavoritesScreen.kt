@@ -42,7 +42,7 @@ fun FavoritesScreen(
         }
     }
 
-    val favorites = viewModel.state.value.favorites
+    val state = viewModel.state.value
 
     Scaffold(
         topBar = {
@@ -65,34 +65,46 @@ fun FavoritesScreen(
             )
         }
     ) {
-        if (favorites.isNotEmpty())
-            LazyVerticalGrid(
-                cells = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                horizontalArrangement = Arrangement.spacedBy(15.dp),
-                contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
-            ) {
-                items(favorites) { product ->
-                    ProductCard(
-                        product = product,
-                        onClick = {
-                            viewModel.onEvent(FavoritesEvents.OnProductClick(product = product))
-                        },
-                        imageSize = 240.dp,
-                        isFavorite = true,
-                        onFavoriteClick = {
-                            viewModel.onEvent(FavoritesEvents.OnFavoriteClick(product = product))
-                        }
-                    )
-                }
-            }
-        else
+        if (state.isLoading)
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .wrapContentSize(align = Alignment.Center)
             ) {
-                Text(text = stringResource(id = R.string.you_do_not_have_any_favorite_article))
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
+        else {
+            if (state.favorites.isNotEmpty())
+                LazyVerticalGrid(
+                    cells = GridCells.Fixed(2),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(15.dp),
+                    contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
+                ) {
+                    items(state.favorites) { product ->
+                        ProductCard(
+                            product = product,
+                            onClick = {
+                                viewModel.onEvent(FavoritesEvents.OnProductClick(product = product))
+                            },
+                            imageSize = 240.dp,
+                            isFavorite = true,
+                            onFavoriteClick = {
+                                viewModel.onEvent(FavoritesEvents.OnFavoriteClick(product = product))
+                            }
+                        )
+                    }
+                }
+            else
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .wrapContentSize(align = Alignment.Center)
+                ) {
+                    Text(text = stringResource(id = R.string.you_do_not_have_any_favorite_article))
+                }
+        }
     }
 }

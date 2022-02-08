@@ -6,12 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.FavoritesUseCases
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.products.GetProducts
 import com.jonandpaul.jonandpaul.ui.utils.Resource
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
@@ -28,8 +28,9 @@ class HomeViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val moshi: Moshi,
     private val auth: FirebaseAuth,
-    private val cartRepository: CartDataSource,
-    private val useCases: FavoritesUseCases
+    cartRepository: CartDataSource,
+    private val favoritesUseCases: FavoritesUseCases,
+    private val getProductsUseCase: GetProducts
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
@@ -51,6 +52,7 @@ class HomeViewModel @Inject constructor(
                 .addOnFailureListener {
                     Log.d("user_error", it.message.toString())
                 }
+        else getProducts()
     }
 
     fun onEvent(event: HomeEvents) {
@@ -113,32 +115,40 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getProducts() {
-        Log.d("user_products", auth.currentUser?.uid.toString())
+        getProductsUseCase().onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value = _state.value.copy(
+                        products = result.data!!,
+                        isLoading = false
+                    )
 
-        firestore.collection("products")
-            .addSnapshotListener { snapshots, error ->
-                if (error != null)
-                    return@addSnapshotListener
-
-                _state.value =
-                    _state.value.copy(products = snapshots?.toObjects()!!, isLoading = true)
-
-                getFavorites()
+                    getFavorites()
+                }
+                is Resource.Loading -> {
+                    _state.value = _state.value.copy(
+                        isLoading = true
+                    )
+                }
+                is Resource.Error -> {
+                    _state.value = _state.value.copy(
+                        error = result.error
+                    )
+                }
             }
+        }.launchIn(viewModelScope)
     }
 
     private fun addFavorite(product: Product) {
-        firestore.collection("users").document(auth.currentUser!!.uid)
-            .update("favorites", FieldValue.arrayUnion(product))
+        favoritesUseCases.insertFavorite(product = product)
     }
 
     private fun removeFavorite(product: Product) {
-        firestore.collection("users").document(auth.currentUser!!.uid)
-            .update("favorites", FieldValue.arrayRemove(product))
+        favoritesUseCases.deleteFavorite(product = product)
     }
 
     private fun getFavorites() {
-        useCases.getFavorites().onEach { result ->
+        favoritesUseCases.getFavorites().onEach { result ->
 
             Log.d("result", result.toString())
 

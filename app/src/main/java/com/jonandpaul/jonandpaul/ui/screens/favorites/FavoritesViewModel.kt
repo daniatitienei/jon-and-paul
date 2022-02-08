@@ -35,8 +35,6 @@ class FavoritesViewModel @Inject constructor(
     private var _state = mutableStateOf<FavoritesState>(FavoritesState())
     val state: State<FavoritesState> = _state
 
-    private val docRef = firestore.collection("users").document(auth.currentUser!!.uid)
-
     init {
         getFavorites()
     }
@@ -46,10 +44,20 @@ class FavoritesViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     _state.value = _state.value.copy(
-                        favorites = result.data!!
+                        favorites = result.data!!,
+                        isLoading = false
                     )
                 }
-                else -> Unit
+                is Resource.Loading -> {
+                    _state.value = _state.value.copy(
+                        isLoading = true
+                    )
+                }
+                is Resource.Error -> {
+                    _state.value = _state.value.copy(
+                        error = result.error
+                    )
+                }
             }
         }.launchIn(viewModelScope)
     }

@@ -5,14 +5,8 @@ import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jonandpaul.jonandpaul.CartDatabase
-import com.jonandpaul.jonandpaul.data.repository.CartDataSourceImpl
-import com.jonandpaul.jonandpaul.data.repository.CountiesRepository
-import com.jonandpaul.jonandpaul.data.repository.FavoritesRepositoryImpl
-import com.jonandpaul.jonandpaul.data.repository.StoreShippingDetailsImpl
-import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
-import com.jonandpaul.jonandpaul.domain.repository.CountiesApi
-import com.jonandpaul.jonandpaul.domain.repository.FavoritesRepository
-import com.jonandpaul.jonandpaul.domain.repository.StoreShippingDetails
+import com.jonandpaul.jonandpaul.data.repository.*
+import com.jonandpaul.jonandpaul.domain.repository.*
 import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.ShippingDetailsUseCases
 import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.GetShippingDetails
 import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.SaveShippingDetails
@@ -20,6 +14,8 @@ import com.jonandpaul.jonandpaul.domain.use_case.counties_api.GetCounties
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.DeleteFavorite
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.FavoritesUseCases
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.GetFavorites
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.InsertFavorite
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.products.GetProducts
 import com.jonandpaul.jonandpaul.ui.utils.Constants
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -116,6 +112,19 @@ object AppModule {
         repository: FavoritesRepository
     ): FavoritesUseCases = FavoritesUseCases(
         getFavorites = GetFavorites(repository = repository),
-        deleteFavorite = DeleteFavorite(repository = repository)
+        deleteFavorite = DeleteFavorite(repository = repository),
+        insertFavorite = InsertFavorite(repository = repository)
     )
+
+    @Provides
+    @Singleton
+    fun provideProductsRepository(
+        firestore: FirebaseFirestore
+    ): ProductsRepository = ProductsRepositoryImpl(firestore = firestore)
+
+    @Provides
+    @Singleton
+    fun provideGetProductsUseCase(
+        repository: ProductsRepository
+    ): GetProducts = GetProducts(repository = repository)
 }
