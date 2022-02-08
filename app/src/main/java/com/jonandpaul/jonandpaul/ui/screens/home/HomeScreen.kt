@@ -141,51 +141,38 @@ fun HomeScreen(
                     val items: List<Product> =
                         filteredProducts.ifEmpty { products }
 
-                    if (viewModel.state.value.isLoading)
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .wrapContentSize(align = Alignment.Center)
-                                .background(MaterialTheme.colorScheme.background)
-                        ) {
-                            androidx.compose.material3.CircularProgressIndicator(
-                                color = MaterialTheme.colorScheme.primary
+
+                    LazyVerticalGrid(
+                        cells = GridCells.Fixed(2),
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(15.dp),
+                        contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
+                    ) {
+                        items(items) { product ->
+
+                            var isFavorite by remember {
+                                mutableStateOf(product.isFavorite)
+                            }
+
+                            ProductCard(
+                                product = product,
+                                onClick = {
+                                    viewModel.onEvent(HomeEvents.OnProductClick(product = product))
+                                },
+                                imageSize = 240.dp,
+                                isFavorite = isFavorite,
+                                onFavoriteClick = {
+                                    viewModel.onEvent(
+                                        HomeEvents.OnFavoriteClick(
+                                            product = product,
+                                            isFavorite = isFavorite
+                                        )
+                                    )
+                                    isFavorite = !isFavorite
+                                }
                             )
                         }
-                    else
-                        LazyVerticalGrid(
-                            cells = GridCells.Fixed(2),
-                            verticalArrangement = Arrangement.spacedBy(20.dp),
-                            horizontalArrangement = Arrangement.spacedBy(15.dp),
-                            contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
-                        ) {
-                            items(items) { product ->
-
-                                Log.d("productList at ${product.id}", product.isFavorite.toString())
-
-                                var isFavorite by remember {
-                                    mutableStateOf(product.isFavorite)
-                                }
-
-                                ProductCard(
-                                    product = product,
-                                    onClick = {
-                                        viewModel.onEvent(HomeEvents.OnProductClick(product = product))
-                                    },
-                                    imageSize = 240.dp,
-                                    isFavorite = isFavorite,
-                                    onFavoriteClick = {
-                                        viewModel.onEvent(
-                                            HomeEvents.OnFavoriteClick(
-                                                product = product,
-                                                isFavorite = isFavorite
-                                            )
-                                        )
-                                        isFavorite = !isFavorite
-                                    }
-                                )
-                            }
-                        }
+                    }
                 }
             }
         }
