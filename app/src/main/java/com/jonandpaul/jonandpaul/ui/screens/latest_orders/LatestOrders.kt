@@ -22,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
+import com.jonandpaul.jonandpaul.ui.utils.enums.OrderStatus
 import com.jonandpaul.jonandpaul.ui.utils.twoDecimalsString
 import kotlinx.coroutines.flow.collect
 
@@ -104,7 +105,7 @@ private fun OrderCard(
     onClick: () -> Unit,
     title: String,
     total: String,
-    orderStatus: String
+    orderStatus: OrderStatus
 ) {
     Card(
         elevation = 2.dp,
@@ -126,7 +127,11 @@ private fun OrderCard(
             },
             trailing = {
                 Text(
-                    text = orderStatus,
+                    text = when (orderStatus) {
+                        OrderStatus.PLACED -> stringResource(id = R.string.placed)
+                        OrderStatus.ON_DELIVERY -> stringResource(id = R.string.deliverying)
+                        OrderStatus.COMPLETED -> stringResource(id = R.string.completed)
+                    },
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                 )
             }

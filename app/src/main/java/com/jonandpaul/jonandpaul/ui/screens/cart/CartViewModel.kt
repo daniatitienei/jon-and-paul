@@ -5,6 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -14,6 +15,7 @@ import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
 import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.ShippingDetailsUseCases
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
+import com.jonandpaul.jonandpaul.ui.utils.enums.OrderStatus
 import com.jonandpaul.jonandpaul.ui.utils.toProduct
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -77,20 +79,15 @@ class CartViewModel @Inject constructor(
                 emitEvent(UiEvent.PopBackStack)
             }
             is CartEvents.OnOrderClick -> {
-                val calendar = Calendar.getInstance()
-
-                val dateFormatter =
-                    SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault())
-
                 firestore.collection("orders")
                     .add(
                         hashMapOf(
                             "items" to event.items,
                             "shippingDetails" to event.shippingDetails,
-                            "date" to dateFormatter.format(calendar.time),
+                            "date" to Timestamp.now(),
                             "id" to Random.nextInt(0, 1000000),
                             "total" to _total.value,
-                            "status" to context.getString(R.string.pending)
+                            "status" to OrderStatus.PLACED.ordinal
                         )
                     )
                     .addOnSuccessListener {
@@ -99,10 +96,10 @@ class CartViewModel @Inject constructor(
                                 hashMapOf(
                                     "items" to event.items,
                                     "shippingDetails" to event.shippingDetails,
-                                    "date" to dateFormatter.format(calendar.time),
+                                    "date" to Timestamp.now(),
                                     "id" to Random.nextInt(0, 1000000),
                                     "total" to _total.value,
-                                    "status" to context.getString(R.string.pending)
+                                    "status" to OrderStatus.PLACED.ordinal
                                 )
                             )
 

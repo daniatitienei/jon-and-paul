@@ -4,19 +4,15 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObjects
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.FirestoreUseCases
+import com.jonandpaul.jonandpaul.ui.utils.Resource
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -24,10 +20,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InspectProductViewModel @Inject constructor(
-    private val firestore: FirebaseFirestore,
     private val moshi: Moshi,
     private val repository: CartDataSource,
-    private val auth: FirebaseAuth,
+    private val useCases: FirestoreUseCases,
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
@@ -83,9 +78,9 @@ class InspectProductViewModel @Inject constructor(
             }
             is InspectProductEvents.OnFavoriteClick -> {
                 if (event.product.isFavorite)
-                    removeFavorite(product = event.product.copy(isFavorite = false))
+                    useCases.favorites.deleteFavorite(product = event.product.copy(isFavorite = false))
                 else
-                    addFavorite(product = event.product.copy(isFavorite = false))
+                    useCases.favorites.insertFavorite(product = event.product.copy(isFavorite = false))
             }
         }
     }
@@ -96,26 +91,26 @@ class InspectProductViewModel @Inject constructor(
         }
     }
 
-    private fun addFavorite(product: Product) {
-        firestore.collection("users").document(auth.currentUser!!.uid)
-            .update("favorites", FieldValue.arrayUnion(product))
-    }
-
-    private fun removeFavorite(product: Product) {
-        firestore.collection("users").document(auth.currentUser!!.uid)
-            .update("favorites", FieldValue.arrayRemove(product))
-    }
-
     private fun getSuggestions() {
-        firestore.collection("products")
-            .get()
-            .addOnSuccessListener { result ->
-                val suggestions: List<Product> = result.toObjects()
-                _state.value =
-                    _state.value.copy(
-                        suggestions = suggestions.shuffled(),
+        useCases.getProducts().onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value = _state.value.copy(
+                        suggestions = result.data!!.shuffled(),
                         isLoading = false
                     )
+                }
+                is Resource.Loading -> {
+                    _state.value = _state.value.copy(
+                        isLoading = false
+                    )
+                }
+                is Resource.Error -> {
+                    _state.value = _state.value.copy(
+                        error = result.error
+                    )
+                }
             }
+        }.launchIn(viewModelScope)
     }
 }

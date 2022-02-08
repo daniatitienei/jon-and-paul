@@ -27,10 +27,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.CartItem
-import com.jonandpaul.jonandpaul.domain.model.Order
 import com.jonandpaul.jonandpaul.ui.theme.JonAndPaulTheme
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
-import com.jonandpaul.jonandpaul.ui.utils.formatAsPhoneNumber
+import com.jonandpaul.jonandpaul.ui.utils.text_transformations.formatAsPhoneNumber
 import com.jonandpaul.jonandpaul.ui.utils.twoDecimalsString
 import kotlinx.coroutines.flow.collect
 
@@ -122,7 +121,7 @@ fun InspectOrderScreen(
 
                     Text(text = "${order.shippingDetails.lastName} ${order.shippingDetails.firstName}")
                     Text(text = "${order.shippingDetails.address}, ${order.shippingDetails.postalCode}, ${order.shippingDetails.city}, ${order.shippingDetails.county}")
-                    Text(text = "+40${order.shippingDetails.phone}")
+                    Text(text = "+40 ${order.shippingDetails.phone.formatAsPhoneNumber()}")
 
                     Log.d("phone", order.shippingDetails.phone.length.toString())
                 }

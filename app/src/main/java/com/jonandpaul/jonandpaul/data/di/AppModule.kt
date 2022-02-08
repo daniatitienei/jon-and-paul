@@ -11,6 +11,7 @@ import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.ShippingDetai
 import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.GetShippingDetails
 import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.SaveShippingDetails
 import com.jonandpaul.jonandpaul.domain.use_case.counties_api.GetCounties
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.FirestoreUseCases
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.DeleteFavorite
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.FavoritesUseCases
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.GetFavorites
@@ -127,4 +128,14 @@ object AppModule {
     fun provideGetProductsUseCase(
         repository: ProductsRepository
     ): GetProducts = GetProducts(repository = repository)
+
+    @Provides
+    @Singleton
+    fun provideFirestoreUseCases(
+        getProducts: GetProducts,
+        favoritesUseCases: FavoritesUseCases
+    ): FirestoreUseCases = FirestoreUseCases(
+        getProducts = getProducts,
+        favorites = favoritesUseCases
+    )
 }
