@@ -48,16 +48,10 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var moshi: Moshi
 
-    val viewModel: AuthViewModel by viewModels<AuthViewModel>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        installSplashScreen().apply {
-            setKeepOnScreenCondition {
-                viewModel.state.value.isLoading
-            }
-        }
+        installSplashScreen()
 
         setContent {
             val systemUiController = rememberSystemUiController()
@@ -75,35 +69,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-@HiltViewModel
-class AuthViewModel @Inject constructor(
-    auth: FirebaseAuth,
-    firestore: FirebaseFirestore
-) : ViewModel() {
-
-    private var _state = MutableStateFlow<AuthState>(AuthState())
-    val state = _state
-
-    init {
-        auth.addAuthStateListener {
-            _state.value = _state.value.copy(
-                user = it.currentUser,
-                isLoading = it.currentUser == null
-            )
-        }
-
-        if (auth.currentUser == null)
-            auth.signInAnonymously()
-                .addOnSuccessListener {
-                    firestore.collection("users").document(auth.currentUser!!.uid)
-                        .set(hashMapOf("favorites" to listOf<Product>()))
-                }
-
-    }
-}
-
-data class AuthState(
-    val user: FirebaseUser? = null,
-    val isLoading: Boolean = true
-)

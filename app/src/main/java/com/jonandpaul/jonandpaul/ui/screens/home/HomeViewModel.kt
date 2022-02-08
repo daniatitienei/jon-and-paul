@@ -41,7 +41,16 @@ class HomeViewModel @Inject constructor(
     val cartItems = cartRepository.getCartItems()
 
     init {
-        getProducts()
+        if (auth.currentUser == null)
+            auth.signInAnonymously()
+                .addOnSuccessListener {
+                    firestore.collection("users").document(auth.currentUser!!.uid)
+                        .set(hashMapOf("favorites" to listOf<Product>()))
+                    getProducts()
+                }
+                .addOnFailureListener {
+                    Log.d("user_error", it.message.toString())
+                }
     }
 
     fun onEvent(event: HomeEvents) {

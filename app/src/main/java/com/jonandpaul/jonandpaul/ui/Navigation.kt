@@ -49,6 +49,7 @@ fun Navigation(
         navController = navController,
         startDestination = Screens.Home.route
     ) {
+
         composable(route = Screens.Home.route) {
             HomeScreen(
                 onNavigate = { destination ->
