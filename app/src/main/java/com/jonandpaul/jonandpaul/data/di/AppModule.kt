@@ -17,6 +17,7 @@ import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.FavoritesUs
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.GetFavorites
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.InsertFavorite
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.products.GetProducts
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.products.GetSuggestions
 import com.jonandpaul.jonandpaul.ui.utils.Constants
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -131,11 +132,19 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideGetSuggestionsUseCase(
+        repository: ProductsRepository
+    ): GetSuggestions = GetSuggestions(repository = repository)
+
+    @Provides
+    @Singleton
     fun provideFirestoreUseCases(
         getProducts: GetProducts,
-        favoritesUseCases: FavoritesUseCases
+        favoritesUseCases: FavoritesUseCases,
+        getSuggestions: GetSuggestions
     ): FirestoreUseCases = FirestoreUseCases(
         getProducts = getProducts,
-        favorites = favoritesUseCases
+        favorites = favoritesUseCases,
+        getSuggestions = getSuggestions
     )
 }

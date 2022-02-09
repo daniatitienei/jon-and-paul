@@ -38,7 +38,6 @@ fun Navigation(
         navController = navController,
         startDestination = Screens.Home.route
     ) {
-
         composable(route = Screens.Home.route) {
             HomeScreen(
                 onNavigate = { destination ->
@@ -218,24 +217,15 @@ fun Navigation(
                     tween(500)
                 )
             }
-        ) { backStackEntry ->
-            val productJson = backStackEntry.arguments?.getString("product")
-            val jsonAdapter = moshi.adapter(Product::class.java).lenient()
-            val productObject = jsonAdapter.fromJson(productJson!!)
-
-            productObject?.let { product ->
-                InspectProductScreen(
-                    onNavigate = { destination ->
-                        navController.navigate(destination.route) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onPopBackStack = {
-                        navController.popBackStack()
-                    },
-                    product = product
-                )
-            }
+        ) {
+            InspectProductScreen(
+                onNavigate = { destination ->
+                    navController.navigate(destination.route)
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
+                },
+            )
         }
 
         composable(

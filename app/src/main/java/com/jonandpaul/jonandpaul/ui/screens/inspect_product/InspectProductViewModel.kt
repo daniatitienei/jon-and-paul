@@ -1,7 +1,10 @@
 package com.jonandpaul.jonandpaul.ui.screens.inspect_product
 
+import android.app.Application
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jonandpaul.jonandpaul.domain.model.Product
@@ -20,10 +23,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InspectProductViewModel @Inject constructor(
-    private val moshi: Moshi,
+    moshi: Moshi,
     private val repository: CartDataSource,
     private val useCases: FirestoreUseCases,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+
+    private val jsonProductAdapter = moshi.adapter(Product::class.java).lenient()
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
@@ -32,6 +38,16 @@ class InspectProductViewModel @Inject constructor(
     val state: State<InspectProductState> = _state
 
     init {
+        val productJson = savedStateHandle.get<String>("product")
+        val productObject = jsonProductAdapter.fromJson(productJson!!)
+
+        Log.d("product", productObject?.id.toString())
+
+        _state.value = _state.value.copy(
+            product = productObject!!,
+            isLoading = true
+        )
+
         getSuggestions()
     }
 
@@ -41,7 +57,6 @@ class InspectProductViewModel @Inject constructor(
                 emitEvent(event = UiEvent.PopBackStack)
             }
             is InspectProductEvents.OnProductClick -> {
-                val jsonAdapter = moshi.adapter(Product::class.java)
 
                 event.product = event.product.copy(
                     imageUrl = URLEncoder.encode(
@@ -49,7 +64,8 @@ class InspectProductViewModel @Inject constructor(
                         StandardCharsets.UTF_8.toString()
                     )
                 )
-                val productJson = jsonAdapter.toJson(event.product)
+
+                val productJson = jsonProductAdapter.toJson(event.product)
 
                 emitEvent(
                     event = UiEvent.Navigate(
@@ -78,9 +94,9 @@ class InspectProductViewModel @Inject constructor(
             }
             is InspectProductEvents.OnFavoriteClick -> {
                 if (event.product.isFavorite)
-                    useCases.favorites.deleteFavorite(product = event.product.copy(isFavorite = false))
+                    useCases.favorites.deleteFavorite(product = event.product.copy(isFavorite = true))
                 else
-                    useCases.favorites.insertFavorite(product = event.product.copy(isFavorite = false))
+                    useCases.favorites.insertFavorite(product = event.product.copy(isFavorite = true))
             }
         }
     }
@@ -92,13 +108,14 @@ class InspectProductViewModel @Inject constructor(
     }
 
     private fun getSuggestions() {
-        useCases.getProducts().onEach { result ->
+        useCases.getSuggestions(product = _state.value.product).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     _state.value = _state.value.copy(
-                        suggestions = result.data!!.shuffled(),
-                        isLoading = false
+                        suggestions = result.data!!,
                     )
+
+                    getFavorites()
                 }
                 is Resource.Loading -> {
                     _state.value = _state.value.copy(
@@ -109,6 +126,53 @@ class InspectProductViewModel @Inject constructor(
                     _state.value = _state.value.copy(
                         error = result.error
                     )
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun getFavorites() {
+        useCases.favorites.getFavorites().onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value = _state.value.copy(
+                        favorites = result.data!!
+                    )
+
+                    if (_state.value.favorites.contains(_state.value.product.copy(isFavorite = true)))
+                        _state.value = _state.value.copy(
+                            product = _state.value.product.copy(isFavorite = true)
+                        )
+
+                    if (_state.value.favorites.isNotEmpty()) {
+                        _state.value.suggestions.forEach { product ->
+                            val isFavorite = _state.value.favorites.contains(product)
+
+                            if (isFavorite)
+                                _state.value = _state.value.copy(
+                                    suggestions = _state.value.suggestions.map {
+                                        if (it == product) it.copy(isFavorite = true)
+                                        else it
+                                    }
+                                )
+                        }
+                    } else _state.value = _state.value.copy(
+                        suggestions = _state.value.suggestions.map {
+                            it.copy(isFavorite = false)
+                        },
+                    )
+
+                    _state.value = _state.value.copy(
+                        isLoading = false
+                    )
+                }
+                is Resource.Loading -> {
+                    _state.value = _state.value.copy(isLoading = true)
+                }
+                is Resource.Error -> {
+                    _state.value = _state.value.copy(error = result.error)
+
+                    Log.d("result_error", result.error.toString())
                 }
             }
         }.launchIn(viewModelScope)

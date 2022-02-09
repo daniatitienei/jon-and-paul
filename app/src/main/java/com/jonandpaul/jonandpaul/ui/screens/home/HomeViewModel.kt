@@ -10,6 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.FirestoreUseCases
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.FavoritesUseCases
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.products.GetProducts
 import com.jonandpaul.jonandpaul.ui.utils.Resource
@@ -29,8 +30,7 @@ class HomeViewModel @Inject constructor(
     private val moshi: Moshi,
     private val auth: FirebaseAuth,
     cartRepository: CartDataSource,
-    private val favoritesUseCases: FavoritesUseCases,
-    private val getProductsUseCase: GetProducts
+    private val useCases: FirestoreUseCases
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
@@ -101,9 +101,9 @@ class HomeViewModel @Inject constructor(
             }
             is HomeEvents.OnFavoriteClick -> {
                 if (event.isFavorite)
-                    removeFavorite(product = event.product.copy(isFavorite = false))
+                    useCases.favorites.deleteFavorite(product = event.product.copy(isFavorite = true))
                 else
-                    addFavorite(product = event.product.copy(isFavorite = false))
+                    useCases.favorites.insertFavorite(product = event.product.copy(isFavorite = true))
             }
         }
     }
@@ -115,12 +115,12 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getProducts() {
-        getProductsUseCase().onEach { result ->
+        useCases.getProducts().onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     _state.value = _state.value.copy(
                         products = result.data!!,
-                        isLoading = false
+                        isLoading = true
                     )
 
                     getFavorites()
@@ -139,16 +139,8 @@ class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    private fun addFavorite(product: Product) {
-        favoritesUseCases.insertFavorite(product = product)
-    }
-
-    private fun removeFavorite(product: Product) {
-        favoritesUseCases.deleteFavorite(product = product)
-    }
-
     private fun getFavorites() {
-        favoritesUseCases.getFavorites().onEach { result ->
+        useCases.favorites.getFavorites().onEach { result ->
 
             Log.d("result", result.toString())
 

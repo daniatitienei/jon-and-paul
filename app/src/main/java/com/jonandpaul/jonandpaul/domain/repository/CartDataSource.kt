@@ -15,7 +15,7 @@ interface CartDataSource {
         size: String,
         price: Double,
         imageUrl: String,
-        modelSizeInfo: String
+        modelSizeInfo: String,
     )
 
     suspend fun removeItem(id: Long)
