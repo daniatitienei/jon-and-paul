@@ -1,11 +1,13 @@
 package com.jonandpaul.jonandpaul.ui.screens.inspect_product
 
+import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.domain.model.toCartItem
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.FirestoreUseCases
@@ -25,6 +27,7 @@ class InspectProductViewModel @Inject constructor(
     moshi: Moshi,
     private val useCases: FirestoreUseCases,
     private val savedStateHandle: SavedStateHandle,
+    private val context: Application
 ) : ViewModel() {
 
     private val jsonProductAdapter = moshi.adapter(Product::class.java).lenient()
@@ -76,7 +79,7 @@ class InspectProductViewModel @Inject constructor(
             }
             is InspectProductEvents.OnAddToCartClick -> {
                 useCases.cart.insertCartItem(event.product.toCartItem())
-                emitEvent(UiEvent.Toast)
+                emitEvent(UiEvent.Toast(message = context.getString(R.string.item_added_to_cart)))
             }
             is InspectProductEvents.OnFavoriteClick -> {
                 if (event.product.isFavorite)
