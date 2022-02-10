@@ -62,7 +62,7 @@ fun HomeScreen(
         viewModel.init()
     }
 
-    val cartItems = viewModel.cartItems.collectAsState(initial = emptyList()).value
+    val cartItems = viewModel.state.value.cartItems
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -256,7 +256,7 @@ private fun HomeTopBar(
                         Icons.Rounded.Search
                     else
                         Icons.Rounded.Close,
-                    contentDescription = "Cautare",
+                    contentDescription = null,
                     tint = Black900
                 )
             }
@@ -299,7 +299,7 @@ private fun HomeTopBar(
             ) {
                 Icon(
                     Icons.Rounded.FavoriteBorder,
-                    contentDescription = stringResource(id = R.string.my_cart),
+                    contentDescription = stringResource(id = R.string.favorites),
                     tint = Black900
                 )
             }

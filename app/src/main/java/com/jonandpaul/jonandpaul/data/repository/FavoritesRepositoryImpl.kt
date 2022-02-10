@@ -21,20 +21,23 @@ class FavoritesRepositoryImpl(
 ) : FavoritesRepository {
 
     override fun getFavorites(): Flow<Resource<List<Product>>> = callbackFlow {
-        val snapshotListener = firestore.collection("users").document(auth.currentUser!!.uid)
-            .addSnapshotListener { snapshot, e ->
-                val response = if (snapshot != null && snapshot.exists()) {
-                    val favorites = snapshot.toObject<FavoritesState>()!!.favorites
-                    Resource.Success<List<Product>>(data = favorites)
-                } else {
-                    Resource.Error<List<Product>>(message = e?.localizedMessage.toString())
-                }
+        if (auth.currentUser != null) {
+            val snapshotListener = firestore.collection("users").document(auth.currentUser!!.uid)
+                .addSnapshotListener { snapshot, e ->
+                    val response = if (snapshot != null && snapshot.exists()) {
+                        val favorites = snapshot.toObject<FavoritesState>()!!.favorites
+                        Resource.Success<List<Product>>(data = favorites)
+                    } else {
+                        Resource.Error<List<Product>>(message = e?.localizedMessage.toString())
+                    }
 
-                trySend(response).isSuccess
+                    trySend(response).isSuccess
+                }
+            awaitClose {
+                snapshotListener.remove()
             }
-        awaitClose {
-            snapshotListener.remove()
         }
+
 
     }
 

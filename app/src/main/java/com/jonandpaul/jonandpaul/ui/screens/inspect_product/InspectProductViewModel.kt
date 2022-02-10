@@ -1,6 +1,5 @@
 package com.jonandpaul.jonandpaul.ui.screens.inspect_product
 
-import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -8,7 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jonandpaul.jonandpaul.domain.model.Product
-import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
+import com.jonandpaul.jonandpaul.domain.model.toCartItem
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.FirestoreUseCases
 import com.jonandpaul.jonandpaul.ui.utils.Resource
 import com.jonandpaul.jonandpaul.ui.utils.Screens
@@ -24,7 +23,6 @@ import javax.inject.Inject
 @HiltViewModel
 class InspectProductViewModel @Inject constructor(
     moshi: Moshi,
-    private val repository: CartDataSource,
     private val useCases: FirestoreUseCases,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
@@ -77,19 +75,7 @@ class InspectProductViewModel @Inject constructor(
                 )
             }
             is InspectProductEvents.OnAddToCartClick -> {
-                viewModelScope.launch {
-                    repository.addToCart(
-                        id = event.product.id,
-                        title = event.product.title,
-                        amount = event.product.amount.toLong(),
-                        modelSizeInfo = event.product.modelSizeInfo,
-                        composition = event.product.composition,
-                        imageUrl = event.product.imageUrl,
-                        price = event.product.price,
-                        size = event.product.size,
-                        quantity = 1
-                    )
-                }
+                useCases.cart.insertCartItem(event.product.toCartItem())
                 emitEvent(UiEvent.Toast)
             }
             is InspectProductEvents.OnFavoriteClick -> {

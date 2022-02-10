@@ -7,12 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObjects
 import com.jonandpaul.jonandpaul.domain.model.Product
-import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.FirestoreUseCases
-import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.FavoritesUseCases
-import com.jonandpaul.jonandpaul.domain.use_case.firestore.products.GetProducts
 import com.jonandpaul.jonandpaul.ui.utils.Resource
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
@@ -29,7 +25,6 @@ class HomeViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val moshi: Moshi,
     private val auth: FirebaseAuth,
-    cartRepository: CartDataSource,
     private val useCases: FirestoreUseCases
 ) : ViewModel() {
 
@@ -38,8 +33,6 @@ class HomeViewModel @Inject constructor(
 
     private var _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
-
-    val cartItems = cartRepository.getCartItems()
 
     fun init() {
         if (auth.currentUser == null)
@@ -139,6 +132,30 @@ class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
+    private fun getCartItems() {
+        useCases.cart.getCartItems().onEach { response ->
+            when (response) {
+                is Resource.Success -> {
+                    _state.value = _state.value.copy(
+                        cartItems = response.data!!,
+                        isLoading = false
+                    )
+                }
+                is Resource.Loading -> {
+                    _state.value = _state.value.copy(
+                        isLoading = true
+                    )
+                }
+                is Resource.Error -> {
+                    _state.value = _state.value.copy(
+                        error = response.error,
+                        isLoading = false
+                    )
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
     private fun getFavorites() {
         useCases.favorites.getFavorites().onEach { result ->
 
@@ -168,9 +185,7 @@ class HomeViewModel @Inject constructor(
                         },
                     )
 
-                    _state.value = _state.value.copy(
-                        isLoading = false
-                    )
+                    getCartItems()
                 }
                 is Resource.Loading -> {
                     _state.value = _state.value.copy(isLoading = true)

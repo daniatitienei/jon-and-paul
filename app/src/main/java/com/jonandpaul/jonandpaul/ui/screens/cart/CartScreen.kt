@@ -1,6 +1,8 @@
 package com.jonandpaul.jonandpaul.ui.screens.cart
 
+import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,8 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
-import com.jonandpaul.jonandpaul.CartItemEntity
 import com.jonandpaul.jonandpaul.R
+import com.jonandpaul.jonandpaul.domain.model.CartItem
 import com.jonandpaul.jonandpaul.ui.theme.Black900
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.jonandpaul.jonandpaul.ui.utils.twoDecimalsString
@@ -48,7 +50,7 @@ fun CartScreen(
     onPopBackStack: (UiEvent.PopBackStack) -> Unit,
 ) {
     var currentCartProductId by remember {
-        mutableStateOf<Long?>(null)
+        mutableStateOf<Int?>(null)
     }
 
     val modalBottomSheetState =
@@ -56,7 +58,8 @@ fun CartScreen(
 
     val context = LocalContext.current
 
-    val cartItems = viewModel.cartItems.collectAsState(initial = emptyList()).value
+    val cartItems = viewModel.state.value.items
+
     val currentShippingDetails =
         viewModel.currentShippingDetails.collectAsState(initial = null).value
 
@@ -102,7 +105,7 @@ fun CartScreen(
                                     viewModel.onEvent(
                                         CartEvents.OnUpdateQuantity(
                                             id = id,
-                                            quantity = (quantity + 1).toLong()
+                                            quantity = quantity + 1
                                         )
                                     )
                                 }
@@ -286,7 +289,6 @@ fun CartScreen(
                                 onClick = {
                                     viewModel.onEvent(
                                         CartEvents.OnOrderClick(
-                                            items = cartItems,
                                             shippingDetails = currentShippingDetails,
                                         )
                                     )
@@ -355,7 +357,7 @@ private fun PaymentMethod(
 @ExperimentalMaterialApi
 @Composable
 private fun CartItemCard(
-    item: CartItemEntity,
+    item: CartItem,
     showQuantityPicker: () -> Unit,
     onEvent: (CartEvents) -> Unit,
 ) {
@@ -365,7 +367,7 @@ private fun CartItemCard(
 
     Row(
         modifier = Modifier.clickable {
-            onEvent(CartEvents.OnProductClick(product = item))
+            onEvent(CartEvents.OnProductClick(item = item))
         }
     ) {
         Image(
@@ -425,6 +427,7 @@ private fun CartItemCard(
             }
 
             Spacer(modifier = Modifier.height(15.dp))
+
 
             Column {
                 Row(

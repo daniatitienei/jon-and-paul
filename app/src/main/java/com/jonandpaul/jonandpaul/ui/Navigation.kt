@@ -220,7 +220,13 @@ fun Navigation(
         ) {
             InspectProductScreen(
                 onNavigate = { destination ->
-                    navController.navigate(destination.route)
+                    navController.navigate(destination.route) {
+                        launchSingleTop = true
+
+                        popUpTo(Screens.InspectProduct.route) {
+                            inclusive = true
+                        }
+                    }
                 },
                 onPopBackStack = {
                     navController.popBackStack()
