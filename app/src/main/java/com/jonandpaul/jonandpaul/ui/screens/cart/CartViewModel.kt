@@ -1,6 +1,5 @@
 package com.jonandpaul.jonandpaul.ui.screens.cart
 
-import android.app.Application
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -8,8 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
-import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
 import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.ShippingDetailsUseCases
@@ -26,19 +23,15 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
-import java.util.*
 import javax.inject.Inject
 import kotlin.random.Random
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
     private val cartRepository: CartDataSource,
-    private val shippingDetailsUseCases: ShippingDetailsUseCases,
+    shippingDetailsUseCases: ShippingDetailsUseCases,
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth,
-    private val context: Application,
     private val moshi: Moshi
 ) : ViewModel() {
 

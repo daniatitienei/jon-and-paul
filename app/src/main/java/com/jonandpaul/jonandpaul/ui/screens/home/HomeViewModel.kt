@@ -41,7 +41,7 @@ class HomeViewModel @Inject constructor(
 
     val cartItems = cartRepository.getCartItems()
 
-    init {
+    fun init() {
         if (auth.currentUser == null)
             auth.signInAnonymously()
                 .addOnSuccessListener {

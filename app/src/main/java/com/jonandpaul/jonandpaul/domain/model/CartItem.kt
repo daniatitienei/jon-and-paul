@@ -9,7 +9,8 @@ data class CartItem(
     val price: Double = 0.0,
     val title: String = "",
     val quantity: Long = 0,
-    val composition: String = ""
+    val composition: String = "",
+    val id: Long = 0
 )
 
 fun CartItem.toProduct(): Product =
@@ -20,5 +21,6 @@ fun CartItem.toProduct(): Product =
         composition = composition,
         imageUrl = imageUrl,
         modelSizeInfo = modelSizeInfo,
-        size = size
+        size = size,
+        id = id
     )

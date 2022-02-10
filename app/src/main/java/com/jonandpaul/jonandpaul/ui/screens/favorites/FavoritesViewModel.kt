@@ -65,7 +65,7 @@ class FavoritesViewModel @Inject constructor(
     fun onEvent(event: FavoritesEvents) {
         when (event) {
             is FavoritesEvents.OnFavoriteClick -> {
-                removeFavorite(product = event.product)
+                removeFavorite(product = event.product.copy(isFavorite = true))
             }
             is FavoritesEvents.OnNavigationClick -> {
                 emitEvent(UiEvent.PopBackStack)

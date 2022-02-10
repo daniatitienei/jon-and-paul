@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.theme.Black900
@@ -57,6 +58,10 @@ fun HomeScreen(
 
     val scope = rememberCoroutineScope()
 
+    LaunchedEffect(key1 = true) {
+        viewModel.init()
+    }
+
     val cartItems = viewModel.cartItems.collectAsState(initial = emptyList()).value
 
     LaunchedEffect(key1 = true) {
@@ -68,8 +73,9 @@ fun HomeScreen(
                 is UiEvent.BackdropScaffold -> {
                     if (backdropScaffoldState.isConcealed)
                         backdropScaffoldState.reveal()
-                    else
+                    else {
                         backdropScaffoldState.conceal()
+                    }
                 }
                 else -> Unit
             }
@@ -90,7 +96,6 @@ fun HomeScreen(
             product.title.lowercase()
                 .contains(searchValue.lowercase())
         }
-
 
     BackdropScaffold(
         scaffoldState = backdropScaffoldState,

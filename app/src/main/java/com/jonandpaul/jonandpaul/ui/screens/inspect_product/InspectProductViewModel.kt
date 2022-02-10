@@ -26,7 +26,7 @@ class InspectProductViewModel @Inject constructor(
     moshi: Moshi,
     private val repository: CartDataSource,
     private val useCases: FirestoreUseCases,
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val jsonProductAdapter = moshi.adapter(Product::class.java).lenient()
@@ -37,7 +37,7 @@ class InspectProductViewModel @Inject constructor(
     private var _state = mutableStateOf(InspectProductState())
     val state: State<InspectProductState> = _state
 
-    init {
+    fun init() {
         val productJson = savedStateHandle.get<String>("product")
         val productObject = jsonProductAdapter.fromJson(productJson!!)
 
@@ -139,7 +139,7 @@ class InspectProductViewModel @Inject constructor(
                         favorites = result.data!!
                     )
 
-                    if (_state.value.favorites.contains(_state.value.product.copy(isFavorite = true)))
+                    if (_state.value.favorites.contains(_state.value.product))
                         _state.value = _state.value.copy(
                             product = _state.value.product.copy(isFavorite = true)
                         )

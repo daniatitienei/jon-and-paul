@@ -56,6 +56,10 @@ fun InspectProductScreen(
     val context = LocalContext.current
 
     LaunchedEffect(key1 = true) {
+        viewModel.init()
+    }
+
+    LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
             when (event) {
                 is UiEvent.PopBackStack -> {
