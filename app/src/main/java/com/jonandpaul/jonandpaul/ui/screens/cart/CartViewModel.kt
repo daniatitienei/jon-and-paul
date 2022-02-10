@@ -1,5 +1,6 @@
 package com.jonandpaul.jonandpaul.ui.screens.cart
 
+import android.app.Application
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -7,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.domain.model.toProduct
 import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.ShippingDetailsUseCases
@@ -30,7 +32,8 @@ class CartViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth,
     private val moshi: Moshi,
-    private val useCases: FirestoreUseCases
+    private val useCases: FirestoreUseCases,
+    private val context: Application
 ) : ViewModel() {
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
@@ -68,7 +71,7 @@ class CartViewModel @Inject constructor(
             }
             is CartEvents.OnDeleteProduct -> {
                 useCases.cart.deleteCartItem(id = event.id)
-                emitEvent(UiEvent.Toast)
+                emitEvent(UiEvent.Toast(message = context.getString(R.string.item_removed)))
             }
             is CartEvents.OnNavigationClick -> {
                 emitEvent(UiEvent.PopBackStack)

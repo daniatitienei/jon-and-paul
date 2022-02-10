@@ -71,7 +71,7 @@ fun InspectProductScreen(
                 is UiEvent.Toast -> {
                     Toast.makeText(
                         context,
-                        context.getString(R.string.item_added_to_cart),
+                        event.message,
                         Toast.LENGTH_SHORT
                     ).show()
                 }

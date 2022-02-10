@@ -80,7 +80,7 @@ fun CartScreen(
                 is UiEvent.Toast -> {
                     Toast.makeText(
                         context,
-                        context.getString(R.string.item_removed),
+                        event.message,
                         Toast.LENGTH_SHORT
                     ).show()
                 }

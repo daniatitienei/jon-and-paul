@@ -62,4 +62,9 @@
     <string name="placed">Plasată</string>
     <string name="deliverying">Se livrează</string>
     <string name="completed">Completă</string>
+    <string name="send">Trimite</string>
+    <string name="close">Închide</string>
+    <string name="give_us_feedback">Cum vă putem îmbunătăți experiența?</string>
+    <string name="feedback">Feedback</string>
+    <string name="feedback_sent">Vă mulțumim!</string>
 </resources>
