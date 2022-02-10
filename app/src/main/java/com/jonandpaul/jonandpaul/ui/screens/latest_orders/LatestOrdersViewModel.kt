@@ -8,6 +8,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.jonandpaul.jonandpaul.domain.model.Order
+import com.jonandpaul.jonandpaul.domain.model.OrderDao
+import com.jonandpaul.jonandpaul.domain.model.toOrder
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.squareup.moshi.Moshi
@@ -65,8 +67,13 @@ class LatestOrdersViewModel @Inject constructor(
         firestore.collection("users/${auth.currentUser!!.uid}/orders")
             .get()
             .addOnSuccessListener { documents ->
+
+                val orderDao: List<OrderDao> = documents.toObjects()
+
+                val orders = orderDao.map { it.toOrder() }
+
                 _state.value =
-                    _state.value.copy(latestOrders = documents.toObjects(), isLoading = false)
+                    _state.value.copy(latestOrders = orders, isLoading = false)
             }
     }
 }

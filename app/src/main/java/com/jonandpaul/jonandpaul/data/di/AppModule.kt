@@ -1,29 +1,25 @@
 package com.jonandpaul.jonandpaul.data.di
 
-import android.app.Application
 import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.jonandpaul.jonandpaul.CartDatabase
-import com.jonandpaul.jonandpaul.data.repository.CartDataSourceImpl
-import com.jonandpaul.jonandpaul.data.repository.CountiesRepository
-import com.jonandpaul.jonandpaul.data.repository.FavoritesRepositoryImpl
-import com.jonandpaul.jonandpaul.data.repository.StoreShippingDetailsImpl
-import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
-import com.jonandpaul.jonandpaul.domain.repository.CountiesApi
-import com.jonandpaul.jonandpaul.domain.repository.FavoritesRepository
-import com.jonandpaul.jonandpaul.domain.repository.StoreShippingDetails
+import com.jonandpaul.jonandpaul.data.repository.*
+import com.jonandpaul.jonandpaul.domain.repository.*
 import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.ShippingDetailsUseCases
 import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.GetShippingDetails
 import com.jonandpaul.jonandpaul.domain.use_case.address_datastore.SaveShippingDetails
 import com.jonandpaul.jonandpaul.domain.use_case.counties_api.GetCounties
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.FirestoreUseCases
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.cart.*
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.DeleteFavorite
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.FavoritesUseCases
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.GetFavorites
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.InsertFavorite
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.products.GetProducts
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.products.GetSuggestions
 import com.jonandpaul.jonandpaul.ui.utils.Constants
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import com.squareup.sqldelight.android.AndroidSqliteDriver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -53,19 +49,6 @@ object AppModule {
         .addLast(
             KotlinJsonAdapterFactory()
         ).build()
-
-    @Provides
-    @Singleton
-    fun provideCartDataSource(@ApplicationContext context: Context): CartDataSource =
-        CartDataSourceImpl(
-            CartDatabase(
-                driver = AndroidSqliteDriver(
-                    CartDatabase.Schema,
-                    context = context,
-                    "cart.db"
-                )
-            )
-        )
 
     @Provides
     @Singleton
@@ -112,10 +95,60 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideCartRepository(auth: FirebaseAuth, firestore: FirebaseFirestore): CartRepository =
+        CartRepositoryImpl(auth = auth, firestore = firestore)
+
+    @Provides
+    @Singleton
     fun provideFavoritesUseCases(
         repository: FavoritesRepository
     ): FavoritesUseCases = FavoritesUseCases(
         getFavorites = GetFavorites(repository = repository),
-        deleteFavorite = DeleteFavorite(repository = repository)
+        deleteFavorite = DeleteFavorite(repository = repository),
+        insertFavorite = InsertFavorite(repository = repository)
+    )
+
+    @Provides
+    @Singleton
+    fun provideProductsRepository(
+        firestore: FirebaseFirestore
+    ): ProductsRepository = ProductsRepositoryImpl(firestore = firestore)
+
+    @Provides
+    @Singleton
+    fun provideGetProductsUseCases(
+        repository: ProductsRepository
+    ): GetProducts = GetProducts(repository = repository)
+
+    @Provides
+    @Singleton
+    fun provideGetSuggestionsUseCases(
+        repository: ProductsRepository
+    ): GetSuggestions = GetSuggestions(repository = repository)
+
+    @Singleton
+    @Provides
+    fun provideCartUseCases(
+        repository: CartRepository
+    ): CartUseCases = CartUseCases(
+        getCartItems = GetCartItems(repository = repository),
+        insertCartItem = InsertCartItem(repository = repository),
+        deleteCartItem = DeleteCartItem(repository = repository),
+        updateQuantity = UpdateQuantity(repository = repository),
+        clearCart = ClearCart(repository = repository)
+    )
+
+    @Provides
+    @Singleton
+    fun provideFirestoreUseCases(
+        getProducts: GetProducts,
+        favoritesUseCases: FavoritesUseCases,
+        getSuggestions: GetSuggestions,
+        cartUseCases: CartUseCases
+    ): FirestoreUseCases = FirestoreUseCases(
+        getProducts = getProducts,
+        favorites = favoritesUseCases,
+        getSuggestions = getSuggestions,
+        cart = cartUseCases
     )
 }

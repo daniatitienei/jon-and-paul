@@ -31,8 +31,8 @@ fun ProductCard(
     product: Product,
     onClick: () -> Unit,
     imageSize: Dp,
-    isFavorite: Boolean = false,
-    onFavoriteClick: () -> Unit = {},
+    isFavorite: Boolean,
+    onFavoriteClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier.clickable {

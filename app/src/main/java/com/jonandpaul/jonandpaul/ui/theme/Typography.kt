@@ -8,13 +8,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.jonandpaul.jonandpaul.R
 
-val Lato = FontFamily(
-    Font(R.font.lato_regular),
-    Font(R.font.lato_light, weight = FontWeight.Light),
-    Font(R.font.lato_bold, weight = FontWeight.Bold),
-    Font(R.font.lato_black, weight = FontWeight.ExtraBold)
-)
-
 val JonAndPaulTypography = Typography(
     titleLarge = TextStyle(
         fontWeight = FontWeight.W600,

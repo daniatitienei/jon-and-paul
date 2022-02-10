@@ -59,4 +59,7 @@
     <string name="order">Comanda</string>
     <string name="pending">În aşteptare</string>
     <string name="no_latest_orders">Nu aveți comenzi recente</string>
+    <string name="placed">Plasată</string>
+    <string name="deliverying">Se livrează</string>
+    <string name="completed">Completă</string>
 </resources>

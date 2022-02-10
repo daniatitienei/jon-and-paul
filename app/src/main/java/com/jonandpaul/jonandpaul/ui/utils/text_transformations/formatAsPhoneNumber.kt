@@ -1,5 +1,5 @@
-package com.jonandpaul.jonandpaul.ui.utils
+package com.jonandpaul.jonandpaul.ui.utils.text_transformations
 
 fun String.formatAsPhoneNumber(): String {
-    return this.substring(1, 2) + " " + substring(3, 5) + " " + substring(6, 8)
+    return this.substring(0, 3) + " " + substring(3, 6) + " " + substring(6, 9)
 }

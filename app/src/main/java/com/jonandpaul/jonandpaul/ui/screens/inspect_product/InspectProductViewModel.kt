@@ -1,22 +1,20 @@
 package com.jonandpaul.jonandpaul.ui.screens.inspect_product
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObjects
 import com.jonandpaul.jonandpaul.domain.model.Product
-import com.jonandpaul.jonandpaul.domain.repository.CartDataSource
+import com.jonandpaul.jonandpaul.domain.model.toCartItem
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.FirestoreUseCases
+import com.jonandpaul.jonandpaul.ui.utils.Resource
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -24,11 +22,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InspectProductViewModel @Inject constructor(
-    private val firestore: FirebaseFirestore,
-    private val moshi: Moshi,
-    private val repository: CartDataSource,
-    private val auth: FirebaseAuth,
+    moshi: Moshi,
+    private val useCases: FirestoreUseCases,
+    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+
+    private val jsonProductAdapter = moshi.adapter(Product::class.java).lenient()
 
     private var _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
@@ -36,7 +35,17 @@ class InspectProductViewModel @Inject constructor(
     private var _state = mutableStateOf(InspectProductState())
     val state: State<InspectProductState> = _state
 
-    init {
+    fun init() {
+        val productJson = savedStateHandle.get<String>("product")
+        val productObject = jsonProductAdapter.fromJson(productJson!!)
+
+        Log.d("product", productObject?.id.toString())
+
+        _state.value = _state.value.copy(
+            product = productObject!!,
+            isLoading = true
+        )
+
         getSuggestions()
     }
 
@@ -46,7 +55,6 @@ class InspectProductViewModel @Inject constructor(
                 emitEvent(event = UiEvent.PopBackStack)
             }
             is InspectProductEvents.OnProductClick -> {
-                val jsonAdapter = moshi.adapter(Product::class.java)
 
                 event.product = event.product.copy(
                     imageUrl = URLEncoder.encode(
@@ -54,7 +62,8 @@ class InspectProductViewModel @Inject constructor(
                         StandardCharsets.UTF_8.toString()
                     )
                 )
-                val productJson = jsonAdapter.toJson(event.product)
+
+                val productJson = jsonProductAdapter.toJson(event.product)
 
                 emitEvent(
                     event = UiEvent.Navigate(
@@ -66,26 +75,14 @@ class InspectProductViewModel @Inject constructor(
                 )
             }
             is InspectProductEvents.OnAddToCartClick -> {
-                viewModelScope.launch {
-                    repository.addToCart(
-                        id = event.product.id,
-                        title = event.product.title,
-                        amount = event.product.amount.toLong(),
-                        modelSizeInfo = event.product.modelSizeInfo,
-                        composition = event.product.composition,
-                        imageUrl = event.product.imageUrl,
-                        price = event.product.price,
-                        size = event.product.size,
-                        quantity = 1
-                    )
-                }
+                useCases.cart.insertCartItem(event.product.toCartItem())
                 emitEvent(UiEvent.Toast)
             }
             is InspectProductEvents.OnFavoriteClick -> {
                 if (event.product.isFavorite)
-                    removeFavorite(product = event.product.copy(isFavorite = false))
+                    useCases.favorites.deleteFavorite(product = event.product.copy(isFavorite = true))
                 else
-                    addFavorite(product = event.product.copy(isFavorite = false))
+                    useCases.favorites.insertFavorite(product = event.product.copy(isFavorite = true))
             }
         }
     }
@@ -96,26 +93,74 @@ class InspectProductViewModel @Inject constructor(
         }
     }
 
-    private fun addFavorite(product: Product) {
-        firestore.collection("users").document(auth.currentUser!!.uid)
-            .update("favorites", FieldValue.arrayUnion(product))
-    }
-
-    private fun removeFavorite(product: Product) {
-        firestore.collection("users").document(auth.currentUser!!.uid)
-            .update("favorites", FieldValue.arrayRemove(product))
-    }
-
     private fun getSuggestions() {
-        firestore.collection("products")
-            .get()
-            .addOnSuccessListener { result ->
-                val suggestions: List<Product> = result.toObjects()
-                _state.value =
-                    _state.value.copy(
-                        suggestions = suggestions.shuffled(),
+        useCases.getSuggestions(product = _state.value.product).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value = _state.value.copy(
+                        suggestions = result.data!!,
+                    )
+
+                    getFavorites()
+                }
+                is Resource.Loading -> {
+                    _state.value = _state.value.copy(
                         isLoading = false
                     )
+                }
+                is Resource.Error -> {
+                    _state.value = _state.value.copy(
+                        error = result.error
+                    )
+                }
             }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun getFavorites() {
+        useCases.favorites.getFavorites().onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value = _state.value.copy(
+                        favorites = result.data!!
+                    )
+
+                    if (_state.value.favorites.contains(_state.value.product))
+                        _state.value = _state.value.copy(
+                            product = _state.value.product.copy(isFavorite = true)
+                        )
+
+                    if (_state.value.favorites.isNotEmpty()) {
+                        _state.value.suggestions.forEach { product ->
+                            val isFavorite = _state.value.favorites.contains(product)
+
+                            if (isFavorite)
+                                _state.value = _state.value.copy(
+                                    suggestions = _state.value.suggestions.map {
+                                        if (it == product) it.copy(isFavorite = true)
+                                        else it
+                                    }
+                                )
+                        }
+                    } else _state.value = _state.value.copy(
+                        suggestions = _state.value.suggestions.map {
+                            it.copy(isFavorite = false)
+                        },
+                    )
+
+                    _state.value = _state.value.copy(
+                        isLoading = false
+                    )
+                }
+                is Resource.Loading -> {
+                    _state.value = _state.value.copy(isLoading = true)
+                }
+                is Resource.Error -> {
+                    _state.value = _state.value.copy(error = result.error)
+
+                    Log.d("result_error", result.error.toString())
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 }

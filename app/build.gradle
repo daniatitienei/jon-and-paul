@@ -65,10 +65,6 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
 
-    /* SQLDelight */
-    implementation "com.squareup.sqldelight:android-driver:1.5.3"
-    implementation "com.squareup.sqldelight:coroutines-extensions-jvm:1.5.3"
-
     /* Coil */
     implementation("io.coil-kt:coil-compose:1.4.0")
 
@@ -77,7 +73,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-firestore-ktx'
     implementation 'com.google.firebase:firebase-auth-ktx'
-    implementation 'com.google.android.gms:play-services-auth:20.0.1'
+    implementation 'com.google.android.gms:play-services-auth:20.1.0'
 
     /* Moshi */
     implementation("com.squareup.moshi:moshi-kotlin:1.13.0")
@@ -122,11 +118,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
-}
 
-sqldelight {
-    CartDatabase {
-        packageName = "com.jonandpaul.jonandpaul"
-        sourceFolders = ["cart_db"]
-    }
+    /* Testing */
+    testImplementation("com.google.truth:truth:1.1.3")
 }

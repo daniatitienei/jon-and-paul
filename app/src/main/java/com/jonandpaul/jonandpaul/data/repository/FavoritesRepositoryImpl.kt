@@ -19,28 +19,37 @@ class FavoritesRepositoryImpl(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth
 ) : FavoritesRepository {
+
     override fun getFavorites(): Flow<Resource<List<Product>>> = callbackFlow {
+        if (auth.currentUser != null) {
+            val snapshotListener = firestore.collection("users").document(auth.currentUser!!.uid)
+                .addSnapshotListener { snapshot, e ->
+                    val response = if (snapshot != null && snapshot.exists()) {
+                        val favorites = snapshot.toObject<FavoritesState>()!!.favorites
+                        Resource.Success<List<Product>>(data = favorites)
+                    } else {
+                        Resource.Error<List<Product>>(message = e?.localizedMessage.toString())
+                    }
 
-        val snapshotListener = firestore.collection("users").document(auth.currentUser!!.uid)
-            .addSnapshotListener { snapshot, e ->
-                val response = if (snapshot != null && snapshot.exists()) {
-                    val favorites = snapshot.toObject<FavoritesState>()!!.favorites
-                    Resource.Success<List<Product>>(data = favorites)
-                } else {
-                    Resource.Error<List<Product>>(message = e?.localizedMessage.toString())
+                    trySend(response).isSuccess
                 }
-
-                trySend(response).isSuccess
+            awaitClose {
+                snapshotListener.remove()
             }
-        awaitClose {
-            snapshotListener.remove()
         }
+
 
     }
 
     override fun removeFavorite(product: Product) {
         if (auth.currentUser != null)
             firestore.collection("users").document(auth.currentUser!!.uid)
-                .update("favorites", FieldValue.arrayRemove(product.copy(isFavorite = false)))
+                .update("favorites", FieldValue.arrayRemove(product))
+    }
+
+    override fun insertFavorite(product: Product) {
+        if (auth.currentUser != null)
+            firestore.collection("users").document(auth.currentUser!!.uid)
+                .update("favorites", FieldValue.arrayUnion(product))
     }
 }

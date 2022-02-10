@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.theme.Black900
@@ -57,7 +58,11 @@ fun HomeScreen(
 
     val scope = rememberCoroutineScope()
 
-    val cartItems = viewModel.cartItems.collectAsState(initial = emptyList()).value
+    LaunchedEffect(key1 = true) {
+        viewModel.init()
+    }
+
+    val cartItems = viewModel.state.value.cartItems
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -68,8 +73,9 @@ fun HomeScreen(
                 is UiEvent.BackdropScaffold -> {
                     if (backdropScaffoldState.isConcealed)
                         backdropScaffoldState.reveal()
-                    else
+                    else {
                         backdropScaffoldState.conceal()
+                    }
                 }
                 else -> Unit
             }
@@ -90,7 +96,6 @@ fun HomeScreen(
             product.title.lowercase()
                 .contains(searchValue.lowercase())
         }
-
 
     BackdropScaffold(
         scaffoldState = backdropScaffoldState,
@@ -251,7 +256,7 @@ private fun HomeTopBar(
                         Icons.Rounded.Search
                     else
                         Icons.Rounded.Close,
-                    contentDescription = "Cautare",
+                    contentDescription = null,
                     tint = Black900
                 )
             }
@@ -294,7 +299,7 @@ private fun HomeTopBar(
             ) {
                 Icon(
                     Icons.Rounded.FavoriteBorder,
-                    contentDescription = stringResource(id = R.string.my_cart),
+                    contentDescription = stringResource(id = R.string.favorites),
                     tint = Black900
                 )
             }

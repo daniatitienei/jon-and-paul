@@ -9,7 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.firestore.ktx.toObjects
+import com.jonandpaul.jonandpaul.domain.model.OrderDao
 import com.jonandpaul.jonandpaul.domain.model.Product
+import com.jonandpaul.jonandpaul.domain.model.toOrder
 import com.jonandpaul.jonandpaul.domain.model.toProduct
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
@@ -86,13 +89,16 @@ class InspectOrderViewModel @Inject constructor(
             .whereEqualTo("id", orderId)
             .get()
             .addOnSuccessListener { documents ->
-                for (document in documents)
+                for (document in documents) {
+                    val orderDao: OrderDao = document.toObject()
+
+                    val order = orderDao.toOrder()
+
                     _state.value = _state.value.copy(
-                        order = document.toObject(),
+                        order = order,
                         isLoading = false
                     )
-
-                Log.d("order", _state.value.order.items.toString())
+                }
             }
     }
 }

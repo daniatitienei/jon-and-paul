@@ -46,20 +46,18 @@ import kotlinx.coroutines.flow.collect
 fun InspectProductScreen(
     onNavigate: (UiEvent.Navigate) -> Unit,
     onPopBackStack: (UiEvent.PopBackStack) -> Unit,
-    product: Product,
     viewModel: InspectProductViewModel = hiltViewModel()
 ) {
     val columnScroll = rememberScrollState()
 
     val suggestions = viewModel.state.value.suggestions
-
-    var isFavorite by remember {
-        mutableStateOf(
-            product.isFavorite
-        )
-    }
+    val product = viewModel.state.value.product
 
     val context = LocalContext.current
+
+    LaunchedEffect(key1 = true) {
+        viewModel.init()
+    }
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -82,95 +80,128 @@ fun InspectProductScreen(
         }
     }
 
-    Scaffold(
-        bottomBar = {
-            BottomBar(
-                onAddToCartClick = {
-                    viewModel.onEvent(InspectProductEvents.OnAddToCartClick(product = product))
-                }
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { innerPadding ->
-        Column(
+    if (viewModel.state.value.isLoading)
+        Box(
             modifier = Modifier
-                .padding(innerPadding)
-                .verticalScroll(columnScroll)
+                .fillMaxSize()
+                .wrapContentSize(align = Alignment.Center)
         ) {
-            HeaderImageWithTopAppBar(
-                product = product,
-                onEvent = viewModel::onEvent,
-                isFavorite = isFavorite,
-                onFavoriteClick = {
-                    viewModel.onEvent(
-                        InspectProductEvents.OnFavoriteClick(
-                            product = product
-                        )
-                    )
-                    isFavorite = !isFavorite
-                },
-            )
-
-            Spacer(modifier = Modifier.height(15.dp))
-
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        }
+    else {
+        Scaffold(
+            bottomBar = {
+                BottomBar(
+                    onAddToCartClick = {
+                        viewModel.onEvent(InspectProductEvents.OnAddToCartClick(product = product))
+                    }
+                )
+            },
+            containerColor = MaterialTheme.colorScheme.background
+        ) { innerPadding ->
             Column(
-                modifier = Modifier.padding(horizontal = 15.dp)
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .verticalScroll(columnScroll)
             ) {
-                Text(
-                    text = product.title,
+                var isFavorite by remember {
+                    mutableStateOf(product.isFavorite)
+                }
+
+                HeaderImageWithTopAppBar(
+                    product = product,
+                    onEvent = viewModel::onEvent,
+                    isFavorite = isFavorite,
+                    onFavoriteClick = {
+                        viewModel.onEvent(
+                            InspectProductEvents.OnFavoriteClick(
+                                product = product,
+                            )
+                        )
+                        isFavorite = !isFavorite
+                    },
                 )
 
-                Spacer(modifier = Modifier.height(5.dp))
+                Spacer(modifier = Modifier.height(15.dp))
 
-                Text(
-                    text = "${product.price.twoDecimalsString()} RON",
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                ProductInfoCard(
-                    amount = product.amount,
-                    size = product.modelSizeInfo,
-                    composition = product.composition
-                )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = stringResource(id = R.string.other_users_have_bought),
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 15.dp)
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            if (suggestions.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentWidth(align = Alignment.CenterHorizontally)
+                Column(
+                    modifier = Modifier.padding(horizontal = 15.dp)
                 ) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary
+                    Text(
+                        text = product.title,
+                    )
+
+                    Spacer(modifier = Modifier.height(5.dp))
+
+                    Text(
+                        text = "${product.price.twoDecimalsString()} RON",
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    ProductInfoCard(
+                        amount = product.amount,
+                        size = product.modelSizeInfo,
+                        composition = product.composition
                     )
                 }
-            } else {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(20.dp),
-                    contentPadding = PaddingValues(horizontal = 15.dp)
-                ) {
-                    items(suggestions.size / 2) { index ->
-                        ProductCard(
-                            product = suggestions[index],
-                            onClick = {
-                                viewModel.onEvent(
-                                    InspectProductEvents.OnProductClick(product = suggestions[index])
-                                )
-                            },
-                            imageSize = 220.dp
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text(
+                    text = stringResource(id = R.string.other_users_have_bought),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = 15.dp)
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                if (suggestions.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentWidth(align = Alignment.CenterHorizontally)
+                    ) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary
                         )
+                    }
+                } else {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                        contentPadding = PaddingValues(horizontal = 15.dp)
+                    ) {
+                        items(suggestions.size) { index ->
+
+                            var isFavorite by remember {
+                                mutableStateOf(suggestions[index].isFavorite)
+                            }
+
+                            val suggestion = suggestions[index].copy(
+                                isFavorite = isFavorite
+                            )
+
+                            ProductCard(
+                                product = suggestion,
+                                onClick = {
+                                    viewModel.onEvent(
+                                        InspectProductEvents.OnProductClick(product = suggestion)
+                                    )
+                                },
+                                onFavoriteClick = {
+                                    viewModel.onEvent(
+                                        InspectProductEvents.OnFavoriteClick(
+                                            product = suggestion,
+                                        )
+                                    )
+
+                                    isFavorite = !isFavorite
+                                },
+                                isFavorite = isFavorite,
+                                imageSize = 220.dp
+                            )
+                        }
                     }
                 }
             }
