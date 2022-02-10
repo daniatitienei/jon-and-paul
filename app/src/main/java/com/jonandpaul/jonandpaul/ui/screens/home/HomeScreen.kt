@@ -37,6 +37,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.theme.Black900
@@ -135,17 +138,29 @@ fun HomeScreen(
         frontLayerContent = {
             Box(modifier = Modifier.fillMaxSize()) {
                 if (viewModel.state.value.isLoading) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .wrapContentSize(align = Alignment.Center)
+                    LazyVerticalGrid(
+                        cells = GridCells.Fixed(2),
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(15.dp),
+                        contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
                     ) {
-                        CircularProgressIndicator(color = Black900)
+                        items(10) {
+                            ProductCard(
+                                product = Product(),
+                                onClick = { /*TODO*/ },
+                                imageSize = 240.dp,
+                                isFavorite = false,
+                                onFavoriteClick = { /*TODO*/ },
+                                modifier = Modifier.placeholder(
+                                    visible = true,
+                                    highlight = PlaceholderHighlight.shimmer()
+                                )
+                            )
+                        }
                     }
                 } else {
                     val items: List<Product> =
                         filteredProducts.ifEmpty { products }
-
 
                     LazyVerticalGrid(
                         cells = GridCells.Fixed(2),

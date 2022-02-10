@@ -22,6 +22,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
+import com.google.accompanist.placeholder.placeholder
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.theme.Red900
 import com.jonandpaul.jonandpaul.ui.utils.twoDecimalsString
@@ -33,11 +37,13 @@ fun ProductCard(
     imageSize: Dp,
     isFavorite: Boolean,
     onFavoriteClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier.clickable {
-            onClick()
-        }
+        modifier = Modifier
+            .clickable {
+                onClick()
+            }
     ) {
         Box(
             modifier = Modifier
@@ -54,7 +60,9 @@ fun ProductCard(
                 ),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.size(imageSize)
+                modifier = Modifier
+                    .size(imageSize)
+                    .then(modifier)
             )
             Box(
                 modifier = Modifier
@@ -67,6 +75,7 @@ fun ProductCard(
                     modifier = Modifier
                         .clip(CircleShape)
                         .background(Color.White)
+                        .then(modifier)
                 ) {
                     Icon(
                         if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
@@ -82,11 +91,15 @@ fun ProductCard(
         Column(
             modifier = Modifier.padding(start = 5.dp)
         ) {
-            Text(text = product.title)
+            Text(text = product.title, modifier = modifier)
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            Text(text = "${product.price.twoDecimalsString()} RON", fontWeight = FontWeight.Bold)
+            Text(
+                text = "${product.price.twoDecimalsString()} RON",
+                fontWeight = FontWeight.Bold,
+                modifier = modifier
+            )
         }
     }
 }
