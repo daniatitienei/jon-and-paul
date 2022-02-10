@@ -72,29 +72,23 @@ class CartViewModel @Inject constructor(
                 emitEvent(UiEvent.PopBackStack)
             }
             is CartEvents.OnOrderClick -> {
+                val orderId = Random.nextInt(0, 1000000)
+                val orderStatus = OrderStatus.PLACED.ordinal
+
+                val order = hashMapOf(
+                    "items" to event.items,
+                    "shippingDetails" to event.shippingDetails,
+                    "date" to Timestamp.now(),
+                    "id" to orderId,
+                    "total" to _total.value,
+                    "status" to orderStatus
+                )
+
                 firestore.collection("orders")
-                    .add(
-                        hashMapOf(
-                            "items" to event.items,
-                            "shippingDetails" to event.shippingDetails,
-                            "date" to Timestamp.now(),
-                            "id" to Random.nextInt(0, 1000000),
-                            "total" to _total.value,
-                            "status" to OrderStatus.PLACED.ordinal
-                        )
-                    )
+                    .add(order)
                     .addOnSuccessListener {
                         firestore.collection("users/${auth.currentUser!!.uid}/orders")
-                            .add(
-                                hashMapOf(
-                                    "items" to event.items,
-                                    "shippingDetails" to event.shippingDetails,
-                                    "date" to Timestamp.now(),
-                                    "id" to Random.nextInt(0, 1000000),
-                                    "total" to _total.value,
-                                    "status" to OrderStatus.PLACED.ordinal
-                                )
-                            )
+                            .add(order)
 
                         viewModelScope.launch {
                             cartRepository.clearCart()
