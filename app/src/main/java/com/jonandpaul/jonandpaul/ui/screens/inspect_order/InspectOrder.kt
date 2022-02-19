@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -55,6 +56,8 @@ fun InspectOrderScreen(
         }
     }
 
+    val uriHandler = LocalUriHandler.current
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -91,6 +94,7 @@ fun InspectOrderScreen(
                     )
                 }
 
+                /* Articles */
                 items(order.items) {
                     OrderCard(
                         item = it,
@@ -111,6 +115,7 @@ fun InspectOrderScreen(
                     Text(text = stringResource(id = R.string.cash_on_delivery))
                 }
 
+                /* Billing info */
                 item {
                     Text(
                         text = stringResource(id = R.string.billing_info),
@@ -126,6 +131,27 @@ fun InspectOrderScreen(
                     Log.d("phone", order.shippingDetails.phone.length.toString())
                 }
 
+                /* Tracking order URL */
+                if (order.trackingUrl.isNotEmpty())
+                    item {
+                        Text(
+                            text = stringResource(id = R.string.tracking_url),
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Spacer(modifier = Modifier.height(5.dp))
+
+                        TextButton(
+                            onClick = {
+                                uriHandler.openUri(uri = order.trackingUrl)
+                            }
+                        ) {
+                            Text(text = stringResource(id = R.string.click_here_to_track_the_order))
+                        }
+
+                    }
+
+                /* Order info */
                 item {
                     Text(
                         text = stringResource(id = R.string.info_about_order),

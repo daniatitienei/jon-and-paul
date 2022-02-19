@@ -10,4 +10,5 @@ data class Order(
     val date: Timestamp = Timestamp.now(),
     val id: Int = 0,
     val total: Double = 0.0,
+    val trackingUrl: String = ""
 )

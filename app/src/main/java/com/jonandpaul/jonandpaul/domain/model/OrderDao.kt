@@ -10,6 +10,7 @@ data class OrderDao(
     val date: Timestamp = Timestamp.now(),
     val id: Int = 0,
     val total: Double = 0.0,
+    val trackingUrl: String = ""
 )
 
 fun OrderDao.toOrder() =
@@ -23,5 +24,6 @@ fun OrderDao.toOrder() =
             else -> OrderStatus.COMPLETED
         },
         date = date,
-        total = total
+        total = total,
+        trackingUrl = trackingUrl
     )
