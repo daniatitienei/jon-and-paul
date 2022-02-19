@@ -29,9 +29,7 @@ import com.squareup.moshi.Moshi
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @Composable
-fun Navigation(
-    moshi: Moshi,
-) {
+fun Navigation() {
     val navController = rememberAnimatedNavController()
 
     AnimatedNavHost(
