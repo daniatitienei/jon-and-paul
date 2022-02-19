@@ -67,4 +67,6 @@
     <string name="give_us_feedback">Cum vă putem îmbunătăți experiența?</string>
     <string name="feedback">Feedback</string>
     <string name="feedback_sent">Vă mulțumim!</string>
+    <string name="tracking_url">Urmărește comanda</string>
+    <string name="click_here_to_track_the_order">Apasă aici pentru a urmări comanda</string>
 </resources>
