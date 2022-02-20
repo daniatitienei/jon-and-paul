@@ -33,6 +33,7 @@ fun ProductCard(
     imageSize: Dp,
     isFavorite: Boolean,
     onFavoriteClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = Modifier.clickable {
@@ -54,13 +55,16 @@ fun ProductCard(
                 ),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.size(imageSize)
+                modifier = Modifier
+                    .size(imageSize)
+                    .then(modifier)
             )
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentWidth(align = Alignment.End)
                     .padding(end = 10.dp, top = 10.dp)
+                    .then(modifier)
             ) {
                 IconButton(
                     onClick = onFavoriteClick,
@@ -82,11 +86,15 @@ fun ProductCard(
         Column(
             modifier = Modifier.padding(start = 5.dp)
         ) {
-            Text(text = product.title)
+            Text(text = product.title, modifier = Modifier.then(modifier))
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            Text(text = "${product.price.twoDecimalsString()} RON", fontWeight = FontWeight.Bold)
+            Text(
+                text = "${product.price.twoDecimalsString()} RON",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.then(modifier)
+            )
         }
     }
 }

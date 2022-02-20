@@ -37,6 +37,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
 import com.jonandpaul.jonandpaul.R
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.ui.theme.Black900
@@ -97,6 +100,8 @@ fun HomeScreen(
                 .contains(searchValue.lowercase())
         }
 
+    val state = viewModel.state.value
+
     BackdropScaffold(
         scaffoldState = backdropScaffoldState,
         backLayerBackgroundColor = MaterialTheme.colorScheme.background,
@@ -133,50 +138,53 @@ fun HomeScreen(
             )
         },
         frontLayerContent = {
-            Box(modifier = Modifier.fillMaxSize()) {
-                if (viewModel.state.value.isLoading) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .wrapContentSize(align = Alignment.Center)
-                    ) {
-                        CircularProgressIndicator(color = Black900)
-                    }
-                } else {
+            LazyVerticalGrid(
+                cells = GridCells.Fixed(2),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalArrangement = Arrangement.spacedBy(15.dp),
+                contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
+            ) {
+                if (!state.isLoading) {
                     val items: List<Product> =
                         filteredProducts.ifEmpty { products }
 
-
-                    LazyVerticalGrid(
-                        cells = GridCells.Fixed(2),
-                        verticalArrangement = Arrangement.spacedBy(20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(15.dp),
-                        contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
-                    ) {
-                        items(items) { product ->
-
-                            var isFavorite by remember {
-                                mutableStateOf(product.isFavorite)
-                            }
-
-                            ProductCard(
-                                product = product,
-                                onClick = {
-                                    viewModel.onEvent(HomeEvents.OnProductClick(product = product))
-                                },
-                                imageSize = 240.dp,
-                                isFavorite = isFavorite,
-                                onFavoriteClick = {
-                                    viewModel.onEvent(
-                                        HomeEvents.OnFavoriteClick(
-                                            product = product,
-                                            isFavorite = isFavorite
-                                        )
-                                    )
-                                    isFavorite = !isFavorite
-                                }
-                            )
+                    items(items) { product ->
+                        var isFavorite by remember {
+                            mutableStateOf(product.isFavorite)
                         }
+
+                        ProductCard(
+                            product = product,
+                            onClick = {
+                                viewModel.onEvent(HomeEvents.OnProductClick(product = product))
+                            },
+                            imageSize = 240.dp,
+                            isFavorite = isFavorite,
+                            onFavoriteClick = {
+                                viewModel.onEvent(
+                                    HomeEvents.OnFavoriteClick(
+                                        product = product,
+                                        isFavorite = isFavorite
+                                    )
+                                )
+                                isFavorite = !isFavorite
+                            }
+                        )
+                    }
+                } else {
+                    items(10) {
+                        ProductCard(
+                            product = Product(),
+                            onClick = {},
+                            imageSize = 240.dp,
+                            isFavorite = false,
+                            onFavoriteClick = {},
+                            modifier = Modifier
+                                .placeholder(
+                                    visible = true,
+                                    highlight = PlaceholderHighlight.shimmer()
+                                )
+                        )
                     }
                 }
             }

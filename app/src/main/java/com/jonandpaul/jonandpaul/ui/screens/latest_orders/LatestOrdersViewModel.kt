@@ -67,7 +67,6 @@ class LatestOrdersViewModel @Inject constructor(
         firestore.collection("users/${auth.currentUser!!.uid}/orders")
             .get()
             .addOnSuccessListener { documents ->
-
                 val orderDao: List<OrderDao> = documents.toObjects()
 
                 val orders = orderDao.map { it.toOrder() }

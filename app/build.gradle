@@ -91,6 +91,7 @@ dependencies {
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion"
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanistVersion"
     implementation "com.google.accompanist:accompanist-flowlayout:$accompanistVersion"
+    implementation "com.google.accompanist:accompanist-placeholder-material:$accompanistVersion"
 
     /* Splash screen */
     implementation("androidx.core:core-splashscreen:1.0.0-beta01")
