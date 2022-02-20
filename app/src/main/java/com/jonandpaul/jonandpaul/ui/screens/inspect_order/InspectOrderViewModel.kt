@@ -14,12 +14,16 @@ import com.jonandpaul.jonandpaul.domain.model.OrderDao
 import com.jonandpaul.jonandpaul.domain.model.Product
 import com.jonandpaul.jonandpaul.domain.model.toOrder
 import com.jonandpaul.jonandpaul.domain.model.toProduct
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.FirestoreUseCases
+import com.jonandpaul.jonandpaul.ui.utils.Resource
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -30,7 +34,8 @@ class InspectOrderViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth,
-    private val moshi: Moshi
+    private val moshi: Moshi,
+    private val useCases: FirestoreUseCases
 ) : ViewModel() {
 
     private val _state = mutableStateOf(InspectOrderState())
@@ -79,26 +84,23 @@ class InspectOrderViewModel @Inject constructor(
     }
 
     private fun getOrderInfo() {
-        _state.value = _state.value.copy(isLoading = true)
-
         val orderId = savedStateHandle.get<String>("orderId")!!.toInt()
 
-        Log.d("order", orderId.toString())
-
-        firestore.collection("users/${auth.currentUser!!.uid}/orders")
-            .whereEqualTo("id", orderId)
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    val orderDao: OrderDao = document.toObject()
-
-                    val order = orderDao.toOrder()
-
-                    _state.value = _state.value.copy(
-                        order = order,
-                        isLoading = false
-                    )
+        useCases.orders.getOrderById(orderId).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value =
+                        _state.value.copy(order = result.data!!, isLoading = false)
+                }
+                is Resource.Loading -> {
+                    _state.value =
+                        _state.value.copy(isLoading = true)
+                }
+                is Resource.Error -> {
+                    _state.value =
+                        _state.value.copy(error = result.error, isLoading = false)
                 }
             }
+        }.launchIn(viewModelScope)
     }
 }

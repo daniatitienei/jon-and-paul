@@ -15,6 +15,9 @@ import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.DeleteFavor
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.FavoritesUseCases
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.GetFavorites
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.favorites.InsertFavorite
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.orders.GetOrderById
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.orders.GetOrders
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.orders.OrderUseCases
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.products.GetProducts
 import com.jonandpaul.jonandpaul.domain.use_case.firestore.products.GetSuggestions
 import com.jonandpaul.jonandpaul.ui.utils.Constants
@@ -126,6 +129,13 @@ object AppModule {
         repository: ProductsRepository
     ): GetSuggestions = GetSuggestions(repository = repository)
 
+    @Provides
+    @Singleton
+    fun provideOrdersRepository(
+        firestore: FirebaseFirestore,
+        auth: FirebaseAuth
+    ): OrderRepository = OrderRepositoryImpl(auth = auth, firestore = firestore)
+
     @Singleton
     @Provides
     fun provideCartUseCases(
@@ -140,15 +150,26 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideOrderUseCases(
+        repository: OrderRepository
+    ): OrderUseCases = OrderUseCases(
+        getOrderById = GetOrderById(repository = repository),
+        getOrders = GetOrders(repository = repository)
+    )
+
+    @Provides
+    @Singleton
     fun provideFirestoreUseCases(
         getProducts: GetProducts,
         favoritesUseCases: FavoritesUseCases,
         getSuggestions: GetSuggestions,
-        cartUseCases: CartUseCases
+        cartUseCases: CartUseCases,
+        orderUseCases: OrderUseCases
     ): FirestoreUseCases = FirestoreUseCases(
         getProducts = getProducts,
         favorites = favoritesUseCases,
         getSuggestions = getSuggestions,
-        cart = cartUseCases
+        cart = cartUseCases,
+        orders = orderUseCases
     )
 }

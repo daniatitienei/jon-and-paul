@@ -10,12 +10,16 @@ import com.google.firebase.firestore.ktx.toObjects
 import com.jonandpaul.jonandpaul.domain.model.Order
 import com.jonandpaul.jonandpaul.domain.model.OrderDao
 import com.jonandpaul.jonandpaul.domain.model.toOrder
+import com.jonandpaul.jonandpaul.domain.use_case.firestore.FirestoreUseCases
+import com.jonandpaul.jonandpaul.ui.utils.Resource
 import com.jonandpaul.jonandpaul.ui.utils.Screens
 import com.jonandpaul.jonandpaul.ui.utils.UiEvent
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -25,6 +29,7 @@ import javax.inject.Inject
 class LatestOrdersViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth,
+    private val useCases: FirestoreUseCases
 ) : ViewModel() {
 
     private val _uiEvent = MutableSharedFlow<UiEvent>()
@@ -62,17 +67,21 @@ class LatestOrdersViewModel @Inject constructor(
     }
 
     private fun getLatestOrders() {
-        _state.value = _state.value.copy(isLoading = true)
-
-        firestore.collection("users/${auth.currentUser!!.uid}/orders")
-            .get()
-            .addOnSuccessListener { documents ->
-                val orderDao: List<OrderDao> = documents.toObjects()
-
-                val orders = orderDao.map { it.toOrder() }
-
-                _state.value =
-                    _state.value.copy(latestOrders = orders, isLoading = false)
+        useCases.orders.getOrders().onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value =
+                        _state.value.copy(latestOrders = result.data!!, isLoading = false)
+                }
+                is Resource.Loading -> {
+                    _state.value =
+                        _state.value.copy(isLoading = true)
+                }
+                is Resource.Error -> {
+                    _state.value =
+                        _state.value.copy(error = result.error, isLoading = false)
+                }
             }
+        }.launchIn(viewModelScope)
     }
 }

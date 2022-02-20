@@ -256,7 +256,7 @@ fun Navigation() {
             }
         ) {
             OrderPlacedScreen(
-                onNavigate = { destination ->
+                onTimeout = { destination ->
                     navController.navigate(destination.route) {
                         launchSingleTop = true
 
