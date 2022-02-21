@@ -69,6 +69,7 @@ fun ProductCard(
                     .fillMaxWidth()
                     .wrapContentWidth(align = Alignment.End)
                     .padding(end = 10.dp, top = 10.dp)
+                    .then(modifier)
             ) {
                 IconButton(
                     onClick = onFavoriteClick,
@@ -91,14 +92,22 @@ fun ProductCard(
         Column(
             modifier = Modifier.padding(start = 5.dp)
         ) {
+<<<<<<< HEAD
             Text(text = product.title, modifier = modifier)
+=======
+            Text(text = product.title, modifier = Modifier.then(modifier))
+>>>>>>> master
 
             Spacer(modifier = Modifier.height(5.dp))
 
             Text(
                 text = "${product.price.twoDecimalsString()} RON",
                 fontWeight = FontWeight.Bold,
+<<<<<<< HEAD
                 modifier = modifier
+=======
+                modifier = Modifier.then(modifier)
+>>>>>>> master
             )
         }
     }

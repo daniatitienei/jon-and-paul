@@ -100,6 +100,8 @@ fun HomeScreen(
                 .contains(searchValue.lowercase())
         }
 
+    val state = viewModel.state.value
+
     BackdropScaffold(
         scaffoldState = backdropScaffoldState,
         backLayerBackgroundColor = MaterialTheme.colorScheme.background,
@@ -136,6 +138,7 @@ fun HomeScreen(
             )
         },
         frontLayerContent = {
+<<<<<<< HEAD
             Box(modifier = Modifier.fillMaxSize()) {
                 if (viewModel.state.value.isLoading) {
                     LazyVerticalGrid(
@@ -187,11 +190,55 @@ fun HomeScreen(
                                             product = product,
                                             isFavorite = isFavorite
                                         )
-                                    )
-                                    isFavorite = !isFavorite
-                                }
-                            )
+=======
+            LazyVerticalGrid(
+                cells = GridCells.Fixed(2),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalArrangement = Arrangement.spacedBy(15.dp),
+                contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
+            ) {
+                if (!state.isLoading) {
+                    val items: List<Product> =
+                        filteredProducts.ifEmpty { products }
+
+                    items(items) { product ->
+                        var isFavorite by remember {
+                            mutableStateOf(product.isFavorite)
                         }
+
+                        ProductCard(
+                            product = product,
+                            onClick = {
+                                viewModel.onEvent(HomeEvents.OnProductClick(product = product))
+                            },
+                            imageSize = 240.dp,
+                            isFavorite = isFavorite,
+                            onFavoriteClick = {
+                                viewModel.onEvent(
+                                    HomeEvents.OnFavoriteClick(
+                                        product = product,
+                                        isFavorite = isFavorite
+>>>>>>> master
+                                    )
+                                )
+                                isFavorite = !isFavorite
+                            }
+                        )
+                    }
+                } else {
+                    items(10) {
+                        ProductCard(
+                            product = Product(),
+                            onClick = {},
+                            imageSize = 240.dp,
+                            isFavorite = false,
+                            onFavoriteClick = {},
+                            modifier = Modifier
+                                .placeholder(
+                                    visible = true,
+                                    highlight = PlaceholderHighlight.shimmer()
+                                )
+                        )
                     }
                 }
             }

@@ -21,12 +21,12 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun OrderPlacedScreen(
-    onNavigate: (UiEvent.Navigate) -> Unit
+    onTimeout: (UiEvent.Navigate) -> Unit
 ) {
 
     LaunchedEffect(key1 = true) {
         delay(3000L)
-        onNavigate(UiEvent.Navigate(route = Screens.Home.route))
+        onTimeout(UiEvent.Navigate(route = Screens.Home.route))
     }
 
     val composition by rememberLottieComposition(spec = LottieCompositionSpec.Url(Constants.ORDER_PLACED_LOTTIE_URL))

@@ -25,10 +25,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 @ExperimentalFoundationApi
 class MainActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var moshi: Moshi
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -45,7 +41,7 @@ class MainActivity : ComponentActivity() {
             }
 
             JonAndPaulTheme {
-                Navigation(moshi = moshi)
+                Navigation()
             }
         }
     }
