@@ -4,8 +4,6 @@
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 ![Android Studio](https://img.shields.io/badge/Android%20Studio-3DDC84.svg?style=for-the-badge&logo=android-studio&logoColor=white)
 
-[![](https://img.shields.io/badge/Android%20Arsenal-Multi--Module--Nextflix--Composable-green.svg?style=flat)](https://android-arsenal.com/details/1/8264)
-
 A Clean Architecture App to show use of Jetpack Compose.
 
 ## Tech Stack
