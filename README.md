@@ -17,7 +17,6 @@ A Clean Architecture Socks shop application.
 * Flow
 * Navigation
 * AndroidX
-* Retrofit
 * Coil
 * Solid Principles
 
