@@ -8,12 +8,6 @@
 
 A Clean Architecture App to show use of Jetpack Compose.
 
-## Screenshots
-![jon0097](https://user-images.githubusercontent.com/62098466/176636258-85808366-05e8-4988-bb62-b80f4c1f95eb.gif)
-![jon0193](https://user-images.githubusercontent.com/62098466/176636279-4d63bd75-671c-435b-a440-868ed5216d11.gif)
-![jon0292](https://user-images.githubusercontent.com/62098466/176636294-858852e4-e85e-49d2-98a3-284f7144d08d.gif)
-
-
 ## Tech Stack
 
 * MVVM Architecture
@@ -30,12 +24,13 @@ A Clean Architecture App to show use of Jetpack Compose.
 * Solid Principles
 
 ## Screens
-![jon0097](https://user-images.githubusercontent.com/62098466/176636258-85808366-05e8-4988-bb62-b80f4c1f95eb.gif)
-![jon0193](https://user-images.githubusercontent.com/62098466/176636279-4d63bd75-671c-435b-a440-868ed5216d11.gif)
-![jon0292](https://user-images.githubusercontent.com/62098466/176636294-858852e4-e85e-49d2-98a3-284f7144d08d.gif)
-![jon0501](https://user-images.githubusercontent.com/62098466/176636308-b372545c-e753-487a-8169-f70146acd9c6.gif)
-![jon1043](https://user-images.githubusercontent.com/62098466/176636316-59199a3b-aadd-46fe-8367-ca9ed7636e48.gif)
-![jon1301](https://user-images.githubusercontent.com/62098466/176636324-afd671c4-2281-4394-9f8d-92ab28fa7ee5.gif)
+![jon1301](https://user-images.githubusercontent.com/62098466/176637391-f556159e-00a9-4f9d-a32f-0eddcfe62210.jpg)
+![jon0097](https://user-images.githubusercontent.com/62098466/176637395-1b27ea7e-290b-460a-b4f6-df80559b8074.jpg)
+![jon0193](https://user-images.githubusercontent.com/62098466/176637396-4c96db6e-afe7-42b5-8d56-f770748b0875.jpg)
+![jon0292](https://user-images.githubusercontent.com/62098466/176637398-b033d40c-8dbc-4ac5-87f2-6af8e1635bdb.jpg)
+![jon0501](https://user-images.githubusercontent.com/62098466/176637399-3b702144-3d09-469a-99be-dbfa47398025.jpg)
+![jon1043](https://user-images.githubusercontent.com/62098466/176637400-c309e437-6004-4bc3-b60d-7390abc1faf4.jpg)
+
 
 ## Did you find this repository helpful?
 Don't forget give a star.
